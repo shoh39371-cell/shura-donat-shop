@@ -8,10 +8,14 @@ from telegram.ext import (
     CommandHandler,
     CallbackQueryHandler,
     ContextTypes,
+    MessageHandler,
+    filters,
 )
 
 TOKEN = os.environ["BOT_TOKEN"]
 PORT = int(os.environ.get("PORT", "10000"))
+
+SUPPORT_USERNAME = "Shohjaxono1"
 
 
 class HealthHandler(BaseHTTPRequestHandler):
@@ -40,7 +44,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             InlineKeyboardButton("🔥 SALE", callback_data="sale"),
         ],
         [
-            InlineKeyboardButton("🆘 HELP", callback_data="help"),
+            InlineKeyboardButton("🆘 HELP / SUPPORT", callback_data="help"),
         ],
     ]
 
@@ -57,15 +61,66 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
+    if query.data == "help":
+        keyboard = [
+            [
+                InlineKeyboardButton(
+                    "💬 Operatorga yozish",
+                    url=f"https://t.me/{SUPPORT_USERNAME}"
+                )
+            ]
+        ]
+
+        await query.message.reply_text(
+            "🆘 SUPPORT\n\n"
+            "Savolingiz yoki muammoingiz bo‘lsa, operatorga yozing 👇",
+            reply_markup=InlineKeyboardMarkup(keyboard),
+        )
+        return
+
+    if query.data == "topup":
+        keyboard = [
+            [InlineKeyboardButton("💰 10 000 so‘m", callback_data="topup_10000")],
+            [InlineKeyboardButton("💰 20 000 so‘m", callback_data="topup_20000")],
+            [InlineKeyboardButton("💰 50 000 so‘m", callback_data="topup_50000")],
+            [InlineKeyboardButton("💰 100 000 so‘m", callback_data="topup_100000")],
+            [InlineKeyboardButton("💬 Operatorga yozish", url=f"https://t.me/{SUPPORT_USERNAME}")],
+        ]
+
+        await query.message.reply_text(
+            "💳 TOP UP\n\n"
+            "Balansni to‘ldirish uchun summani tanlang:",
+            reply_markup=InlineKeyboardMarkup(keyboard),
+        )
+        return
+
+    if query.data.startswith("topup_"):
+        amount = query.data.replace("topup_", "")
+
+        await query.message.reply_text(
+            f"💳 TOP UP: {int(amount):,} so‘m\n\n"
+            "To‘lovni amalga oshirish uchun operator bilan bog‘laning.\n\n"
+            "⚠️ To‘lov tasdiqlanmaguncha balans avtomatik oshirilmaydi.",
+            reply_markup=InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton(
+                        "💬 Operatorga yozish",
+                        url=f"https://t.me/{SUPPORT_USERNAME}"
+                    )
+                ]
+            ]),
+        )
+        return
+
     messages = {
         "diamond": "💎 DIAMOND\n\nDiamond buyurtma qilish uchun operator bilan bog‘laning.",
-        "topup": "💳 TOP UP\n\nTop Up xizmati uchun operator bilan bog‘laning.",
         "boost": "🚀 BOOST\n\nBoost xizmati uchun operator bilan bog‘laning.",
         "sale": "🔥 SALE\n\nAksiyalar tez orada shu yerda chiqadi.",
-        "help": "🆘 HELP\n\nYordam uchun operator bilan bog‘laning.",
     }
 
-    await query.message.reply_text(messages.get(query.data, "Noma'lum buyruq."))
+    await query.message.reply_text(
+        messages.get(query.data, "Noma'lum buyruq.")
+    )
 
 
 def main():
