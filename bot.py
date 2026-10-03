@@ -72,8 +72,7 @@ WEB_APP_URL = (
 # =========================================================
 
 class HealthHandler(BaseHTTPRequestHandler):
-
-        def do_GET(self):
+    def do_GET(self):
 
         if self.path == "/" or self.path == "/index.html":
 
@@ -145,11 +144,14 @@ class HealthHandler(BaseHTTPRequestHandler):
             )
 
             if not user:
+
                 self.send_response(401)
+
                 self.send_header(
                     "Content-Type",
                     "application/json"
                 )
+
                 self.end_headers()
 
                 self.wfile.write(
@@ -193,7 +195,17 @@ class HealthHandler(BaseHTTPRequestHandler):
             )
 
             self.send_response(500)
+
+            self.send_header(
+                "Content-Type",
+                "application/json"
+            )
+
             self.end_headers()
+
+            self.wfile.write(
+                b'{"error":"Internal server error"}'
+            )
 
     def log_message(
         self,
