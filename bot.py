@@ -1033,3 +1033,49 @@ async def text_handler(
 
     # =====================
     # DIAMOND SERVER ID
+# =========================
+# MAIN
+# =========================
+
+def main():
+
+    threading.Thread(
+        target=start_web_server,
+        daemon=True
+    ).start()
+
+    application = (
+        ApplicationBuilder()
+        .token(TOKEN)
+        .build()
+    )
+
+    application.add_handler(
+        CommandHandler("start", start)
+    )
+
+    application.add_handler(
+        CallbackQueryHandler(button_handler)
+    )
+
+    application.add_handler(
+        MessageHandler(
+            filters.TEXT & ~filters.COMMAND,
+            text_handler
+        )
+    )
+
+    application.add_handler(
+        MessageHandler(
+            filters.PHOTO,
+            photo_handler
+        )
+    )
+
+    print("🤖 PHOENIX DONAT SHOP BOT ISHLADI!")
+
+    application.run_polling()
+
+
+if __name__ == "__main__":
+    main()
