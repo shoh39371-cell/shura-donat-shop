@@ -21,9 +21,9 @@ from telegram.ext import (
 )
 
 
-# =========================
+# =========================================================
 # ENVIRONMENT
-# =========================
+# =========================================================
 
 TOKEN = os.environ["BOT_TOKEN"]
 
@@ -40,9 +40,9 @@ PLAYPAY_API_KEY = os.environ.get(
 )
 
 
-# =========================
+# =========================================================
 # SETTINGS
-# =========================
+# =========================================================
 
 PLAYPAY_API = "https://playpay.uz/api/v1"
 
@@ -50,12 +50,14 @@ SUPPORT_USERNAME = "Shohjaxono1"
 
 MLBB_GAME_ID = 3
 
-WEB_APP_URL = "https://shura-donat-shop-bot.onrender.com"
+WEB_APP_URL = (
+    "https://shura-donat-shop-bot.onrender.com"
+)
 
 
-# =========================
-# WEB APP / RENDER SERVER
-# =========================
+# =========================================================
+# WEB SERVER
+# =========================================================
 
 class HealthHandler(BaseHTTPRequestHandler):
 
@@ -65,82 +67,88 @@ class HealthHandler(BaseHTTPRequestHandler):
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-    <title>PHOENIX DONAT SHOP</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #090909;
-            color: white;
-            text-align: center;
-        }
+<meta charset="UTF-8">
 
-        .container {
-            padding: 50px 20px;
-        }
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-        .phoenix {
-            font-size: 70px;
-        }
+<title>PHOENIX DONAT SHOP</title>
 
-        h1 {
-            font-size: 30px;
-            margin: 15px 0;
-        }
+<style>
 
-        p {
-            color: #cccccc;
-            font-size: 16px;
-        }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #090909;
+    color: white;
+    text-align: center;
+}
 
-        .button {
-            display: block;
-            margin: 15px auto;
-            max-width: 300px;
-            padding: 16px;
-            border-radius: 12px;
-            background: #ff5a00;
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
+.container {
+    padding: 50px 20px;
+}
 
-        .button:hover {
-            opacity: 0.9;
-        }
-    </style>
+.phoenix {
+    font-size: 70px;
+}
+
+h1 {
+    font-size: 30px;
+    margin: 15px 0;
+}
+
+p {
+    color: #cccccc;
+    font-size: 16px;
+}
+
+.button {
+    display: block;
+    margin: 15px auto;
+    max-width: 300px;
+    padding: 16px;
+    border-radius: 12px;
+    background: #ff5a00;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.button:hover {
+    opacity: 0.9;
+}
+
+</style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-    <div class="phoenix">🔥</div>
+<div class="phoenix">🔥</div>
 
-    <h1>PHOENIX DONAT SHOP</h1>
+<h1>PHOENIX DONAT SHOP</h1>
 
-    <p>
-        Mobile Legends xizmatlari
-    </p>
+<p>
+Mobile Legends xizmatlari
+</p>
 
-    <a
-        class="button"
-        href="https://t.me/ShuraOfficialBot"
-    >
-        🤖 BOTNI OCHISH
-    </a>
+<a
+    class="button"
+    href="https://t.me/ShuraOfficialBot"
+>
+🤖 BOTNI OCHISH
+</a>
 
-    <p>
-        💎 Diamond &nbsp; • &nbsp;
-        💳 Top Up &nbsp; • &nbsp;
-        🚀 Boost
-    </p>
+<p>
+💎 Diamond &nbsp; • &nbsp;
+💳 Top Up &nbsp; • &nbsp;
+🚀 Boost
+</p>
 
 </div>
 
@@ -179,9 +187,9 @@ def start_web_server():
     server.serve_forever()
 
 
-# =========================
+# =========================================================
 # PLAYPAY
-# =========================
+# =========================================================
 
 def playpay_headers():
 
@@ -207,10 +215,15 @@ def get_diamond_packages():
         timeout=30,
     )
 
+    response.raise_for_status()
+
     return response.json()
 
 
-def check_player(player_id, server_id):
+def check_player(
+    player_id,
+    server_id
+):
 
     response = requests.post(
         f"{PLAYPAY_API}/check_id",
@@ -225,6 +238,8 @@ def check_player(player_id, server_id):
 
         timeout=30,
     )
+
+    response.raise_for_status()
 
     return response.json()
 
@@ -250,17 +265,21 @@ def create_order(
         timeout=30,
     )
 
+    response.raise_for_status()
+
     return response.json()
 
 
-# =========================
-# START
-# =========================
+# =========================================================
+# START COMMAND
+# =========================================================
 
 async def start(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE
 ):
+
+    context.user_data.clear()
 
     keyboard = [
 
@@ -291,7 +310,6 @@ async def start(
         [
             InlineKeyboardButton(
                 "🌐 PHOENIX DONAT SHOP",
-
                 web_app=WebAppInfo(
                     url=WEB_APP_URL
                 )
@@ -310,7 +328,8 @@ async def start(
 
         "🔥 PHOENIX DONAT SHOP\n\n"
         "💎 Mobile Legends xizmatlari\n"
-        "⚡ Tezkor xizmat\n\n"
+        "⚡ Tezkor xizmat\n"
+        "🔐 Ishonchli xizmat\n\n"
         "Kerakli xizmatni tanlang:",
 
         reply_markup=InlineKeyboardMarkup(
@@ -319,9 +338,145 @@ async def start(
     )
 
 
-# =========================
+# =========================================================
+# DIAMOND MENU
+# =========================================================
+
+async def show_diamond_packages(
+    query,
+    context
+):
+
+    if not PLAYPAY_API_KEY:
+
+        await query.message.reply_text(
+            "❌ PlayPay API key sozlanmagan.\n\n"
+            "Render → Environment → "
+            "PLAYPAY_API_KEY ni tekshiring."
+        )
+
+        return
+
+    try:
+
+        data = get_diamond_packages()
+
+        if not data.get("ok"):
+
+            await query.message.reply_text(
+                "❌ Diamond paketlarini olishda "
+                "xatolik.\n\n"
+                f"Xato: "
+                f"{data.get('error', 'unknown')}"
+            )
+
+            return
+
+        packages = data.get(
+            "packages",
+            []
+        )
+
+        if not packages:
+
+            await query.message.reply_text(
+                "❌ Hozircha diamond paketlari mavjud emas."
+            )
+
+            return
+
+        keyboard = []
+
+        for package in packages:
+
+            package_id = package.get(
+                "paket_id"
+            )
+
+            name = package.get(
+                "name",
+                "Diamond"
+            )
+
+            price_data = package.get(
+                "price",
+                {}
+            )
+
+            if isinstance(price_data, dict):
+
+                price = price_data.get(
+                    "amount",
+                    0
+                )
+
+            else:
+
+                price = price_data or 0
+
+            try:
+                price_text = f"{int(price):,}"
+            except Exception:
+                price_text = str(price)
+
+            if package_id is None:
+                continue
+
+            context.user_data[
+                f"package_{package_id}_name"
+            ] = name
+
+            context.user_data[
+                f"package_{package_id}_price"
+            ] = price
+
+            keyboard.append(
+                [
+                    InlineKeyboardButton(
+                        f"💎 {name} — "
+                        f"{price_text} so‘m",
+
+                        callback_data=(
+                            f"diamond_{package_id}"
+                        )
+                    )
+                ]
+            )
+
+        if not keyboard:
+
+            await query.message.reply_text(
+                "❌ Paketlar topilmadi."
+            )
+
+            return
+
+        await query.message.reply_text(
+
+            "💎 DIAMOND\n\n"
+            "Kerakli diamond paketini tanlang:",
+
+            reply_markup=InlineKeyboardMarkup(
+                keyboard
+            )
+        )
+
+    except Exception as e:
+
+        print(
+            "DIAMOND PACKAGES ERROR:",
+            repr(e)
+        )
+
+        await query.message.reply_text(
+            "❌ PlayPay API bilan bog‘lanishda "
+            "xatolik yuz berdi."
+        )
+
+
+# =========================================================
 # BUTTON HANDLER
-# =========================
+# =========================================================
 
 async def button_handler(
     update: Update,
@@ -335,121 +490,54 @@ async def button_handler(
     except Exception:
         pass
 
+    data = query.data or ""
 
-    # =====================
+    # -----------------------------------------------------
     # DIAMOND
-    # =====================
+    # -----------------------------------------------------
 
-    if query.data == "diamond":
+    if data == "diamond":
 
-        if not PLAYPAY_API_KEY:
-
-            await query.message.reply_text(
-                "❌ PlayPay API key sozlanmagan.\n\n"
-                "Render → Environment → "
-                "PLAYPAY_API_KEY ni tekshiring."
-            )
-
-            return
-
-        try:
-
-            data = get_diamond_packages()
-
-            if not data.get("ok"):
-
-                await query.message.reply_text(
-                    "❌ Diamond paketlarini olishda "
-                    "xatolik.\n\n"
-                    f"Xato: {data.get('error', 'unknown')}"
-                )
-
-                return
-
-            packages = data.get(
-                "packages",
-                []
-            )
-
-            if not packages:
-
-                await query.message.reply_text(
-                    "❌ Hozircha diamond paketlari mavjud emas."
-                )
-
-                return
-
-            keyboard = []
-
-            for package in packages:
-
-                package_id = package.get(
-                    "paket_id"
-                )
-
-                name = package.get(
-                    "name",
-                    "Diamond"
-                )
-
-                price = package.get(
-                    "price",
-                    {}
-                ).get(
-                    "amount",
-                    0
-                )
-
-                keyboard.append(
-                    [
-                        InlineKeyboardButton(
-                            f"💎 {name} — "
-                            f"{price:,} so‘m",
-
-                            callback_data=(
-                                f"diamond_{package_id}"
-                            )
-                        )
-                    ]
-                )
-
-            await query.message.reply_text(
-
-                "💎 DIAMOND\n\n"
-                "Kerakli diamond paketini tanlang:",
-
-                reply_markup=InlineKeyboardMarkup(
-                    keyboard
-                )
-            )
-
-        except Exception as e:
-
-            print("DIAMOND ERROR:", e)
-
-            await query.message.reply_text(
-                "❌ PlayPay API bilan bog‘lanishda "
-                "xatolik."
-            )
+        await show_diamond_packages(
+            query,
+            context
+        )
 
         return
 
-
-    # =====================
+    # -----------------------------------------------------
     # DIAMOND PACKAGE
-    # =====================
+    # -----------------------------------------------------
 
-    if query.data.startswith("diamond_"):
+    if data.startswith("diamond_"):
 
-        package_id = query.data.replace(
+        package_id = data.replace(
             "diamond_",
             "",
             1
         )
 
+        package_name = context.user_data.get(
+            f"package_{package_id}_name",
+            "Diamond"
+        )
+
+        package_price = context.user_data.get(
+            f"package_{package_id}_price",
+            0
+        )
+
         context.user_data[
             "diamond_package_id"
         ] = package_id
+
+        context.user_data[
+            "diamond_package_name"
+        ] = package_name
+
+        context.user_data[
+            "diamond_customer_price"
+        ] = package_price
 
         context.user_data[
             "diamond_step"
@@ -458,20 +546,25 @@ async def button_handler(
         await query.message.reply_text(
 
             "💎 DIAMOND BUYURTMA\n\n"
+
+            f"📦 Paket: {package_name}\n"
+
+            f"💰 Narx: {package_price:,} so‘m\n\n"
+
             "1️⃣ Mobile Legends Player ID / "
             "User ID ni yozing.\n\n"
+
             "Masalan:\n"
             "123456789"
         )
 
         return
 
-
-    # =====================
+    # -----------------------------------------------------
     # CONFIRM DIAMOND
-    # =====================
+    # -----------------------------------------------------
 
-    if query.data == "confirm_diamond":
+    if data == "confirm_diamond":
 
         package_id = context.user_data.get(
             "diamond_package_id"
@@ -488,11 +581,23 @@ async def button_handler(
         if not package_id or not player_id or not server_id:
 
             await query.message.reply_text(
-                "❌ Buyurtma ma'lumotlari topilmadi.\n"
+                "❌ Buyurtma ma'lumotlari topilmadi.\n\n"
                 "Qaytadan DIAMOND bo‘limiga kiring."
             )
 
             return
+
+        if not PLAYPAY_API_KEY:
+
+            await query.message.reply_text(
+                "❌ PlayPay API key sozlanmagan."
+            )
+
+            return
+
+        await query.message.reply_text(
+            "⏳ Buyurtma tekshirilmoqda..."
+        )
 
         try:
 
@@ -509,20 +614,23 @@ async def button_handler(
                     "Noma'lum"
                 )
 
+                package_name = context.user_data.get(
+                    "diamond_package_name",
+                    "Diamond"
+                )
+
                 await query.message.reply_text(
 
                     "✅ BUYURTMA QABUL QILINDI!\n\n"
 
-                    f"💎 Paket: "
-                    f"{context.user_data.get('diamond_package_name', 'Diamond')}\n"
-
+                    f"💎 Paket: {package_name}\n"
                     f"👤 Player ID: {player_id}\n"
-
                     f"🌐 Server ID: {server_id}\n\n"
 
                     f"🧾 Order ID: {order_id}\n\n"
 
-                    "⏳ Diamond yetkazilishi kutilmoqda."
+                    "⏳ Diamond yetkazilishi "
+                    "kutilmoqda."
                 )
 
             else:
@@ -537,11 +645,13 @@ async def button_handler(
 
         except Exception as e:
 
-            print("ORDER ERROR:", e)
+            print(
+                "ORDER ERROR:",
+                repr(e)
+            )
 
             await query.message.reply_text(
-                "❌ PlayPay API bilan bog‘lanishda "
-                "xatolik."
+                "❌ Buyurtma yaratishda xatolik."
             )
 
         context.user_data[
@@ -550,19 +660,19 @@ async def button_handler(
 
         return
 
+    # -----------------------------------------------------
+    # CANCEL DIAMOND
+    # -----------------------------------------------------
 
-    # =====================
-    # CANCEL
-    # =====================
-
-    if query.data == "cancel_diamond":
+    if data == "cancel_diamond":
 
         for key in [
             "diamond_package_id",
-            "diamond_player_id",
-            "diamond_server_id",
             "diamond_package_name",
             "diamond_customer_price",
+            "diamond_player_id",
+            "diamond_server_id",
+            "diamond_step",
         ]:
 
             context.user_data.pop(
@@ -570,22 +680,17 @@ async def button_handler(
                 None
             )
 
-        context.user_data[
-            "diamond_step"
-        ] = None
-
         await query.message.reply_text(
             "❌ Diamond buyurtmasi bekor qilindi."
         )
 
         return
 
-
-    # =====================
+    # -----------------------------------------------------
     # TOP UP
-    # =====================
+    # -----------------------------------------------------
 
-    if query.data == "topup":
+    if data == "topup":
 
         keyboard = [
 
@@ -623,6 +728,13 @@ async def button_handler(
                     callback_data="custom_amount"
                 )
             ],
+
+            [
+                InlineKeyboardButton(
+                    "🔙 Bosh menyu",
+                    callback_data="back_menu"
+                )
+            ],
         ]
 
         await query.message.reply_text(
@@ -637,12 +749,11 @@ async def button_handler(
 
         return
 
-
-    # =====================
+    # -----------------------------------------------------
     # CUSTOM AMOUNT
-    # =====================
+    # -----------------------------------------------------
 
-    if query.data == "custom_amount":
+    if data == "custom_amount":
 
         context.user_data[
             "waiting_amount"
@@ -651,24 +762,25 @@ async def button_handler(
         await query.message.reply_text(
 
             "✏️ BOSHQA SUMMA\n\n"
+
             "Kerakli summani faqat raqam bilan yozing.\n\n"
+
             "Masalan:\n"
             "37000"
         )
 
         return
 
-
-    # =====================
+    # -----------------------------------------------------
     # FIXED TOP UP
-    # =====================
+    # -----------------------------------------------------
 
-    if query.data.startswith("topup_"):
+    if data.startswith("topup_"):
 
         try:
 
             amount = int(
-                query.data.replace(
+                data.replace(
                     "topup_",
                     "",
                     1
@@ -691,12 +803,11 @@ async def button_handler(
 
         return
 
-
-    # =====================
+    # -----------------------------------------------------
     # PAID
-    # =====================
+    # -----------------------------------------------------
 
-    if query.data == "paid":
+    if data == "paid":
 
         amount = context.user_data.get(
             "topup_amount"
@@ -720,8 +831,8 @@ async def button_handler(
 
             f"💰 Summa: {amount:,} so‘m\n\n"
 
-            "To‘lov chek yoki skrinshotini shu "
-            "yerga yuboring.\n\n"
+            "To‘lov chek yoki skrinshotini "
+            "shu yerga yuboring.\n\n"
 
             "⚠️ Chek tekshirilmaguncha balans "
             "avtomatik oshirilmaydi."
@@ -729,12 +840,11 @@ async def button_handler(
 
         return
 
+    # -----------------------------------------------------
+    # BOOST MENU
+    # -----------------------------------------------------
 
-    # =====================
-    # BOOST
-    # =====================
-
-    if query.data == "boost":
+    if data == "boost":
 
         keyboard = [
 
@@ -772,6 +882,13 @@ async def button_handler(
                     callback_data="boost_glory"
                 )
             ],
+
+            [
+                InlineKeyboardButton(
+                    "🔙 Bosh menyu",
+                    callback_data="back_menu"
+                )
+            ],
         ]
 
         await query.message.reply_text(
@@ -781,8 +898,10 @@ async def button_handler(
             "🟣 Epic — 4 000 so‘m / star\n"
             "🔵 Legend — 5 000 so‘m / star\n"
             "🔴 Mythic — 6 000 so‘m / point\n"
-            "🟠 Mythical Honor — 7 000 so‘m / point\n"
-            "🟡 Mythical Glory — 8 000 so‘m / point\n\n"
+            "🟠 Mythical Honor — "
+            "7 000 so‘m / point\n"
+            "🟡 Mythical Glory — "
+            "8 000 so‘m / point\n\n"
 
             "Qaysi target rank kerak?",
 
@@ -793,12 +912,11 @@ async def button_handler(
 
         return
 
-
-    # =====================
+    # -----------------------------------------------------
     # BOOST TARGET
-    # =====================
+    # -----------------------------------------------------
 
-    if query.data.startswith("boost_"):
+    if data.startswith("boost_"):
 
         rank_prices = {
 
@@ -829,7 +947,7 @@ async def button_handler(
         }
 
         rank_name, price = rank_prices.get(
-            query.data,
+            data,
             ("", 0)
         )
 
@@ -864,218 +982,13 @@ async def button_handler(
 
         return
 
-
-    # =====================
+    # -----------------------------------------------------
     # SALE
-    # =====================
+    # -----------------------------------------------------
 
-    if query.data == "sale":
+    if data == "sale":
 
         await query.message.reply_text(
 
             "🔥 SALE\n\n"
-            "Aksiyalar tez orada shu yerda."
-        )
-
-        return
-
-
-    # =====================
-    # SUPPORT
-    # =====================
-
-    if query.data == "help":
-
-        keyboard = [
-
-            [
-                InlineKeyboardButton(
-                    "💬 Operatorga yozish",
-                    url=(
-                        "https://t.me/"
-                        f"{SUPPORT_USERNAME}"
-                    )
-                )
-            ]
-        ]
-
-        await query.message.reply_text(
-
-            "🆘 SUPPORT\n\n"
-
-            "Savolingiz yoki muammoingiz bo‘lsa, "
-            "operatorga yozing:",
-
-            reply_markup=InlineKeyboardMarkup(
-                keyboard
-            )
-        )
-
-        return
-
-
-# =========================
-# PAYMENT INFO
-# =========================
-
-async def show_payment_info(
-    message,
-    context,
-    amount
-):
-
-    context.user_data[
-        "topup_amount"
-    ] = amount
-
-    context.user_data[
-        "waiting_receipt"
-    ] = False
-
-    keyboard = [
-
-        [
-            InlineKeyboardButton(
-                "✅ Men to‘ladim",
-                callback_data="paid"
-            )
-        ],
-
-        [
-            InlineKeyboardButton(
-                "🆘 Support",
-                url=(
-                    "https://t.me/"
-                    f"{SUPPORT_USERNAME}"
-                )
-            )
-        ],
-    ]
-
-    await message.reply_text(
-
-        "💳 TOP UP\n\n"
-
-        f"💰 Summa: {amount:,} so‘m\n\n"
-
-        f"💳 KARTA:\n"
-        f"{CARD_NUMBER}\n\n"
-
-        "Yuqoridagi kartaga aynan shu summani "
-        "o‘tkazing.\n\n"
-
-        "To‘lovdan keyin "
-        "«✅ Men to‘ladim» tugmasini bosing.\n\n"
-
-        "⚠️ To‘lov tekshirilmaguncha balans "
-        "avtomatik oshirilmaydi.",
-
-        reply_markup=InlineKeyboardMarkup(
-            keyboard
-        )
-    )
-
-
-# =========================
-# TEXT HANDLER
-# =========================
-
-async def text_handler(
-    update: Update,
-    context: ContextTypes.DEFAULT_TYPE
-):
-
-    if not update.message:
-        return
-
-    if not update.message.text:
-        return
-
-    text = update.message.text.strip()
-
-
-    # =====================
-    # DIAMOND PLAYER ID
-    # =====================
-
-    if context.user_data.get(
-        "diamond_step"
-    ) == "player_id":
-
-        if not text.isdigit():
-
-            await update.message.reply_text(
-
-                "❌ Player ID faqat raqamlardan "
-                "iborat bo‘lishi kerak."
-            )
-
-            return
-
-        context.user_data[
-            "diamond_player_id"
-        ] = text
-
-        context.user_data[
-            "diamond_step"
-        ] = "server_id"
-
-        await update.message.reply_text(
-
-            "2️⃣ Server ID / Zone ID ni yozing.\n\n"
-
-            "Masalan:\n"
-            "1234"
-        )
-
-        return
-
-
-    # =====================
-    # DIAMOND SERVER ID
-# =========================
-# MAIN
-# =========================
-
-def main():
-
-    threading.Thread(
-        target=start_web_server,
-        daemon=True
-    ).start()
-
-    application = (
-        ApplicationBuilder()
-        .token(TOKEN)
-        .build()
-    )
-
-    application.add_handler(
-        CommandHandler("start", start)
-    )
-
-    application.add_handler(
-        CallbackQueryHandler(button_handler)
-    )
-
-    application.add_handler(
-        MessageHandler(
-            filters.TEXT & ~filters.COMMAND,
-            text_handler
-        )
-    )
-
-    application.add_handler(
-        MessageHandler(
-            filters.PHOTO,
-            photo_handler
-        )
-    )
-
-    print("🤖 PHOENIX DONAT SHOP BOT ISHLADI!")
-
-    application.run_polling()
-
-
-if __name__ == "__main__":
-    main()
+            "Aksiyalar tez orada shu yerda.
