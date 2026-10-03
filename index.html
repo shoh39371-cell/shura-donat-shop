@@ -435,66 +435,28 @@
 
     <!-- DIAMOND -->
 
-    <div id="diamond" class="section">
+<!-- DIAMOND -->
 
-        <div
-            class="back"
-            onclick="goHome()"
-        >
-            ← Orqaga
-        </div>
+<div id="diamond" class="section">
 
-        <h2>💎 MOBILE LEGENDS</h2>
+    <div
+        class="back"
+        onclick="goHome()"
+    >
+        ← Orqaga
+    </div>
 
-        <div class="item">
+    <h2>💎 MOBILE LEGENDS</h2>
 
-            <span class="item-name">
-                💎 86 Diamonds
-            </span>
+    <div id="diamondPackages">
 
-            <span class="item-price">
-                Tez orada
-            </span>
-
-        </div>
-
-        <div class="item">
-
-            <span class="item-name">
-                💎 172 Diamonds
-            </span>
-
-            <span class="item-price">
-                Tez orada
-            </span>
-
-        </div>
-
-        <div class="item">
-
-            <span class="item-name">
-                💎 257 Diamonds
-            </span>
-
-            <span class="item-price">
-                Tez orada
-            </span>
-
-        </div>
-
-        <div class="item">
-
-            <span class="item-name">
-                💎 344 Diamonds
-            </span>
-
-            <span class="item-price">
-                Tez orada
-            </span>
-
+        <div class="info">
+            ⏳ Diamond paketlari yuklanmoqda...
         </div>
 
     </div>
+
+</div>
 
 
     <!-- BOOST -->
@@ -705,7 +667,56 @@
                 : "Username yo‘q";
 
     }
+async function loadDiamondPackages() {
 
+    const container =
+        document.getElementById("diamondPackages");
+
+    try {
+
+        const response =
+            await fetch("/api/packages");
+
+        const packages =
+            await response.json();
+
+        container.innerHTML = "";
+
+        packages.forEach(function(pkg) {
+
+            const item =
+                document.createElement("div");
+
+            item.className = "item";
+
+            item.innerHTML = `
+                <span class="item-name">
+                    💎 ${pkg.name}
+                </span>
+
+                <span class="item-price">
+                    ${Number(pkg.price).toLocaleString()} so‘m
+                </span>
+            `;
+
+            container.appendChild(item);
+
+        });
+
+    } catch (error) {
+
+        container.innerHTML = `
+            <div class="info">
+                ❌ Paketlarni yuklashda xatolik.
+            </div>
+        `;
+
+        console.error(error);
+    }
+}
+
+loadDiamondPackages();
+    
 </script>
 
 </body>
