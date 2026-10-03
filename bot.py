@@ -988,14 +988,12 @@ async def button_handler(
 
     if data == "sale":
 
-        await query.message.reply_text(
+    await query.message.reply_text(
+        "🔥 SALE\n\n"
+        "Aksiyalar tez orada shu yerda."
+    )
 
-            "🔥 SALE\n\n"
-            "Aksiyalar tez orada shu yerda.
-                        "Aksiyalar tez orada shu yerda."
-        )
-
-        return
+    return
 
     # -----------------------------------------------------
     # SUPPORT
