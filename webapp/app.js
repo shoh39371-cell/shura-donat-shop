@@ -770,52 +770,45 @@ function showConfirmation(
             Ma’lumotlarni tekshiring
         </div>
 
-
         <div class="confirmation-card">
 
             <b>
-                ${escapeHtml(
-                    pkg.name
-                )}
+                ${escapeHtml(pkg.name)}
             </b>
 
             <br><br>
 
             👤
             ${escapeHtml(
-                playerName ||
-                "Player"
+                playerName || "Player"
             )}
 
             <br>
 
             🆔
-            ${escapeHtml(
-                playerId
-            )}
+            ${escapeHtml(playerId)}
 
             <br>
 
             🌐
-            ${escapeHtml(
-                serverId
-            )}
+            ${escapeHtml(serverId)}
 
             <br><br>
 
             💰
             <b>
-                ${formatPrice(
-                    pkg.price
-                )}
+                ${formatPrice(pkg.price)}
             </b>
 
         </div>
 
-
         <button
             class="primary-button"
-            onclick="createOrder()"
+            onclick='createOrder(
+                ${JSON.stringify(pkg)},
+                "${escapeAttribute(playerId)}",
+                "${escapeAttribute(serverId)}"
+            )'
         >
             Tasdiqlash
         </button>
@@ -823,7 +816,6 @@ function showConfirmation(
     `);
 
 }
-
 
 /* =====================================================
    ORDER PLACEHOLDER
