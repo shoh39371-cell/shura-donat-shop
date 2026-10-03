@@ -1,2 +1,2 @@
-python-telegram-bot
-requests
+aiogram==3.22.0
+aiosqlite
