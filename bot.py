@@ -1,9 +1,13 @@
 import os
 import asyncio
 import logging
-from pathlib import Path
 
 import aiohttp
+import uvicorn
+
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+
 from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import CommandStart
 from aiogram.types import (
@@ -12,6 +16,7 @@ from aiogram.types import (
     InlineKeyboardButton,
     WebAppInfo,
 )
+
 
 # =========================
 # SETTINGS
@@ -23,14 +28,14 @@ WEBAPP_URL = os.getenv("WEBAPP_URL")
 
 PLAYPAY_API = "https://playpay.uz/api/v1"
 
+PORT = int(os.getenv("PORT", "10000"))
+
+
 if not BOT_TOKEN:
-    raise RuntimeError("BOT_TOKEN environment variable is missing")
+    raise RuntimeError("BOT_TOKEN is missing")
 
 if not PLAYPAY_API_KEY:
-    raise RuntimeError("PLAYPAY_API_KEY environment variable is missing")
-
-if not WEBAPP_URL:
-    raise RuntimeError("WEBAPP_URL environment variable is missing")
+    raise RuntimeError("PLAYPAY_API_KEY is missing")
 
 
 # =========================
@@ -50,38 +55,33 @@ logger = logging.getLogger(__name__)
 # =========================
 
 bot = Bot(token=BOT_TOKEN)
+
 dp = Dispatcher()
+
 router = Router()
 
 
 # =========================
-# START
+# FASTAPI
 # =========================
 
-@router.message(CommandStart())
-async def start_handler(message: Message):
+app = FastAPI()
 
-    keyboard = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="🛒 OPEN SHOP",
-                    web_app=WebAppInfo(url=WEBAPP_URL),
-                )
-            ]
-        ]
-    )
 
-    await message.answer(
-        "🔥 PHOENIX DONAT SHOP\n\n"
-        "Mobile Legends xizmatlari uchun do‘kon.\n\n"
-        "👇 Do‘konni ochish uchun tugmani bosing:",
-        reply_markup=keyboard,
+# =========================
+# WEBAPP
+# =========================
+
+@app.get("/")
+async def home():
+
+    return FileResponse(
+        "webapp/index.html"
     )
 
 
 # =========================
-# PLAYPAY - MLBB PACKAGES
+# PLAYPAY PACKAGES
 # =========================
 
 async def get_mlbb_packages():
@@ -96,9 +96,13 @@ async def get_mlbb_packages():
         "currency": "UZS"
     }
 
-    timeout = aiohttp.ClientTimeout(total=30)
+    timeout = aiohttp.ClientTimeout(
+        total=30
+    )
 
-    async with aiohttp.ClientSession(timeout=timeout) as session:
+    async with aiohttp.ClientSession(
+        timeout=timeout
+    ) as session:
 
         async with session.get(
             url,
@@ -109,49 +113,129 @@ async def get_mlbb_packages():
             data = await response.json()
 
             if response.status != 200:
+
                 raise RuntimeError(
-                    f"PlayPay HTTP {response.status}: {data}"
+                    f"PlayPay HTTP {response.status}"
                 )
 
             if not data.get("ok"):
+
                 raise RuntimeError(
-                    f"PlayPay error: {data}"
+                    data.get("error", "PlayPay error")
                 )
 
             return data
 
 
 # =========================
-# TEST PLAYPAY
+# API
 # =========================
 
-async def test_playpay():
+@app.get("/api/packages")
+async def packages():
 
     try:
 
         data = await get_mlbb_packages()
 
-        packages = data.get("packages", [])
-
-        logger.info(
-            "PlayPay MLBB packages: %s",
-            len(packages)
-        )
-
-        for package in packages:
-
-            logger.info(
-                "MLBB | %s | %s UZS",
-                package.get("name"),
-                package.get("charged", {}).get("amount"),
+        return {
+            "ok": True,
+            "packages": data.get(
+                "packages",
+                []
             )
+        }
 
     except Exception as e:
 
         logger.error(
-            "PlayPay test error: %s",
+            "Packages error: %s",
             e
         )
+
+        return {
+            "ok": False,
+            "error": str(e)
+        }
+
+
+# =========================
+# TELEGRAM START
+# =========================
+
+@router.message(CommandStart())
+async def start_handler(
+    message: Message
+):
+
+    if not WEBAPP_URL:
+
+        await message.answer(
+            "⚠️ WebApp URL hali sozlanmagan."
+        )
+
+        return
+
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🛒 OPEN SHOP",
+                    web_app=WebAppInfo(
+                        url=WEBAPP_URL
+                    ),
+                )
+            ]
+        ]
+    )
+
+
+    await message.answer(
+        "🔥 PHOENIX DONAT SHOP\n\n"
+        "Mobile Legends xizmatlari uchun "
+        "rasmiy shop.\n\n"
+        "👇 Shopni oching:",
+        reply_markup=keyboard,
+    )
+
+
+# =========================
+# BOT RUNNER
+# =========================
+
+async def run_bot():
+
+    dp.include_router(router)
+
+    logger.info(
+        "🤖 Telegram bot started"
+    )
+
+    await dp.start_polling(bot)
+
+
+# =========================
+# SERVER RUNNER
+# =========================
+
+async def run_server():
+
+    config = uvicorn.Config(
+        app,
+        host="0.0.0.0",
+        port=PORT,
+        log_level="info",
+    )
+
+    server = uvicorn.Server(config)
+
+    logger.info(
+        "🌐 WebApp server started on port %s",
+        PORT
+    )
+
+    await server.serve()
 
 
 # =========================
@@ -160,17 +244,12 @@ async def test_playpay():
 
 async def main():
 
-    dp.include_router(router)
-
-    logger.info("🔥 PHOENIX DONAT SHOP IS STARTING...")
-
-    # PlayPay ulanishini tekshiramiz
-    await test_playpay()
-
-    logger.info("🤖 BOT STARTED")
-
-    await dp.start_polling(bot)
+    await asyncio.gather(
+        run_bot(),
+        run_server(),
+    )
 
 
 if __name__ == "__main__":
+
     asyncio.run(main())
