@@ -373,57 +373,15 @@ def create_order(
 def main_menu_keyboard():
 
     return InlineKeyboardMarkup([
-
         [
-
             InlineKeyboardButton(
-                "💎 DIAMOND",
-                callback_data="diamond"
-            ),
-
-            InlineKeyboardButton(
-                "💳 TOP UP",
-                callback_data="topup"
-            ),
-
-        ],
-
-        [
-
-            InlineKeyboardButton(
-                "🚀 BOOST",
-                callback_data="boost"
-            ),
-
-            InlineKeyboardButton(
-                "🔥 SALE",
-                callback_data="sale"
-            ),
-
-        ],
-
-        [
-
-            InlineKeyboardButton(
-                "🌐 PHOENIX DONAT SHOP",
+                "🌐 OPEN PHOENIX DONAT SHOP",
                 web_app=WebAppInfo(
                     url=WEB_APP_URL
                 )
             )
-
-        ],
-
-        [
-
-            InlineKeyboardButton(
-                "🆘 HELP / SUPPORT",
-                callback_data="help"
-            )
-
-        ],
-
+        ]
     ])
-
 
 async def send_main_menu(message):
 
