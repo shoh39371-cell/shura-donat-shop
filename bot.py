@@ -525,6 +525,7 @@ async def run_server():
 # =========================================================
 
 async def main():
+    init_db()
 
     await asyncio.gather(
         run_bot(),
