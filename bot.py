@@ -386,15 +386,9 @@ def main_menu_keyboard():
 async def send_main_menu(message):
 
     await message.reply_text(
-
         "🔥 PHOENIX DONAT SHOP\n\n"
-
-        "💎 Mobile Legends xizmatlari\n"
-        "⚡ Tezkor xizmat\n"
-        "🔐 Ishonchli xizmat\n\n"
-
-        "Kerakli xizmatni tanlang:",
-
+        "💎 Barcha xizmatlar va paketlar shop ichida.\n"
+        "⚡ Tezkor va qulay xizmat.",
         reply_markup=main_menu_keyboard()
     )
 
