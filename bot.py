@@ -72,6 +72,51 @@ WEB_APP_URL = (
 # =========================================================
 
 class HealthHandler(BaseHTTPRequestHandler):
+            if self.path == "/api/packages":
+
+            try:
+
+                data = get_diamond_packages()
+
+                response = json.dumps(data).encode("utf-8")
+
+                self.send_response(200)
+
+                self.send_header(
+                    "Content-Type",
+                    "application/json"
+                )
+
+                self.send_header(
+                    "Content-Length",
+                    str(len(response))
+                )
+
+                self.end_headers()
+
+                self.wfile.write(response)
+
+            except Exception as e:
+
+                print(
+                    "PACKAGES API ERROR:",
+                    repr(e)
+                )
+
+                self.send_response(500)
+
+                self.send_header(
+                    "Content-Type",
+                    "application/json"
+                )
+
+                self.end_headers()
+
+                self.wfile.write(
+                    b'{"ok":false,"error":"Packages API error"}'
+                )
+
+            return
     def do_GET(self):
 
         if self.path == "/" or self.path == "/index.html":
