@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
     >
 
     <title>PHOENIX DONAT SHOP</title>
@@ -14,175 +14,265 @@
     <style>
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
             font-family: Arial, sans-serif;
             background: #080b12;
             color: white;
+            min-height: 100vh;
         }
 
         .header {
-            padding: 22px 18px 10px;
+            text-align: center;
+            padding: 25px 15px 20px;
         }
 
         .logo {
-            font-size: 28px;
+            font-size: 42px;
+        }
+
+        .title {
+            font-size: 24px;
             font-weight: 800;
+            margin-top: 5px;
         }
 
         .subtitle {
-            color: #8d95a5;
+            color: #8e96a8;
             margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .container {
+            padding: 15px;
+            max-width: 600px;
+            margin: auto;
         }
 
         .grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
-            padding: 18px;
         }
 
         .card {
             background: #111722;
             border: 1px solid #202838;
             border-radius: 18px;
-            padding: 20px 14px;
-            min-height: 120px;
+            padding: 20px 12px;
+            text-align: center;
             cursor: pointer;
+            transition: 0.15s;
+        }
+
+        .card:active {
+            transform: scale(0.97);
         }
 
         .icon {
             font-size: 32px;
+            margin-bottom: 8px;
         }
 
-        .title {
-            margin-top: 12px;
-            font-size: 16px;
+        .card-title {
+            font-size: 15px;
             font-weight: 700;
         }
 
-        .description {
-            margin-top: 5px;
-            font-size: 12px;
-            color: #858e9e;
+        .section {
+            display: none;
         }
 
-        .section {
-            padding: 0 18px 20px;
+        .section.active {
+            display: block;
+        }
+
+        .back {
+            background: #171e2c;
+            border: none;
+            color: white;
+            padding: 11px 16px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            cursor: pointer;
         }
 
         .section-title {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 800;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
         }
 
-        .package {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .region {
             background: #111722;
             border: 1px solid #202838;
             border-radius: 15px;
+            padding: 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .region-name {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .region-info {
+            color: #8e96a8;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .package {
+            background: #111722;
+            border: 1px solid #202838;
+            border-radius: 16px;
             padding: 15px;
             margin-bottom: 10px;
         }
 
         .package-name {
             font-weight: 700;
+            font-size: 16px;
         }
 
         .package-price {
-            color: #54e38e;
-            font-weight: 700;
-            margin-top: 4px;
+            margin-top: 8px;
+            font-size: 15px;
+            color: #b9c2d4;
         }
 
         .buy {
-            background: #ffb300;
-            color: #111;
+            width: 100%;
             border: none;
+            background: #ffffff;
+            color: #080b12;
+            padding: 11px;
             border-radius: 11px;
-            padding: 10px 14px;
+            margin-top: 12px;
             font-weight: 800;
+            cursor: pointer;
         }
 
         .loading {
             text-align: center;
-            color: #858e9e;
-            padding: 25px;
+            color: #8e96a8;
+            padding: 30px 10px;
+        }
+
+        .error {
+            background: #28151a;
+            border: 1px solid #54252e;
+            color: #ff9ba8;
+            padding: 15px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+        }
+
+        .empty {
+            text-align: center;
+            color: #8e96a8;
+            padding: 30px 10px;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="header">
-        <div class="logo">🔥 PHOENIX</div>
-        <div class="subtitle">DONAT SHOP</div>
+<div class="header">
+    <div class="logo">🔥</div>
+    <div class="title">PHOENIX DONAT SHOP</div>
+    <div class="subtitle">Mobile Legends services</div>
+</div>
+
+
+<div class="container">
+
+    <!-- MAIN -->
+    <div id="main" class="section active">
+
+        <div class="grid">
+
+            <div class="card" onclick="openDiamonds()">
+                <div class="icon">💎</div>
+                <div class="card-title">Diamonds</div>
+            </div>
+
+            <div class="card" onclick="showSection('boost')">
+                <div class="icon">🚀</div>
+                <div class="card-title">Boost</div>
+            </div>
+
+            <div class="card" onclick="showSection('balance')">
+                <div class="icon">💳</div>
+                <div class="card-title">Balance</div>
+            </div>
+
+            <div class="card" onclick="showSection('accounts')">
+                <div class="icon">🎮</div>
+                <div class="card-title">Accounts</div>
+            </div>
+
+            <div class="card" onclick="showSection('orders')">
+                <div class="icon">📦</div>
+                <div class="card-title">My Orders</div>
+            </div>
+
+            <div class="card" onclick="showSection('promo')">
+                <div class="icon">🎁</div>
+                <div class="card-title">Promo</div>
+            </div>
+
+            <div class="card" onclick="showSection('support')">
+                <div class="icon">🆘</div>
+                <div class="card-title">Support</div>
+            </div>
+
+            <div class="card" onclick="showSection('profile')">
+                <div class="icon">👤</div>
+                <div class="card-title">Profile</div>
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="grid">
 
-        <div class="card" onclick="showDiamonds()">
-            <div class="icon">💎</div>
-            <div class="title">Diamonds</div>
-            <div class="description">Mobile Legends</div>
-        </div>
+    <!-- DIAMONDS -->
+    <div id="diamonds" class="section">
 
-        <div class="card">
-            <div class="icon">🚀</div>
-            <div class="title">Boost</div>
-            <div class="description">Rank & service</div>
-        </div>
-
-        <div class="card">
-            <div class="icon">💳</div>
-            <div class="title">Balance</div>
-            <div class="description">Balance top-up</div>
-        </div>
-
-        <div class="card">
-            <div class="icon">🎮</div>
-            <div class="title">Accounts</div>
-            <div class="description">MLBB accounts</div>
-        </div>
-
-        <div class="card">
-            <div class="icon">📦</div>
-            <div class="title">My Orders</div>
-            <div class="description">Order history</div>
-        </div>
-
-        <div class="card">
-            <div class="icon">🎁</div>
-            <div class="title">Promo</div>
-            <div class="description">Promo code</div>
-        </div>
-
-        <div class="card">
-            <div class="icon">🆘</div>
-            <div class="title">Support</div>
-            <div class="description">Help center</div>
-        </div>
-
-        <div class="card">
-            <div class="icon">👤</div>
-            <div class="title">Profile</div>
-            <div class="description">Your account</div>
-        </div>
-
-    </div>
-
-    <div class="section" id="diamondsSection" style="display:none;">
+        <button class="back" onclick="showSection('main')">
+            ← Orqaga
+        </button>
 
         <div class="section-title">
             💎 Mobile Legends
         </div>
 
-        <div id="packages">
+        <div id="regions">
+            <div class="loading">
+                Regionlar yuklanmoqda...
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- PACKAGES -->
+    <div id="packages" class="section">
+
+        <button class="back" onclick="openDiamonds()">
+            ← Regionlar
+        </button>
+
+        <div id="packageTitle" class="section-title">
+            💎 Paketlar
+        </div>
+
+        <div id="packageList">
             <div class="loading">
                 Paketlar yuklanmoqda...
             </div>
@@ -190,107 +280,345 @@
 
     </div>
 
-    <script>
 
-        const tg = window.Telegram.WebApp;
+    <!-- OTHER SECTIONS -->
 
-        tg.ready();
-        tg.expand();
+    <div id="boost" class="section">
+        <button class="back" onclick="showSection('main')">
+            ← Orqaga
+        </button>
 
-        async function showDiamonds() {
+        <div class="section-title">🚀 Boost</div>
 
-            const section =
-                document.getElementById("diamondsSection");
+        <div class="empty">
+            Boost xizmatlari tez orada qo‘shiladi.
+        </div>
+    </div>
 
-            section.style.display = "block";
 
-            section.scrollIntoView({
-                behavior: "smooth"
+    <div id="balance" class="section">
+        <button class="back" onclick="showSection('main')">
+            ← Orqaga
+        </button>
+
+        <div class="section-title">💳 Balance</div>
+
+        <div class="empty">
+            Balance to‘ldirish tizimi tez orada qo‘shiladi.
+        </div>
+    </div>
+
+
+    <div id="accounts" class="section">
+        <button class="back" onclick="showSection('main')">
+            ← Orqaga
+        </button>
+
+        <div class="section-title">🎮 MLBB Accounts</div>
+
+        <div class="empty">
+            Account marketplace tez orada qo‘shiladi.
+        </div>
+    </div>
+
+
+    <div id="orders" class="section">
+        <button class="back" onclick="showSection('main')">
+            ← Orqaga
+        </button>
+
+        <div class="section-title">📦 My Orders</div>
+
+        <div class="empty">
+            Buyurtmalar hozircha mavjud emas.
+        </div>
+    </div>
+
+
+    <div id="promo" class="section">
+        <button class="back" onclick="showSection('main')">
+            ← Orqaga
+        </button>
+
+        <div class="section-title">🎁 Promo</div>
+
+        <div class="empty">
+            Promo kod tizimi tez orada qo‘shiladi.
+        </div>
+    </div>
+
+
+    <div id="support" class="section">
+        <button class="back" onclick="showSection('main')">
+            ← Orqaga
+        </button>
+
+        <div class="section-title">🆘 Support</div>
+
+        <div class="empty">
+            Support tizimi tez orada qo‘shiladi.
+        </div>
+    </div>
+
+
+    <div id="profile" class="section">
+        <button class="back" onclick="showSection('main')">
+            ← Orqaga
+        </button>
+
+        <div class="section-title">👤 Profile</div>
+
+        <div class="empty">
+            Profil tizimi tez orada qo‘shiladi.
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+
+    const tg = window.Telegram.WebApp;
+
+    tg.ready();
+    tg.expand();
+
+
+    function showSection(id) {
+
+        document.querySelectorAll(".section").forEach(section => {
+            section.classList.remove("active");
+        });
+
+        document.getElementById(id).classList.add("active");
+
+        window.scrollTo(0, 0);
+    }
+
+
+    async function openDiamonds() {
+
+        showSection("diamonds");
+
+        const container = document.getElementById("regions");
+
+        container.innerHTML = `
+            <div class="loading">
+                Regionlar yuklanmoqda...
+            </div>
+        `;
+
+        try {
+
+            const response = await fetch("/api/regions");
+
+            const data = await response.json();
+
+            if (!data.ok) {
+                throw new Error(data.error || "API error");
+            }
+
+            const regions = data.regions || [];
+
+            if (regions.length === 0) {
+
+                container.innerHTML = `
+                    <div class="empty">
+                        MLBB regionlari topilmadi.
+                    </div>
+                `;
+
+                return;
+            }
+
+            container.innerHTML = "";
+
+            regions.forEach(game => {
+
+                const div = document.createElement("div");
+
+                div.className = "region";
+
+                div.innerHTML = `
+                    <div class="region-name">
+                        ${escapeHtml(game.name)}
+                    </div>
+
+                    <div class="region-info">
+                        ${game.packages_count || 0} ta paket
+                        ${game.requires_server ? " • Server ID kerak" : ""}
+                    </div>
+                `;
+
+                div.onclick = () => {
+                    loadPackages(
+                        game.game_id,
+                        game.name
+                    );
+                };
+
+                container.appendChild(div);
+
             });
 
-            await loadPackages();
+        } catch (error) {
+
+            console.error(error);
+
+            container.innerHTML = `
+                <div class="error">
+                    ❌ Regionlarni yuklashda xatolik:
+                    ${escapeHtml(error.message)}
+                </div>
+            `;
         }
+    }
 
-        async function loadPackages() {
 
-            const container =
-                document.getElementById("packages");
+    async function loadPackages(gameId, gameName) {
 
-            container.innerHTML =
-                '<div class="loading">PlayPay paketlari yuklanmoqda...</div>';
+        showSection("packages");
 
-            try {
+        document.getElementById("packageTitle").innerText =
+            "💎 " + gameName;
 
-                const response =
-                    await fetch("/api/packages");
+        const container =
+            document.getElementById("packageList");
 
-                const data =
-                    await response.json();
+        container.innerHTML = `
+            <div class="loading">
+                Paketlar yuklanmoqda...
+            </div>
+        `;
 
-                if (!data.ok) {
+        try {
 
-                    throw new Error(
-                        data.error || "API error"
-                    );
-                }
+            const response =
+                await fetch(`/api/packages/${gameId}`);
 
-                container.innerHTML = "";
+            const data =
+                await response.json();
 
-                data.packages.forEach(package => {
-
-                    const price =
-                        package.charged?.amount ??
-                        package.price?.amount ??
-                        0;
-
-                    const div =
-                        document.createElement("div");
-
-                    div.className = "package";
-
-                    div.innerHTML = `
-                        <div>
-                            <div class="package-name">
-                                💎 ${package.name}
-                            </div>
-
-                            <div class="package-price">
-                                ${Number(price).toLocaleString()} UZS
-                            </div>
-                        </div>
-
-                        <button
-                            class="buy"
-                            onclick="buyPackage(${package.paket_id})"
-                        >
-                            Olish
-                        </button>
-                    `;
-
-                    container.appendChild(div);
-
-                });
-
-            } catch (error) {
-
-                container.innerHTML =
-                    `<div class="loading">
-                        Paketlarni yuklashda xatolik.
-                    </div>`;
-
-                console.error(error);
+            if (!data.ok) {
+                throw new Error(
+                    data.error || "API error"
+                );
             }
+
+            const packages =
+                data.packages || [];
+
+            if (packages.length === 0) {
+
+                container.innerHTML = `
+                    <div class="empty">
+                        Bu region uchun paket topilmadi.
+                    </div>
+                `;
+
+                return;
+            }
+
+            container.innerHTML = "";
+
+            packages.forEach(pkg => {
+
+                const price =
+                    pkg.charged?.amount ??
+                    pkg.price?.amount ??
+                    0;
+
+                const currency =
+                    pkg.charged?.currency ??
+                    pkg.price?.currency ??
+                    "UZS";
+
+                const div =
+                    document.createElement("div");
+
+                div.className = "package";
+
+                div.innerHTML = `
+                    <div class="package-name">
+                        💎 ${escapeHtml(pkg.name || "Package")}
+                    </div>
+
+                    <div class="package-price">
+                        ${formatMoney(price)} ${currency}
+                    </div>
+
+                    <button class="buy">
+                        Olish
+                    </button>
+                `;
+
+                div.querySelector(".buy").onclick = () => {
+
+                    buyPackage(
+                        gameId,
+                        gameName,
+                        pkg
+                    );
+
+                };
+
+                container.appendChild(div);
+
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+            container.innerHTML = `
+                <div class="error">
+                    ❌ Paketlarni yuklashda xatolik:
+                    ${escapeHtml(error.message)}
+                </div>
+            `;
         }
+    }
 
-        function buyPackage(packageId) {
 
-            tg.showAlert(
-                "Paket ID: " + packageId +
-                "\\n\\nKeyingi bosqichda User ID va Server ID kiritish oynasini qo‘shamiz."
-            );
-        }
+    function buyPackage(gameId, gameName, pkg) {
 
-    </script>
+        const price =
+            pkg.charged?.amount ??
+            pkg.price?.amount ??
+            0;
+
+        tg.showAlert(
+            "Tanlangan paket: " +
+            (pkg.name || "Package") +
+            "\nNarx: " +
+            formatMoney(price) +
+            " UZS" +
+            "\n\nKeyingi bosqichda User ID va Server ID kiritish oynasini qo‘shamiz."
+        );
+    }
+
+
+    function formatMoney(number) {
+
+        return Number(number).toLocaleString(
+            "uz-UZ"
+        );
+
+    }
+
+
+    function escapeHtml(value) {
+
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+    }
+
+</script>
 
 </body>
-  </html>
+</html>
