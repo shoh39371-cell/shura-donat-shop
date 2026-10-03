@@ -821,11 +821,86 @@ function showConfirmation(
    ORDER PLACEHOLDER
 ===================================================== */
 
-function createOrder() {
+async function createOrder(
+    pkg,
+    playerId,
+    serverId
+) {
 
-    alertUser(
-        "Buyurtma tizimi keyingi bosqichda ulanadi."
-    );
+    if (!pkg) {
+        alertUser("Paket topilmadi.");
+        return;
+    }
+
+    if (!playerId) {
+        alertUser("User ID topilmadi.");
+        return;
+    }
+
+    if (!serverId) {
+        alertUser("Server ID topilmadi.");
+        return;
+    }
+
+    openModal(`
+
+        <div class="modal-title">
+            ⏳ Buyurtma
+        </div>
+
+        <div class="loading">
+
+            <div class="spinner"></div>
+
+            Buyurtma tayyorlanmoqda...
+
+        </div>
+
+    `);
+
+    /*
+        Hozircha haqiqiy PlayPay order
+        yuborilmaydi.
+
+        Keyingi bosqich:
+        Balance → to‘lov → order → PlayPay
+    */
+
+    $("modalContent").innerHTML = `
+
+        <div class="modal-title">
+            💎 ${escapeHtml(pkg.name)}
+        </div>
+
+        <div class="confirmation-card">
+
+            👤 ${escapeHtml(playerId)}
+
+            <br>
+
+            🌐 ${escapeHtml(serverId)}
+
+            <br><br>
+
+            💰
+            <b>
+                ${formatPrice(pkg.price)}
+            </b>
+
+        </div>
+
+        <div class="modal-subtitle">
+            💳 To‘lov tizimi keyingi bosqichda ulanadi.
+        </div>
+
+        <button
+            class="primary-button"
+            onclick="closeModal()"
+        >
+            Tushunarli
+        </button>
+
+    `;
 
 }
 
