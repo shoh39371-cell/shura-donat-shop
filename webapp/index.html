@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <title>PHOENIX DONAT SHOP</title>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #080b12;
+            color: white;
+        }
+
+        .header {
+            padding: 22px 18px 10px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: #8d95a5;
+            margin-top: 5px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 18px;
+        }
+
+        .card {
+            background: #111722;
+            border: 1px solid #202838;
+            border-radius: 18px;
+            padding: 20px 14px;
+            min-height: 120px;
+            cursor: pointer;
+        }
+
+        .icon {
+            font-size: 32px;
+        }
+
+        .title {
+            margin-top: 12px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .description {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #858e9e;
+        }
+
+        .section {
+            padding: 0 18px 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .package {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #111722;
+            border: 1px solid #202838;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .package-name {
+            font-weight: 700;
+        }
+
+        .package-price {
+            color: #54e38e;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .buy {
+            background: #ffb300;
+            color: #111;
+            border: none;
+            border-radius: 11px;
+            padding: 10px 14px;
+            font-weight: 800;
+        }
+
+        .loading {
+            text-align: center;
+            color: #858e9e;
+            padding: 25px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="logo">🔥 PHOENIX</div>
+        <div class="subtitle">DONAT SHOP</div>
+    </div>
+
+    <div class="grid">
+
+        <div class="card" onclick="showDiamonds()">
+            <div class="icon">💎</div>
+            <div class="title">Diamonds</div>
+            <div class="description">Mobile Legends</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">🚀</div>
+            <div class="title">Boost</div>
+            <div class="description">Rank & service</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">💳</div>
+            <div class="title">Balance</div>
+            <div class="description">Balance top-up</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">🎮</div>
+            <div class="title">Accounts</div>
+            <div class="description">MLBB accounts</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">📦</div>
+            <div class="title">My Orders</div>
+            <div class="description">Order history</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">🎁</div>
+            <div class="title">Promo</div>
+            <div class="description">Promo code</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">🆘</div>
+            <div class="title">Support</div>
+            <div class="description">Help center</div>
+        </div>
+
+        <div class="card">
+            <div class="icon">👤</div>
+            <div class="title">Profile</div>
+            <div class="description">Your account</div>
+        </div>
+
+    </div>
+
+    <div class="section" id="diamondsSection" style="display:none;">
+
+        <div class="section-title">
+            💎 Mobile Legends
+        </div>
+
+        <div id="packages">
+            <div class="loading">
+                Paketlar yuklanmoqda...
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+
+        const tg = window.Telegram.WebApp;
+
+        tg.ready();
+        tg.expand();
+
+        async function showDiamonds() {
+
+            const section =
+                document.getElementById("diamondsSection");
+
+            section.style.display = "block";
+
+            section.scrollIntoView({
+                behavior: "smooth"
+            });
+
+            await loadPackages();
+        }
+
+        async function loadPackages() {
+
+            const container =
+                document.getElementById("packages");
+
+            container.innerHTML =
+                '<div class="loading">PlayPay paketlari yuklanmoqda...</div>';
+
+            try {
+
+                const response =
+                    await fetch("/api/packages");
+
+                const data =
+                    await response.json();
+
+                if (!data.ok) {
+
+                    throw new Error(
+                        data.error || "API error"
+                    );
+                }
+
+                container.innerHTML = "";
+
+                data.packages.forEach(package => {
+
+                    const price =
+                        package.charged?.amount ??
+                        package.price?.amount ??
+                        0;
+
+                    const div =
+                        document.createElement("div");
+
+                    div.className = "package";
+
+                    div.innerHTML = `
+                        <div>
+                            <div class="package-name">
+                                💎 ${package.name}
+                            </div>
+
+                            <div class="package-price">
+                                ${Number(price).toLocaleString()} UZS
+                            </div>
+                        </div>
+
+                        <button
+                            class="buy"
+                            onclick="buyPackage(${package.paket_id})"
+                        >
+                            Olish
+                        </button>
+                    `;
+
+                    container.appendChild(div);
+
+                });
+
+            } catch (error) {
+
+                container.innerHTML =
+                    `<div class="loading">
+                        Paketlarni yuklashda xatolik.
+                    </div>`;
+
+                console.error(error);
+            }
+        }
+
+        function buyPackage(packageId) {
+
+            tg.showAlert(
+                "Paket ID: " + packageId +
+                "\\n\\nKeyingi bosqichda User ID va Server ID kiritish oynasini qo‘shamiz."
+            );
+        }
+
+    </script>
+
+</body>
+  </html>
