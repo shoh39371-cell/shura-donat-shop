@@ -4,7 +4,12 @@ import aiosqlite
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import (
+    Message,
+    CallbackQuery,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton
+)
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
@@ -15,9 +20,9 @@ from aiogram.fsm.state import State, StatesGroup
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-# Render Environment Variables ga ADMIN_ID qo'yish:
-# ADMIN_ID = Telegram ID raqamingiz
-ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
+ADMIN_ID = int(
+    os.getenv("ADMIN_ID", "0")
+)
 
 DB_NAME = "phoenix.db"
 
@@ -31,9 +36,10 @@ WEBAPP_URL = os.getenv(
     ""
 )
 
-
 if not BOT_TOKEN:
-    raise RuntimeError("BOT_TOKEN environment variable topilmadi")
+    raise RuntimeError(
+        "BOT_TOKEN environment variable topilmadi"
+    )
 
 
 bot = Bot(BOT_TOKEN)
@@ -143,7 +149,8 @@ async def init_db():
 
         await database.executemany(
             """
-            INSERT INTO packages (name, price)
+            INSERT INTO packages
+            (name, price)
             VALUES (?, ?)
             """,
             packages
@@ -258,7 +265,9 @@ def main_keyboard():
         buttons.append([
             InlineKeyboardButton(
                 text="🌐 DONAT SHOP",
-                web_app={"url": WEBAPP_URL}
+                web_app={
+                    "url": WEBAPP_URL
+                }
             )
         ])
 
@@ -304,7 +313,9 @@ Kerakli bo'limni tanlang:
 @dp.message(CommandStart())
 async def start(message: Message):
 
-    await create_user(message.from_user)
+    await create_user(
+        message.from_user
+    )
 
     text = await home_text(
         message.from_user.id
@@ -335,9 +346,7 @@ async def home(callback: CallbackQuery):
     )
 
     await callback.answer()
-
-
-# =========================
+    # =========================
 # DIAMOND
 # =========================
 
@@ -425,7 +434,7 @@ async def package_select(
     if not package:
 
         await callback.answer(
-            "Paket topilmadi",
+            "❌ Paket topilmadi",
             show_alert=True
         )
 
@@ -725,7 +734,7 @@ async def confirm_order(
 
 
 # =========================
-# CANCEL
+# CANCEL ORDER
 # =========================
 
 @dp.callback_query(F.data == "cancel_order")
@@ -742,16 +751,14 @@ async def cancel_order(
     )
 
     await callback.answer()
-
-
-# =========================
+    # =========================
 # BALANCE
 # =========================
 
 @dp.callback_query(F.data == "balance")
 async def balance(callback: CallbackQuery):
 
-    balance = await get_balance(
+    current_balance = await get_balance(
         callback.from_user.id
     )
 
@@ -795,7 +802,7 @@ async def balance(callback: CallbackQuery):
 💰 <b>BALANS</b>
 
 Hozirgi balans:
-<b>{balance:,} so'm</b>
+<b>{current_balance:,} so'm</b>
 
 Balansni to'ldirish summasini tanlang:
 """,
@@ -824,9 +831,10 @@ async def deposit(callback: CallbackQuery):
 💰 Summa:
 <b>{amount:,} so'm</b>
 
-To'lovni amalga oshirish uchun operator bilan bog'laning.
+To'lovni amalga oshirish uchun
+operator bilan bog'laning.
 
-⚠️ To'lov tizimi API orqali alohida ulanadi.
+⚠️ To'lov tizimi keyingi bosqichda ulanadi.
 """,
         reply_markup=InlineKeyboardMarkup(
             inline_keyboard=[
@@ -913,7 +921,7 @@ async def profile(callback: CallbackQuery):
 
     user = callback.from_user
 
-    balance = await get_balance(
+    current_balance = await get_balance(
         user.id
     )
 
@@ -934,7 +942,7 @@ async def profile(callback: CallbackQuery):
 {username}
 
 💰 Balans:
-<b>{balance:,} so'm</b>
+<b>{current_balance:,} so'm</b>
 """,
         reply_markup=back_keyboard(),
         parse_mode="HTML"
@@ -948,7 +956,10 @@ async def profile(callback: CallbackQuery):
 # =========================
 
 @dp.callback_query(F.data == "promo")
-async def promo(callback: CallbackQuery, state: FSMContext):
+async def promo(
+    callback: CallbackQuery,
+    state: FSMContext
+):
 
     await state.set_state(
         PromoState.waiting_code
@@ -971,6 +982,9 @@ async def promo_code(
     message: Message,
     state: FSMContext
 ):
+
+    if not message.text:
+        return
 
     code = message.text.strip().upper()
 
@@ -1014,7 +1028,7 @@ async def promo_code(
 
 
 # =========================
-# BOOST / SALE
+# BOOST
 # =========================
 
 @dp.callback_query(F.data == "boost")
@@ -1032,6 +1046,10 @@ Boost xizmatlari tez orada qo'shiladi.
 
     await callback.answer()
 
+
+# =========================
+# SALE
+# =========================
 
 @dp.callback_query(F.data == "sale")
 async def sale(callback: CallbackQuery):
@@ -1054,4 +1072,642 @@ Chegirmali xizmatlar tez orada qo'shiladi.
 # =========================
 
 @dp.callback_query(F.data == "support")
-async def support(callback: Ca
+async def support(callback: CallbackQuery):
+
+    username = SUPPORT_USERNAME.lstrip("@")
+
+    await callback.message.edit_text(
+        f"""
+🆘 <b>SUPPORT</b>
+
+Savol yoki muammo bo'lsa
+operatorga murojaat qiling.
+
+👤 @{username}
+""",
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="💬 Operator",
+                        url=f"https://t.me/{username}"
+                    )
+                ],
+                [
+                    InlineKeyboardButton(
+                        text="⬅️ Orqaga",
+                        callback_data="home"
+                    )
+                ]
+            ]
+        ),
+        parse_mode="HTML"
+    )
+
+    await callback.answer()
+    # =========================
+# ADMIN PANEL
+# =========================
+
+def admin_keyboard():
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="📦 Buyurtmalar",
+                    callback_data="admin_orders"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="💎 Paketlar",
+                    callback_data="admin_packages"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="➕ Paket qo'shish",
+                    callback_data="admin_add_package"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="💰 Balans qo'shish",
+                    callback_data="admin_balance"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🎁 Promokod",
+                    callback_data="admin_promo"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📊 Statistika",
+                    callback_data="admin_stats"
+                )
+            ]
+        ]
+    )
+
+
+def is_admin(user_id):
+
+    return user_id == ADMIN_ID
+
+
+# =========================
+# ADMIN START
+# =========================
+
+@dp.message(F.text == "/admin")
+async def admin(message: Message):
+
+    if not is_admin(message.from_user.id):
+
+        await message.answer(
+            "❌ Siz admin emassiz."
+        )
+
+        return
+
+    await message.answer(
+        """
+👑 <b>PHOENIX ADMIN PANEL</b>
+
+Kerakli bo'limni tanlang:
+""",
+        reply_markup=admin_keyboard(),
+        parse_mode="HTML"
+    )
+
+
+# =========================
+# ADMIN ORDERS
+# =========================
+
+@dp.callback_query(F.data == "admin_orders")
+async def admin_orders(
+    callback: CallbackQuery
+):
+
+    if not is_admin(callback.from_user.id):
+        return
+
+    database = await db()
+
+    cursor = await database.execute(
+        """
+        SELECT id, user_id, package_name,
+               price, game_id, server, status
+        FROM orders
+        ORDER BY id DESC
+        LIMIT 20
+        """
+    )
+
+    rows = await cursor.fetchall()
+
+    await database.close()
+
+    if not rows:
+
+        text = "📦 Buyurtmalar mavjud emas."
+
+    else:
+
+        text = "📦 <b>BUYURTMALAR</b>\n\n"
+
+        for row in rows:
+
+            (
+                order_id,
+                user_id,
+                name,
+                price,
+                game_id,
+                server,
+                status
+            ) = row
+
+            text += (
+                f"🆔 #{order_id}\n"
+                f"👤 <code>{user_id}</code>\n"
+                f"💎 {name}\n"
+                f"💰 {price:,} so'm\n"
+                f"🎮 {game_id}\n"
+                f"🌐 {server}\n"
+                f"📌 {status}\n\n"
+            )
+
+    await callback.message.edit_text(
+        text,
+        reply_markup=admin_keyboard(),
+        parse_mode="HTML"
+    )
+
+    await callback.answer()
+
+
+# =========================
+# ADMIN PACKAGES
+# =========================
+
+@dp.callback_query(F.data == "admin_packages")
+async def admin_packages(
+    callback: CallbackQuery
+):
+
+    if not is_admin(callback.from_user.id):
+        return
+
+    database = await db()
+
+    cursor = await database.execute(
+        """
+        SELECT id, name, price, active
+        FROM packages
+        ORDER BY id
+        """
+    )
+
+    packages = await cursor.fetchall()
+
+    await database.close()
+
+    text = "💎 <b>PAKETLAR</b>\n\n"
+
+    for package_id, name, price, active in packages:
+
+        status = "Aktiv" if active else "O'chirilgan"
+
+        text += (
+            f"🆔 #{package_id}\n"
+            f"💎 {name}\n"
+            f"💰 {price:,} so'm\n"
+            f"📌 {status}\n\n"
+        )
+
+    await callback.message.edit_text(
+        text,
+        reply_markup=admin_keyboard(),
+        parse_mode="HTML"
+    )
+
+    await callback.answer()
+
+
+# =========================
+# ADD PACKAGE
+# =========================
+
+@dp.callback_query(F.data == "admin_add_package")
+async def admin_add_package(
+    callback: CallbackQuery,
+    state: FSMContext
+):
+
+    if not is_admin(callback.from_user.id):
+        return
+
+    await state.set_state(
+        AdminPackageState.waiting_name
+    )
+
+    await callback.message.edit_text(
+        """
+➕ <b>PAKET QO'SHISH</b>
+
+Paket nomini yuboring.
+
+Masalan:
+
+<code>86 Diamonds</code>
+""",
+        parse_mode="HTML"
+    )
+
+    await callback.answer()
+
+
+@dp.message(AdminPackageState.waiting_name)
+async def admin_package_name(
+    message: Message,
+    state: FSMContext
+):
+
+    if not message.text:
+        return
+
+    await state.update_data(
+        name=message.text.strip()
+    )
+
+    await state.set_state(
+        AdminPackageState.waiting_price
+    )
+
+    await message.answer(
+        """
+💰 Paket narxini yuboring.
+
+Masalan:
+
+<code>12000</code>
+""",
+        parse_mode="HTML"
+    )
+
+
+@dp.message(AdminPackageState.waiting_price)
+async def admin_package_price(
+    message: Message,
+    state: FSMContext
+):
+
+    if not message.text:
+        return
+
+    try:
+
+        price = int(
+            message.text.replace(" ", "")
+        )
+
+    except ValueError:
+
+        await message.answer(
+            "❌ Faqat raqam yuboring."
+        )
+
+        return
+
+    if price <= 0:
+
+        await message.answer(
+            "❌ Narx 0 dan katta bo'lishi kerak."
+        )
+
+        return
+
+    data = await state.get_data()
+
+    database = await db()
+
+    await database.execute(
+        """
+        INSERT INTO packages
+        (name, price, active)
+        VALUES (?, ?, 1)
+        """,
+        (
+            data["name"],
+            price
+        )
+    )
+
+    await database.commit()
+    await database.close()
+
+    await state.clear()
+
+    await message.answer(
+        "✅ Paket muvaffaqiyatli qo'shildi.",
+        reply_markup=admin_keyboard()
+    )
+
+
+# =========================
+# ADMIN BALANCE
+# =========================
+
+@dp.callback_query(F.data == "admin_balance")
+async def admin_balance(
+    callback: CallbackQuery,
+    state: FSMContext
+):
+
+    if not is_admin(callback.from_user.id):
+        return
+
+    await state.set_state(
+        AdminBalanceState.waiting_user_id
+    )
+
+    await callback.message.edit_text(
+        """
+💰 <b>BALANS QO'SHISH</b>
+
+Foydalanuvchining Telegram ID sini yuboring:
+""",
+        parse_mode="HTML"
+    )
+
+    await callback.answer()
+
+
+@dp.message(AdminBalanceState.waiting_user_id)
+async def admin_balance_user(
+    message: Message,
+    state: FSMContext
+):
+
+    if not message.text:
+        return
+
+    try:
+
+        user_id = int(
+            message.text.strip()
+        )
+
+    except ValueError:
+
+        await message.answer(
+            "❌ Telegram ID raqam bo'lishi kerak."
+        )
+
+        return
+
+    await state.update_data(
+        target_user_id=user_id
+    )
+
+    await state.set_state(
+        AdminBalanceState.waiting_amount
+    )
+
+    await message.answer(
+        """
+💰 Qancha balans qo'shilsin?
+
+Masalan:
+
+<code>50000</code>
+""",
+        parse_mode="HTML"
+    )
+
+
+@dp.message(AdminBalanceState.waiting_amount)
+async def admin_balance_amount(
+    message: Message,
+    state: FSMContext
+):
+
+    if not message.text:
+        return
+
+    try:
+
+        amount = int(
+            message.text.replace(" ", "")
+        )
+
+    except ValueError:
+
+        await message.answer(
+            "❌ Faqat raqam yuboring."
+        )
+
+        return
+
+    if amount <= 0:
+
+        await message.answer(
+            "❌ Summa 0 dan katta bo'lishi kerak."
+        )
+
+        return
+
+    data = await state.get_data()
+
+    target_user_id = data["target_user_id"]
+
+    database = await db()
+
+    cursor = await database.execute(
+        """
+        SELECT user_id
+        FROM users
+        WHERE user_id = ?
+        """,
+        (target_user_id,)
+    )
+
+    user = await cursor.fetchone()
+
+    if not user:
+
+        await database.close()
+        await state.clear()
+
+        await message.answer(
+            "❌ Bu foydalanuvchi hali botdan foydalanmagan."
+        )
+
+        return
+
+    await database.execute(
+        """
+        UPDATE users
+        SET balance = balance + ?
+        WHERE user_id = ?
+        """,
+        (
+            amount,
+            target_user_id
+        )
+    )
+
+    await database.commit()
+    await database.close()
+
+    await state.clear()
+
+    await message.answer(
+        f"""
+✅ <b>BALANS QO'SHILDI</b>
+
+👤 User:
+<code>{target_user_id}</code>
+
+💰 Qo'shildi:
+<b>{amount:,} so'm</b>
+""",
+        reply_markup=admin_keyboard(),
+        parse_mode="HTML"
+    )
+
+    try:
+
+        await bot.send_message(
+            target_user_id,
+            f"""
+💰 <b>BALANS TO'LDIRILDI</b>
+
+Hisobingizga:
+
+<b>{amount:,} so'm</b>
+
+qo'shildi.
+""",
+            parse_mode="HTML"
+        )
+
+    except Exception:
+        pass
+
+
+# =========================
+# ADMIN PROMO
+# =========================
+
+@dp.callback_query(F.data == "admin_promo")
+async def admin_promo(
+    callback: CallbackQuery
+):
+
+    if not is_admin(callback.from_user.id):
+        return
+
+    await callback.message.edit_text(
+        """
+🎁 <b>PROMOKOD</b>
+
+Promo kod yaratish funksiyasi
+keyingi bosqichda ulanadi.
+
+Hozircha promo kodlar
+database orqali boshqariladi.
+""",
+        reply_markup=admin_keyboard(),
+        parse_mode="HTML"
+    )
+
+    await callback.answer()
+
+
+# =========================
+# ADMIN STATISTICS
+# =========================
+
+@dp.callback_query(F.data == "admin_stats")
+async def admin_stats(
+    callback: CallbackQuery
+):
+
+    if not is_admin(callback.from_user.id):
+        return
+
+    database = await db()
+
+    cursor = await database.execute(
+        "SELECT COUNT(*) FROM users"
+    )
+
+    users_count = (
+        await cursor.fetchone()
+    )[0]
+
+    cursor = await database.execute(
+        "SELECT COUNT(*) FROM orders"
+    )
+
+    orders_count = (
+        await cursor.fetchone()
+    )[0]
+
+    cursor = await database.execute(
+        """
+        SELECT COALESCE(SUM(price), 0)
+        FROM orders
+        """
+    )
+
+    revenue = (
+        await cursor.fetchone()
+    )[0]
+
+    await database.close()
+
+    await callback.message.edit_text(
+        f"""
+📊 <b>STATISTIKA</b>
+
+👤 Foydalanuvchilar:
+<b>{users_count}</b>
+
+📦 Buyurtmalar:
+<b>{orders_count}</b>
+
+💰 Buyurtmalar summasi:
+<b>{revenue:,} so'm</b>
+""",
+        reply_markup=admin_keyboard(),
+        parse_mode="HTML"
+    )
+
+    await callback.answer()
+
+
+# =========================
+# START BOT
+# =========================
+
+async def main():
+
+    await init_db()
+
+    print(
+        "🔥 PHOENIX DONAT BOT ISHLADI"
+    )
+
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+
+    asyncio.run(main())
