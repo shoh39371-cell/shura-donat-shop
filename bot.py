@@ -352,7 +352,34 @@ async def api_packages(
             "ok": False,
             "error": str(e),
         }
+# =========================================================
+# API: BALANCE
+# =========================================================
 
+@app.get("/api/balance")
+async def api_balance(telegram_id: int):
+
+    try:
+
+        balance = get_balance(
+            telegram_id
+        )
+
+        return {
+            "ok": True,
+            "balance": balance,
+        }
+
+    except Exception as e:
+
+        logger.exception(
+            "Balance error"
+        )
+
+        return {
+            "ok": False,
+            "error": str(e),
+        }
 # =========================================================
 # API: CHECK PLAYER ID
 # =========================================================
