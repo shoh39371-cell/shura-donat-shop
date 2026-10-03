@@ -3,7 +3,7 @@ import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import requests
-
+from database import init_db, get_user, add_balance
 from telegram import (
     Update,
     InlineKeyboardButton,
