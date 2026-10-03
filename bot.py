@@ -444,7 +444,91 @@ async def api_check_player(
             "ok": False,
             "error": str(e),
         }
+# =========================================================
+# API: CREATE PLAYPAY ORDER
+# =========================================================
 
+@app.post("/api/create-order")
+async def api_create_order(data: dict):
+
+    try:
+
+        game_id = int(
+            data.get("game_id")
+        )
+
+        package_id = int(
+            data.get("package_id")
+        )
+
+        player_id = str(
+            data.get(
+                "player_id",
+                "",
+            )
+        ).strip()
+
+        server_id = str(
+            data.get(
+                "server_id",
+                "",
+            )
+        ).strip()
+
+        if not player_id:
+
+            return {
+                "ok": False,
+                "error": "User ID kiritilmagan",
+            }
+
+        if not server_id:
+
+            return {
+                "ok": False,
+                "error": "Server ID kiritilmagan",
+            }
+
+        regions = await get_mlbb_regions()
+
+        allowed_ids = {
+            region["game_id"]
+            for region in regions
+        }
+
+        if game_id not in allowed_ids:
+
+            return {
+                "ok": False,
+                "error": "Noto'g'ri Mobile Legends region",
+            }
+
+        result = await playpay_request(
+            "POST",
+            "/order",
+            payload={
+                "game_id": game_id,
+                "paket_id": package_id,
+                "player_id": player_id,
+                "server_id": server_id,
+            },
+        )
+
+        return {
+            "ok": True,
+            "order": result,
+        }
+
+    except Exception as e:
+
+        logger.exception(
+            "Create order error"
+        )
+
+        return {
+            "ok": False,
+            "error": str(e),
+        }
 # =========================================================
 # TELEGRAM /START
 # =========================================================
