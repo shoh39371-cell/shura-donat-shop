@@ -72,26 +72,24 @@ WEB_APP_URL = (
 # =========================================================
 
 class HealthHandler(BaseHTTPRequestHandler):
-            if self.path == "/api/packages":
+    def do_GET(self):
+
+        if self.path == "/api/packages":
 
             try:
-
                 data = get_diamond_packages()
 
                 response = json.dumps(data).encode("utf-8")
 
                 self.send_response(200)
-
                 self.send_header(
                     "Content-Type",
                     "application/json"
                 )
-
                 self.send_header(
                     "Content-Length",
                     str(len(response))
                 )
-
                 self.end_headers()
 
                 self.wfile.write(response)
@@ -104,12 +102,10 @@ class HealthHandler(BaseHTTPRequestHandler):
                 )
 
                 self.send_response(500)
-
                 self.send_header(
                     "Content-Type",
                     "application/json"
                 )
-
                 self.end_headers()
 
                 self.wfile.write(
@@ -117,7 +113,6 @@ class HealthHandler(BaseHTTPRequestHandler):
                 )
 
             return
-    def do_GET(self):
 
         if self.path == "/" or self.path == "/index.html":
 
@@ -127,17 +122,14 @@ class HealthHandler(BaseHTTPRequestHandler):
                     html = f.read()
 
                 self.send_response(200)
-
                 self.send_header(
                     "Content-Type",
                     "text/html; charset=utf-8"
                 )
-
                 self.send_header(
                     "Content-Length",
                     str(len(html))
                 )
-
                 self.end_headers()
 
                 self.wfile.write(html)
@@ -145,7 +137,6 @@ class HealthHandler(BaseHTTPRequestHandler):
             except FileNotFoundError:
 
                 self.send_response(404)
-
                 self.end_headers()
 
                 self.wfile.write(
@@ -153,6 +144,9 @@ class HealthHandler(BaseHTTPRequestHandler):
                 )
 
             return
+
+        self.send_response(404)
+        self.end_headers()   
 
         self.send_response(404)
         self.end_headers()
