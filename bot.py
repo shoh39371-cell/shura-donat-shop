@@ -3,6 +3,11 @@ import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import requests
+import hmac
+import hashlib
+import json
+import time
+from urllib.parse import parse_qsl
 from database import init_db, get_user, add_balance
 from telegram import (
     Update,
@@ -19,7 +24,7 @@ from telegram.ext import (
     ContextTypes,
     filters,
 )
-
+from database import init_db, get_user, add_balance
 
 # =========================================================
 # ENVIRONMENT
@@ -107,6 +112,87 @@ class HealthHandler(BaseHTTPRequestHandler):
 
         self.send_response(404)
         self.end_headers()
+            def do_POST(self):
+
+        if self.path != "/api/balance":
+            self.send_response(404)
+            self.end_headers()
+            return
+
+        try:
+
+            length = int(
+                self.headers.get(
+                    "Content-Length",
+                    0
+                )
+            )
+
+            body = self.rfile.read(length)
+
+            data = json.loads(
+                body.decode("utf-8")
+            )
+
+            init_data = data.get(
+                "initData",
+                ""
+            )
+
+            user = validate_telegram_init_data(
+                init_data
+            )
+
+            if not user:
+                self.send_response(401)
+                self.send_header(
+                    "Content-Type",
+                    "application/json"
+                )
+                self.end_headers()
+
+                self.wfile.write(
+                    b'{"error":"Unauthorized"}'
+                )
+
+                return
+
+            user_id = int(user["id"])
+
+            balance = get_user(
+                user_id,
+                user.get("username", "")
+            )
+
+            response = json.dumps({
+                "balance": balance
+            }).encode("utf-8")
+
+            self.send_response(200)
+
+            self.send_header(
+                "Content-Type",
+                "application/json"
+            )
+
+            self.send_header(
+                "Content-Length",
+                str(len(response))
+            )
+
+            self.end_headers()
+
+            self.wfile.write(response)
+
+        except Exception as e:
+
+            print(
+                "BALANCE API ERROR:",
+                repr(e)
+            )
+
+            self.send_response(500)
+            self.end_headers()
 
 
     def log_message(
@@ -116,7 +202,58 @@ class HealthHandler(BaseHTTPRequestHandler):
     ):
 
         return
+def validate_telegram_init_data(init_data):
 
+    try:
+
+        data = dict(
+            parse_qsl(
+                init_data,
+                keep_blank_values=True
+            )
+        )
+
+        received_hash = data.pop("hash", None)
+
+        if not received_hash:
+            return None
+
+        auth_date = int(
+            data.get("auth_date", "0")
+        )
+
+        if time.time() - auth_date > 86400:
+            return None
+
+        data_check_string = "\n".join(
+            f"{key}={value}"
+            for key, value in sorted(data.items())
+        )
+
+        secret_key = hmac.new(
+            b"WebAppData",
+            TOKEN.encode(),
+            hashlib.sha256
+        ).digest()
+
+        calculated_hash = hmac.new(
+            secret_key,
+            data_check_string.encode(),
+            hashlib.sha256
+        ).hexdigest()
+
+        if not hmac.compare_digest(
+            calculated_hash,
+            received_hash
+        ):
+            return None
+
+        user = json.loads(data["user"])
+
+        return user
+
+    except Exception:
+        return None
 def start_web_server():
 
     server = HTTPServer(
