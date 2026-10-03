@@ -580,7 +580,115 @@
     }
 
 
-    function buyPackage(gameId, gameName, pkg) {
+function buyPackage(gameId, gameName, pkg) {
+
+    const price =
+        pkg.charged?.amount ??
+        pkg.price?.amount ??
+        0;
+
+    const userId = prompt(
+        "Mobile Legends User ID ni kiriting:"
+    );
+
+    if (!userId) {
+        return;
+    }
+
+    const serverId = prompt(
+        "Mobile Legends Server ID ni kiriting:"
+    );
+
+    if (!serverId) {
+        return;
+    }
+
+    checkPlayer(
+        gameId,
+        gameName,
+        pkg,
+        userId,
+        serverId,
+        price
+    );
+}
+
+
+async function checkPlayer(
+    gameId,
+    gameName,
+    pkg,
+    userId,
+    serverId,
+    price
+) {
+
+    tg.showPopup({
+        title: "Tekshirilmoqda",
+        message: "User ID va Server ID tekshirilmoqda...",
+        buttons: [
+            {
+                id: "ok",
+                type: "default",
+                text: "OK"
+            }
+        ]
+    });
+
+    try {
+
+        const response = await fetch(
+            "/api/check-player",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    game_id: gameId,
+                    player_id: userId,
+                    server_id: serverId
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!data.ok) {
+
+            tg.showAlert(
+                "❌ " +
+                (data.error ||
+                "User ID tekshirilmadi")
+            );
+
+            return;
+        }
+
+        tg.showAlert(
+            "✅ ID tasdiqlandi!\n\n" +
+            "Player: " +
+            (data.player_name || "Noma'lum") +
+            "\n\n" +
+            "Paket: " +
+            (pkg.name || "Package") +
+            "\n" +
+            "Narx: " +
+            formatMoney(price) +
+            " UZS"
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        tg.showAlert(
+            "❌ Server bilan bog‘lanishda xatolik."
+        );
+    }
+}
 
         const price =
             pkg.charged?.amount ??
