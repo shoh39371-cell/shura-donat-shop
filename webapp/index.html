@@ -2,731 +2,397 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     >
 
     <title>PHOENIX DONAT SHOP</title>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #080b12;
-            color: white;
-            min-height: 100vh;
-        }
-
-        .header {
-            text-align: center;
-            padding: 25px 15px 20px;
-        }
-
-        .logo {
-            font-size: 42px;
-        }
-
-        .title {
-            font-size: 24px;
-            font-weight: 800;
-            margin-top: 5px;
-        }
-
-        .subtitle {
-            color: #8e96a8;
-            margin-top: 5px;
-            font-size: 14px;
-        }
-
-        .container {
-            padding: 15px;
-            max-width: 600px;
-            margin: auto;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .card {
-            background: #111722;
-            border: 1px solid #202838;
-            border-radius: 18px;
-            padding: 20px 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.15s;
-        }
-
-        .card:active {
-            transform: scale(0.97);
-        }
-
-        .icon {
-            font-size: 32px;
-            margin-bottom: 8px;
-        }
-
-        .card-title {
-            font-size: 15px;
-            font-weight: 700;
-        }
-
-        .section {
-            display: none;
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        .back {
-            background: #171e2c;
-            border: none;
-            color: white;
-            padding: 11px 16px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            cursor: pointer;
-        }
-
-        .section-title {
-            font-size: 22px;
-            font-weight: 800;
-            margin-bottom: 15px;
-        }
-
-        .region {
-            background: #111722;
-            border: 1px solid #202838;
-            border-radius: 15px;
-            padding: 16px;
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
-
-        .region-name {
-            font-weight: 700;
-            font-size: 16px;
-        }
-
-        .region-info {
-            color: #8e96a8;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-
-        .package {
-            background: #111722;
-            border: 1px solid #202838;
-            border-radius: 16px;
-            padding: 15px;
-            margin-bottom: 10px;
-        }
-
-        .package-name {
-            font-weight: 700;
-            font-size: 16px;
-        }
-
-        .package-price {
-            margin-top: 8px;
-            font-size: 15px;
-            color: #b9c2d4;
-        }
-
-        .buy {
-            width: 100%;
-            border: none;
-            background: #ffffff;
-            color: #080b12;
-            padding: 11px;
-            border-radius: 11px;
-            margin-top: 12px;
-            font-weight: 800;
-            cursor: pointer;
-        }
-
-        .loading {
-            text-align: center;
-            color: #8e96a8;
-            padding: 30px 10px;
-        }
-
-        .error {
-            background: #28151a;
-            border: 1px solid #54252e;
-            color: #ff9ba8;
-            padding: 15px;
-            border-radius: 14px;
-            margin-bottom: 12px;
-        }
-
-        .empty {
-            text-align: center;
-            color: #8e96a8;
-            padding: 30px 10px;
-        }
-    </style>
+    <link
+        rel="stylesheet"
+        href="/style.css?v=1"
+    >
 </head>
 
 <body>
 
-<div class="header">
-    <div class="logo">🔥</div>
-    <div class="title">PHOENIX DONAT SHOP</div>
-    <div class="subtitle">Mobile Legends services</div>
+<div id="app">
+
+    <!-- HEADER -->
+    <header class="top-header">
+
+        <div class="profile-mini">
+
+            <div
+                class="avatar"
+                id="userAvatar"
+            >
+                🔥
+            </div>
+
+            <div>
+                <div
+                    class="user-name"
+                    id="userName"
+                >
+                    PHOENIX USER
+                </div>
+
+                <div
+                    class="user-username"
+                    id="userUsername"
+                >
+                    @username
+                </div>
+            </div>
+
+        </div>
+
+        <button
+            class="notification-btn"
+            onclick="openNotifications()"
+        >
+            🔔
+        </button>
+
+    </header>
+
+
+    <!-- BALANCE -->
+    <section class="balance-card">
+
+        <div>
+            <div class="balance-title">
+                Mening balansim
+            </div>
+
+            <div
+                class="balance-value"
+                id="balanceValue"
+            >
+                0 UZS
+            </div>
+        </div>
+
+        <button
+            class="balance-button"
+            onclick="openBalance()"
+        >
+            + To‘ldirish
+        </button>
+
+    </section>
+
+
+    <!-- HERO -->
+    <section class="hero">
+
+        <div class="hero-glow"></div>
+
+        <div class="hero-content">
+
+            <div class="hero-small">
+                PHOENIX DONAT SHOP
+            </div>
+
+            <h1>
+                GAME<br>
+                <span>TOP-UP</span>
+            </h1>
+
+            <p>
+                Tezkor • Ishonchli • Qulay
+            </p>
+
+            <button
+                class="hero-button"
+                onclick="openDiamonds()"
+            >
+                💎 Donat qilish
+            </button>
+
+        </div>
+
+        <div class="hero-character">
+            🪽
+        </div>
+
+    </section>
+
+
+    <!-- CATEGORIES -->
+    <section class="section">
+
+        <div class="section-header">
+
+            <h2>
+                Kategoriyalar
+            </h2>
+
+            <span>
+                Barchasi
+            </span>
+
+        </div>
+
+
+        <div class="category-grid">
+
+            <button
+                class="category-card mlbb"
+                onclick="openDiamonds()"
+            >
+
+                <div class="category-image">
+                    💎
+                </div>
+
+                <div class="category-name">
+                    Mobile Legends
+                </div>
+
+                <div class="category-sub">
+                    Diamonds
+                </div>
+
+            </button>
+
+
+            <button
+                class="category-card boost"
+                onclick="openBoost()"
+            >
+
+                <div class="category-image">
+                    🚀
+                </div>
+
+                <div class="category-name">
+                    Boost
+                </div>
+
+                <div class="category-sub">
+                    Rank xizmatlari
+                </div>
+
+            </button>
+
+
+            <button
+                class="category-card accounts"
+                onclick="openAccounts()"
+            >
+
+                <div class="category-image">
+                    🎮
+                </div>
+
+                <div class="category-name">
+                    Accountlar
+                </div>
+
+                <div class="category-sub">
+                    Marketplace
+                </div>
+
+            </button>
+
+
+            <button
+                class="category-card balance"
+                onclick="openBalance()"
+            >
+
+                <div class="category-image">
+                    💳
+                </div>
+
+                <div class="category-name">
+                    Balans
+                </div>
+
+                <div class="category-sub">
+                    Hisobni to‘ldirish
+                </div>
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- PROMO -->
+    <section class="promo-banner">
+
+        <div>
+
+            <div class="promo-label">
+                MAXSUS TAKLIF
+            </div>
+
+            <div class="promo-title">
+                Promo koddan foydalaning
+            </div>
+
+            <div class="promo-text">
+                Xaridingizga chegirma oling
+            </div>
+
+        </div>
+
+        <div class="promo-icon">
+            🎁
+        </div>
+
+    </section>
+
+
+    <!-- QUICK MENU -->
+    <section class="section">
+
+        <div class="section-header">
+
+            <h2>
+                Tezkor
+            </h2>
+
+        </div>
+
+
+        <div class="quick-grid">
+
+            <button
+                onclick="openOrders()"
+                class="quick-card"
+            >
+                <span>📦</span>
+                <b>Buyurtmalar</b>
+                <small>Tarix</small>
+            </button>
+
+
+            <button
+                onclick="openPromo()"
+                class="quick-card"
+            >
+                <span>🎁</span>
+                <b>Promo kod</b>
+                <small>Chegirma</small>
+            </button>
+
+
+            <button
+                onclick="openSupport()"
+                class="quick-card"
+            >
+                <span>🆘</span>
+                <b>Yordam</b>
+                <small>Support</small>
+            </button>
+
+
+            <button
+                onclick="openProfile()"
+                class="quick-card"
+            >
+                <span>👤</span>
+                <b>Profil</b>
+                <small>Sozlamalar</small>
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- CONTENT AREA -->
+    <main id="contentArea"></main>
+
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+
+        <button
+            class="nav-item active"
+            onclick="goHome()"
+        >
+            <span>🏠</span>
+            <small>Bosh sahifa</small>
+        </button>
+
+
+        <button
+            class="nav-item"
+            onclick="openOrders()"
+        >
+            <span>📦</span>
+            <small>Faoliyat</small>
+        </button>
+
+
+        <button
+            class="nav-center"
+            onclick="openDiamonds()"
+        >
+            +
+        </button>
+
+
+        <button
+            class="nav-item"
+            onclick="openNotifications()"
+        >
+            <span>💬</span>
+            <small>Xabar</small>
+        </button>
+
+
+        <button
+            class="nav-item"
+            onclick="openProfile()"
+        >
+            <span>👤</span>
+            <small>Profil</small>
+        </button>
+
+    </nav>
+
 </div>
 
 
-<div class="container">
+<!-- MODAL -->
+<div
+    class="modal"
+    id="modal"
+>
 
-    <!-- MAIN -->
-    <div id="main" class="section active">
+    <div
+        class="modal-background"
+        onclick="closeModal()"
+    ></div>
 
-        <div class="grid">
+    <div class="modal-box">
 
-            <div class="card" onclick="openDiamonds()">
-                <div class="icon">💎</div>
-                <div class="card-title">Diamonds</div>
-            </div>
-
-            <div class="card" onclick="showSection('boost')">
-                <div class="icon">🚀</div>
-                <div class="card-title">Boost</div>
-            </div>
-
-            <div class="card" onclick="showSection('balance')">
-                <div class="icon">💳</div>
-                <div class="card-title">Balance</div>
-            </div>
-
-            <div class="card" onclick="showSection('accounts')">
-                <div class="icon">🎮</div>
-                <div class="card-title">Accounts</div>
-            </div>
-
-            <div class="card" onclick="showSection('orders')">
-                <div class="icon">📦</div>
-                <div class="card-title">My Orders</div>
-            </div>
-
-            <div class="card" onclick="showSection('promo')">
-                <div class="icon">🎁</div>
-                <div class="card-title">Promo</div>
-            </div>
-
-            <div class="card" onclick="showSection('support')">
-                <div class="icon">🆘</div>
-                <div class="card-title">Support</div>
-            </div>
-
-            <div class="card" onclick="showSection('profile')">
-                <div class="icon">👤</div>
-                <div class="card-title">Profile</div>
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- DIAMONDS -->
-    <div id="diamonds" class="section">
-
-        <button class="back" onclick="showSection('main')">
-            ← Orqaga
+        <button
+            class="modal-close"
+            onclick="closeModal()"
+        >
+            ×
         </button>
 
-        <div class="section-title">
-            💎 Mobile Legends
-        </div>
+        <div id="modalContent"></div>
 
-        <div id="regions">
-            <div class="loading">
-                Regionlar yuklanmoqda...
-            </div>
-        </div>
-
-    </div>
-
-
-    <!-- PACKAGES -->
-    <div id="packages" class="section">
-
-        <button class="back" onclick="openDiamonds()">
-            ← Regionlar
-        </button>
-
-        <div id="packageTitle" class="section-title">
-            💎 Paketlar
-        </div>
-
-        <div id="packageList">
-            <div class="loading">
-                Paketlar yuklanmoqda...
-            </div>
-        </div>
-
-    </div>
-
-
-    <!-- OTHER SECTIONS -->
-
-    <div id="boost" class="section">
-        <button class="back" onclick="showSection('main')">
-            ← Orqaga
-        </button>
-
-        <div class="section-title">🚀 Boost</div>
-
-        <div class="empty">
-            Boost xizmatlari tez orada qo‘shiladi.
-        </div>
-    </div>
-
-
-    <div id="balance" class="section">
-        <button class="back" onclick="showSection('main')">
-            ← Orqaga
-        </button>
-
-        <div class="section-title">💳 Balance</div>
-
-        <div class="empty">
-            Balance to‘ldirish tizimi tez orada qo‘shiladi.
-        </div>
-    </div>
-
-
-    <div id="accounts" class="section">
-        <button class="back" onclick="showSection('main')">
-            ← Orqaga
-        </button>
-
-        <div class="section-title">🎮 MLBB Accounts</div>
-
-        <div class="empty">
-            Account marketplace tez orada qo‘shiladi.
-        </div>
-    </div>
-
-
-    <div id="orders" class="section">
-        <button class="back" onclick="showSection('main')">
-            ← Orqaga
-        </button>
-
-        <div class="section-title">📦 My Orders</div>
-
-        <div class="empty">
-            Buyurtmalar hozircha mavjud emas.
-        </div>
-    </div>
-
-
-    <div id="promo" class="section">
-        <button class="back" onclick="showSection('main')">
-            ← Orqaga
-        </button>
-
-        <div class="section-title">🎁 Promo</div>
-
-        <div class="empty">
-            Promo kod tizimi tez orada qo‘shiladi.
-        </div>
-    </div>
-
-
-    <div id="support" class="section">
-        <button class="back" onclick="showSection('main')">
-            ← Orqaga
-        </button>
-
-        <div class="section-title">🆘 Support</div>
-
-        <div class="empty">
-            Support tizimi tez orada qo‘shiladi.
-        </div>
-    </div>
-
-
-    <div id="profile" class="section">
-        <button class="back" onclick="showSection('main')">
-            ← Orqaga
-        </button>
-
-        <div class="section-title">👤 Profile</div>
-
-        <div class="empty">
-            Profil tizimi tez orada qo‘shiladi.
-        </div>
     </div>
 
 </div>
 
 
-<script>
-
-    const tg = window.Telegram.WebApp;
-
-    tg.ready();
-    tg.expand();
-
-
-    function showSection(id) {
-
-        document.querySelectorAll(".section").forEach(section => {
-            section.classList.remove("active");
-        });
-
-        document.getElementById(id).classList.add("active");
-
-        window.scrollTo(0, 0);
-    }
-
-
-    async function openDiamonds() {
-
-        showSection("diamonds");
-
-        const container = document.getElementById("regions");
-
-        container.innerHTML = `
-            <div class="loading">
-                Regionlar yuklanmoqda...
-            </div>
-        `;
-
-        try {
-
-            const response = await fetch("/api/regions");
-
-            const data = await response.json();
-
-            if (!data.ok) {
-                throw new Error(data.error || "API error");
-            }
-
-            const regions = data.regions || [];
-
-            if (regions.length === 0) {
-
-                container.innerHTML = `
-                    <div class="empty">
-                        MLBB regionlari topilmadi.
-                    </div>
-                `;
-
-                return;
-            }
-
-            container.innerHTML = "";
-
-            regions.forEach(game => {
-
-                const div = document.createElement("div");
-
-                div.className = "region";
-
-                div.innerHTML = `
-                    <div class="region-name">
-                        ${escapeHtml(game.name)}
-                    </div>
-
-                    <div class="region-info">
-                        ${game.packages_count || 0} ta paket
-                        ${game.requires_server ? " • Server ID kerak" : ""}
-                    </div>
-                `;
-
-                div.onclick = () => {
-                    loadPackages(
-                        game.game_id,
-                        game.name
-                    );
-                };
-
-                container.appendChild(div);
-
-            });
-
-        } catch (error) {
-
-            console.error(error);
-
-            container.innerHTML = `
-                <div class="error">
-                    ❌ Regionlarni yuklashda xatolik:
-                    ${escapeHtml(error.message)}
-                </div>
-            `;
-        }
-    }
-
-
-    async function loadPackages(gameId, gameName) {
-
-        showSection("packages");
-
-        document.getElementById("packageTitle").innerText =
-            "💎 " + gameName;
-
-        const container =
-            document.getElementById("packageList");
-
-        container.innerHTML = `
-            <div class="loading">
-                Paketlar yuklanmoqda...
-            </div>
-        `;
-
-        try {
-
-            const response =
-                await fetch(`/api/packages/${gameId}`);
-
-            const data =
-                await response.json();
-
-            if (!data.ok) {
-                throw new Error(
-                    data.error || "API error"
-                );
-            }
-
-            const packages =
-                data.packages || [];
-
-            if (packages.length === 0) {
-
-                container.innerHTML = `
-                    <div class="empty">
-                        Bu region uchun paket topilmadi.
-                    </div>
-                `;
-
-                return;
-            }
-
-            container.innerHTML = "";
-
-            packages.forEach(pkg => {
-
-                const price =
-                    pkg.charged?.amount ??
-                    pkg.price?.amount ??
-                    0;
-
-                const currency =
-                    pkg.charged?.currency ??
-                    pkg.price?.currency ??
-                    "UZS";
-
-                const div =
-                    document.createElement("div");
-
-                div.className = "package";
-
-                div.innerHTML = `
-                    <div class="package-name">
-                        💎 ${escapeHtml(pkg.name || "Package")}
-                    </div>
-
-                    <div class="package-price">
-                        ${formatMoney(price)} ${currency}
-                    </div>
-
-                    <button class="buy">
-                        Olish
-                    </button>
-                `;
-
-                div.querySelector(".buy").onclick = () => {
-
-                    buyPackage(
-                        gameId,
-                        gameName,
-                        pkg
-                    );
-
-                };
-
-                container.appendChild(div);
-
-            });
-
-        } catch (error) {
-
-            console.error(error);
-
-            container.innerHTML = `
-                <div class="error">
-                    ❌ Paketlarni yuklashda xatolik:
-                    ${escapeHtml(error.message)}
-                </div>
-            `;
-        }
-    }
-
-
-function buyPackage(gameId, gameName, pkg) {
-
-    const price =
-        pkg.charged?.amount ??
-        pkg.price?.amount ??
-        0;
-
-    const userId = prompt(
-        "Mobile Legends User ID ni kiriting:"
-    );
-
-    if (!userId) {
-        return;
-    }
-
-    const serverId = prompt(
-        "Mobile Legends Server ID ni kiriting:"
-    );
-
-    if (!serverId) {
-        return;
-    }
-
-    checkPlayer(
-        gameId,
-        gameName,
-        pkg,
-        userId,
-        serverId,
-        price
-    );
-}
-
-
-async function checkPlayer(
-    gameId,
-    gameName,
-    pkg,
-    userId,
-    serverId,
-    price
-) {
-
-    tg.showPopup({
-        title: "Tekshirilmoqda",
-        message: "User ID va Server ID tekshirilmoqda...",
-        buttons: [
-            {
-                id: "ok",
-                type: "default",
-                text: "OK"
-            }
-        ]
-    });
-
-    try {
-
-        const response = await fetch(
-            "/api/check-player",
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    game_id: gameId,
-                    player_id: userId,
-                    server_id: serverId
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        if (!data.ok) {
-
-            tg.showAlert(
-                "❌ " +
-                (data.error ||
-                "User ID tekshirilmadi")
-            );
-
-            return;
-        }
-
-        tg.showAlert(
-            "✅ ID tasdiqlandi!\n\n" +
-            "Player: " +
-            (data.player_name || "Noma'lum") +
-            "\n\n" +
-            "Paket: " +
-            (pkg.name || "Package") +
-            "\n" +
-            "Narx: " +
-            formatMoney(price) +
-            " UZS"
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
-        tg.showAlert(
-            "❌ Server bilan bog‘lanishda xatolik."
-        );
-    }
-}
-
-        const price =
-            pkg.charged?.amount ??
-            pkg.price?.amount ??
-            0;
-
-        tg.showAlert(
-            "Tanlangan paket: " +
-            (pkg.name || "Package") +
-            "\nNarx: " +
-            formatMoney(price) +
-            " UZS" +
-            "\n\nKeyingi bosqichda User ID va Server ID kiritish oynasini qo‘shamiz."
-        );
-    }
-
-
-    function formatMoney(number) {
-
-        return Number(number).toLocaleString(
-            "uz-UZ"
-        );
-
-    }
-
-
-    function escapeHtml(value) {
-
-        return String(value)
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-
-    }
-
-</script>
+<script src="/app.js?v=1"></script>
 
 </body>
-</html>
+                                  </html>
