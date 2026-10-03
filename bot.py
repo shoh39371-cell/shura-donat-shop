@@ -70,103 +70,43 @@ class HealthHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
 
-        html = """
-<!DOCTYPE html>
-<html lang="uz">
+        if self.path == "/" or self.path == "/index.html":
 
-<head>
+            try:
 
-<meta charset="UTF-8">
+                with open("index.html", "rb") as f:
+                    html = f.read()
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+                self.send_response(200)
 
-<title>PHOENIX DONAT SHOP</title>
+                self.send_header(
+                    "Content-Type",
+                    "text/html; charset=utf-8"
+                )
 
-<style>
+                self.send_header(
+                    "Content-Length",
+                    str(len(html))
+                )
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #090909;
-    color: white;
-    text-align: center;
-}
+                self.end_headers()
 
-.container {
-    padding: 50px 20px;
-}
+                self.wfile.write(html)
 
-.phoenix {
-    font-size: 70px;
-}
+            except FileNotFoundError:
 
-h1 {
-    font-size: 30px;
-}
+                self.send_response(404)
 
-p {
-    color: #cccccc;
-}
+                self.end_headers()
 
-.button {
-    display: block;
-    margin: 20px auto;
-    max-width: 300px;
-    padding: 16px;
-    border-radius: 12px;
-    background: #ff5a00;
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-}
+                self.wfile.write(
+                    b"index.html topilmadi"
+                )
 
-</style>
+            return
 
-</head>
-
-<body>
-
-<div class="container">
-
-<div class="phoenix">🔥</div>
-
-<h1>PHOENIX DONAT SHOP</h1>
-
-<p>Mobile Legends xizmatlari</p>
-
-<a
-    class="button"
-    href="https://t.me/ShuraOfficialBot"
->
-🤖 BOTNI OCHISH
-</a>
-
-<p>
-💎 Diamond • 💳 Top Up • 🚀 Boost
-</p>
-
-</div>
-
-</body>
-
-</html>
-"""
-
-        self.send_response(200)
-
-        self.send_header(
-            "Content-Type",
-            "text/html; charset=utf-8"
-        )
-
+        self.send_response(404)
         self.end_headers()
-
-        self.wfile.write(
-            html.encode("utf-8")
-        )
 
 
     def log_message(
@@ -176,7 +116,6 @@ p {
     ):
 
         return
-
 
 def start_web_server():
 
