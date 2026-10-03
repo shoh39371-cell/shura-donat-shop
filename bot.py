@@ -204,7 +204,105 @@ async def packages(game_id: int):
             "ok": False,
             "error": str(e),
         }
+# =========================
+# CHECK MLBB PLAYER ID
+# =========================
 
+@app.post("/api/check-player")
+async def check_player(data: dict):
+
+    try:
+        game_id = int(data.get("game_id"))
+        player_id = str(data.get("player_id", "")).strip()
+        server_id = str(data.get("server_id", "")).strip()
+
+        if not player_id:
+            return {
+                "ok": False,
+                "error": "User ID kiritilmagan"
+            }
+
+        if not server_id:
+            return {
+                "ok": False,
+                "error": "Server ID kiritilmagan"
+            }
+
+        games = await get_mlbb_games()
+
+        allowed_ids = {
+            int(game["game_id"])
+            for game in games
+            if game.get("game_id") is not None
+        }
+
+        if game_id not in allowed_ids:
+            return {
+                "ok": False,
+                "error": "Noto'g'ri MLBB region"
+            }
+
+        url = f"{PLAYPAY_API}/check_id"
+
+        headers = {
+            "X-API-Key": PLAYPAY_API_KEY,
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "game_id": game_id,
+            "player_id": player_id,
+            "server_id": server_id
+        }
+
+        timeout = aiohttp.ClientTimeout(total=30)
+
+        async with aiohttp.ClientSession(
+            timeout=timeout
+        ) as session:
+
+            async with session.post(
+                url,
+                headers=headers,
+                json=payload
+            ) as response:
+
+                result = await response.json()
+
+        if not result.get("ok"):
+            return {
+                "ok": False,
+                "error": result.get(
+                    "error",
+                    "Player ID tekshirishda xatolik"
+                )
+            }
+
+        if not result.get("valid"):
+            return {
+                "ok": False,
+                "error": "User ID yoki Server ID noto'g'ri"
+            }
+
+        return {
+            "ok": True,
+            "valid": True,
+            "player_name": result.get("player_name"),
+            "player_id": player_id,
+            "server_id": server_id
+        }
+
+    except Exception as e:
+
+        logger.error(
+            "Player check error: %s",
+            e
+        )
+
+        return {
+            "ok": False,
+            "error": str(e)
+        }
 
 # =========================
 # TELEGRAM /START
