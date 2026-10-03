@@ -55,7 +55,7 @@ PLAYPAY_API = "https://playpay.uz/api/v1"
 
 SUPPORT_USERNAME = "Shohjaxono1"
 
-MLBB_GAME_ID = 3
+MLBB_GAME_ID = 165
 
 WEB_APP_URL = (
     "https://shura-donat-shop-bot.onrender.com"
