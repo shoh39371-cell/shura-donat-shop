@@ -7,7 +7,7 @@ import aiohttp
 import uvicorn
 
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import CommandStart
@@ -18,15 +18,25 @@ from aiogram.types import (
     WebAppInfo,
 )
 
+# =========================================================
+# SETTINGS
+# =========================================================
+
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 PLAYPAY_API_KEY = os.getenv("PLAYPAY_API_KEY")
 WEBAPP_URL = os.getenv("WEBAPP_URL")
 
 PLAYPAY_API = "https://playpay.uz/api/v1"
+
 PORT = int(os.getenv("PORT", "10000"))
 
 BASE_DIR = Path(__file__).resolve().parent
-WEBAPP_FILE = BASE_DIR / "webapp" / "index.html"
+WEBAPP_DIR = BASE_DIR / "webapp"
+WEBAPP_FILE = WEBAPP_DIR / "index.html"
+
+# =========================================================
+# CHECK ENVIRONMENT
+# =========================================================
 
 if not BOT_TOKEN:
     raise RuntimeError("BOT_TOKEN is missing")
@@ -34,296 +44,409 @@ if not BOT_TOKEN:
 if not PLAYPAY_API_KEY:
     raise RuntimeError("PLAYPAY_API_KEY is missing")
 
+if not WEBAPP_URL:
+    raise RuntimeError("WEBAPP_URL is missing")
+
+# =========================================================
+# LOGGING
+# =========================================================
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("phoenix")
+
+# =========================================================
+# TELEGRAM
+# =========================================================
 
 bot = Bot(token=BOT_TOKEN)
+
 dp = Dispatcher()
+
 router = Router()
 
-app = FastAPI()
+# =========================================================
+# FASTAPI
+# =========================================================
 
+app = FastAPI(
+    title="PHOENIX DONAT SHOP",
+    version="1.0.0",
+)
 
-# =========================
-# WEBAPP
-# =========================
+# =========================================================
+# WEBAPP HOME
+# =========================================================
 
 @app.get("/")
 async def home():
-    return FileResponse(WEBAPP_FILE)
 
+    if not WEBAPP_FILE.exists():
+        return JSONResponse(
+            {
+                "ok": False,
+                "error": "webapp/index.html topilmadi",
+            },
+            status_code=500,
+        )
 
-# =========================
+    return FileResponse(
+        WEBAPP_FILE,
+        media_type="text/html",
+    )
+
+# =========================================================
+# HEALTH CHECK
+# =========================================================
+
+@app.get("/health")
+async def health():
+
+    return {
+        "ok": True,
+        "service": "PHOENIX DONAT SHOP",
+    }
+
+# =========================================================
 # PLAYPAY REQUEST
-# =========================
+# =========================================================
 
-async def playpay_get(path, params=None):
+async def playpay_request(
+    method: str,
+    path: str,
+    payload: dict | None = None,
+    params: dict | None = None,
+):
+
     url = f"{PLAYPAY_API}{path}"
 
     headers = {
-        "X-API-Key": PLAYPAY_API_KEY
+        "X-API-Key": PLAYPAY_API_KEY,
+        "Content-Type": "application/json",
     }
 
-    timeout = aiohttp.ClientTimeout(total=30)
+    timeout = aiohttp.ClientTimeout(
+        total=30
+    )
 
-    async with aiohttp.ClientSession(timeout=timeout) as session:
-        async with session.get(
-            url,
-            headers=headers,
-            params=params or {},
-        ) as response:
+    async with aiohttp.ClientSession(
+        timeout=timeout
+    ) as session:
 
-            data = await response.json()
+        if method.upper() == "GET":
 
-            if response.status != 200:
-                raise RuntimeError(
-                    f"PlayPay HTTP {response.status}: {data}"
-                )
+            async with session.get(
+                url,
+                headers=headers,
+                params=params or {},
+            ) as response:
 
-            if not data.get("ok"):
-                raise RuntimeError(
-                    data.get("error", "PlayPay error")
-                )
+                data = await response.json()
 
-            return data
-
-
-# =========================
-# GET ALL MLBB REGIONS
-# =========================
-
-async def get_mlbb_games():
-
-    data = await playpay_get("/games")
-
-    games = data.get("games", [])
-
-    mlbb_games = []
-
-    for game in games:
-
-        name = str(game.get("name", "")).lower()
-
-        if "mobile legends" in name:
-
-            mlbb_games.append({
-                "game_id": game.get("game_id"),
-                "name": game.get("name"),
-                "id_label": game.get("id_label"),
-                "requires_server": game.get("requires_server"),
-                "requires_charname": game.get("requires_charname"),
-                "packages_count": game.get("packages_count"),
-            })
-
-    return mlbb_games
-
-
-# =========================
-# REGIONS API
-# =========================
-
-@app.get("/api/regions")
-async def regions():
-
-    try:
-
-        games = await get_mlbb_games()
-
-        return {
-            "ok": True,
-            "regions": games,
-        }
-
-    except Exception as e:
-
-        logger.error("Regions error: %s", e)
-
-        return {
-            "ok": False,
-            "error": str(e),
-        }
-
-
-# =========================
-# PACKAGES BY GAME ID
-# =========================
-
-@app.get("/api/packages/{game_id}")
-async def packages(game_id: int):
-
-    try:
-
-        # Security: only positive game IDs
-        if game_id <= 0:
-            return {
-                "ok": False,
-                "error": "Invalid game_id",
-            }
-
-        # Make sure this game is actually MLBB
-        games = await get_mlbb_games()
-
-        allowed_ids = {
-            int(game["game_id"])
-            for game in games
-            if game.get("game_id") is not None
-        }
-
-        if game_id not in allowed_ids:
-            return {
-                "ok": False,
-                "error": "This is not a Mobile Legends game ID",
-            }
-
-        data = await playpay_get(
-            f"/games/{game_id}/packages",
-            {
-                "currency": "UZS"
-            },
-        )
-
-        return {
-            "ok": True,
-            "game_id": game_id,
-            "packages": data.get("packages", []),
-        }
-
-    except Exception as e:
-
-        logger.error(
-            "Packages error for game %s: %s",
-            game_id,
-            e,
-        )
-
-        return {
-            "ok": False,
-            "error": str(e),
-        }
-# =========================
-# CHECK MLBB PLAYER ID
-# =========================
-
-@app.post("/api/check-player")
-async def check_player(data: dict):
-
-    try:
-        game_id = int(data.get("game_id"))
-        player_id = str(data.get("player_id", "")).strip()
-        server_id = str(data.get("server_id", "")).strip()
-
-        if not player_id:
-            return {
-                "ok": False,
-                "error": "User ID kiritilmagan"
-            }
-
-        if not server_id:
-            return {
-                "ok": False,
-                "error": "Server ID kiritilmagan"
-            }
-
-        games = await get_mlbb_games()
-
-        allowed_ids = {
-            int(game["game_id"])
-            for game in games
-            if game.get("game_id") is not None
-        }
-
-        if game_id not in allowed_ids:
-            return {
-                "ok": False,
-                "error": "Noto'g'ri MLBB region"
-            }
-
-        url = f"{PLAYPAY_API}/check_id"
-
-        headers = {
-            "X-API-Key": PLAYPAY_API_KEY,
-            "Content-Type": "application/json"
-        }
-
-        payload = {
-            "game_id": game_id,
-            "player_id": player_id,
-            "server_id": server_id
-        }
-
-        timeout = aiohttp.ClientTimeout(total=30)
-
-        async with aiohttp.ClientSession(
-            timeout=timeout
-        ) as session:
+        else:
 
             async with session.post(
                 url,
                 headers=headers,
-                json=payload
+                json=payload or {},
             ) as response:
 
-                result = await response.json()
+                data = await response.json()
 
-        if not result.get("ok"):
+        if response.status != 200:
+
+            raise RuntimeError(
+                f"PlayPay HTTP {response.status}: {data}"
+            )
+
+        if not data.get("ok"):
+
+            raise RuntimeError(
+                data.get(
+                    "error",
+                    "PlayPay API xatosi",
+                )
+            )
+
+        return data
+
+# =========================================================
+# GET ALL PLAYPAY GAMES
+# =========================================================
+
+async def get_games():
+
+    return await playpay_request(
+        "GET",
+        "/games",
+    )
+
+# =========================================================
+# GET ALL MOBILE LEGENDS REGIONS
+# =========================================================
+
+async def get_mlbb_regions():
+
+    data = await get_games()
+
+    games = data.get(
+        "games",
+        [],
+    )
+
+    regions = []
+
+    for game in games:
+
+        name = str(
+            game.get(
+                "name",
+                "",
+            )
+        ).strip()
+
+        if "mobile legends" not in name.lower():
+            continue
+
+        game_id = game.get(
+            "game_id"
+        )
+
+        if game_id is None:
+            continue
+
+        regions.append(
+            {
+                "game_id": int(game_id),
+
+                "name": name,
+
+                "id_label": game.get(
+                    "id_label",
+                    "User ID",
+                ),
+
+                "requires_server": bool(
+                    game.get(
+                        "requires_server",
+                        False,
+                    )
+                ),
+
+                "requires_charname": bool(
+                    game.get(
+                        "requires_charname",
+                        False,
+                    )
+                ),
+
+                "packages_count": game.get(
+                    "packages_count",
+                    0,
+                ),
+            }
+        )
+
+    return regions
+
+# =========================================================
+# API: REGIONS
+# =========================================================
+
+@app.get("/api/regions")
+async def api_regions():
+
+    try:
+
+        regions = await get_mlbb_regions()
+
+        return {
+            "ok": True,
+            "regions": regions,
+        }
+
+    except Exception as e:
+
+        logger.exception(
+            "Regions error"
+        )
+
+        return {
+            "ok": False,
+            "error": str(e),
+        }
+
+# =========================================================
+# API: PACKAGES
+# =========================================================
+
+@app.get("/api/packages/{game_id}")
+async def api_packages(
+    game_id: int,
+):
+
+    try:
+
+        regions = await get_mlbb_regions()
+
+        allowed_ids = {
+            region["game_id"]
+            for region in regions
+        }
+
+        if game_id not in allowed_ids:
+
             return {
                 "ok": False,
-                "error": result.get(
-                    "error",
-                    "Player ID tekshirishda xatolik"
-                )
+                "error": "Noto'g'ri Mobile Legends region",
             }
 
-        if not result.get("valid"):
+        data = await playpay_request(
+            "GET",
+            f"/games/{game_id}/packages",
+            params={
+                "currency": "UZS",
+            },
+        )
+
+        packages = data.get(
+            "packages",
+            [],
+        )
+
+        return {
+            "ok": True,
+            "game_id": game_id,
+            "packages": packages,
+        }
+
+    except Exception as e:
+
+        logger.exception(
+            "Packages error"
+        )
+
+        return {
+            "ok": False,
+            "error": str(e),
+        }
+
+# =========================================================
+# API: CHECK PLAYER ID
+# =========================================================
+
+@app.post("/api/check-player")
+async def api_check_player(
+    data: dict,
+):
+
+    try:
+
+        game_id = int(
+            data.get(
+                "game_id"
+            )
+        )
+
+        player_id = str(
+            data.get(
+                "player_id",
+                "",
+            )
+        ).strip()
+
+        server_id = str(
+            data.get(
+                "server_id",
+                "",
+            )
+        ).strip()
+
+        if not player_id:
+
             return {
                 "ok": False,
-                "error": "User ID yoki Server ID noto'g'ri"
+                "error": "User ID kiritilmagan",
+            }
+
+        if not server_id:
+
+            return {
+                "ok": False,
+                "error": "Server ID kiritilmagan",
+            }
+
+        regions = await get_mlbb_regions()
+
+        allowed_ids = {
+            region["game_id"]
+            for region in regions
+        }
+
+        if game_id not in allowed_ids:
+
+            return {
+                "ok": False,
+                "error": "Noto'g'ri Mobile Legends region",
+            }
+
+        result = await playpay_request(
+            "POST",
+            "/check_id",
+            payload={
+                "game_id": game_id,
+                "player_id": player_id,
+                "server_id": server_id,
+            },
+        )
+
+        if not result.get("valid"):
+
+            return {
+                "ok": False,
+                "error": "User ID yoki Server ID noto'g'ri",
             }
 
         return {
             "ok": True,
             "valid": True,
-            "player_name": result.get("player_name"),
+            "player_name": result.get(
+                "player_name"
+            ),
             "player_id": player_id,
-            "server_id": server_id
+            "server_id": server_id,
         }
 
     except Exception as e:
 
-        logger.error(
-            "Player check error: %s",
-            e
+        logger.exception(
+            "Player check error"
         )
 
         return {
             "ok": False,
-            "error": str(e)
+            "error": str(e),
         }
 
-# =========================
+# =========================================================
 # TELEGRAM /START
-# =========================
+# =========================================================
 
-@router.message(CommandStart())
-async def start_handler(message: Message):
-
-    if not WEBAPP_URL:
-
-        await message.answer(
-            "⚠️ WebApp URL hali sozlanmagan."
-        )
-
-        return
+@router.message(
+    CommandStart()
+)
+async def start_handler(
+    message: Message,
+):
 
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="🛒 OPEN SHOP",
+                    text="🔥 OPEN SHOP",
                     web_app=WebAppInfo(
                         url=WEBAPP_URL
                     ),
@@ -333,32 +456,35 @@ async def start_handler(message: Message):
     )
 
     await message.answer(
-        "🔥 PHOENIX DONAT SHOP\n\n"
-        "Mobile Legends xizmatlari uchun "
-        "rasmiy shop.\n\n"
-        "👇 Shopni oching:",
+        "🔥 <b>PHOENIX DONAT SHOP</b>\n\n"
+        "Mobile Legends va boshqa "
+        "gaming xizmatlari uchun premium shop.\n\n"
+        "👇 Shopni ochish uchun tugmani bosing.",
         reply_markup=keyboard,
+        parse_mode="HTML",
     )
 
-
-# =========================
+# =========================================================
 # BOT
-# =========================
+# =========================================================
 
 async def run_bot():
 
-    dp.include_router(router)
-
-    logger.info(
-        "🤖 Telegram bot started"
+    dp.include_router(
+        router
     )
 
-    await dp.start_polling(bot)
+    logger.info(
+        "🤖 PHOENIX BOT STARTED"
+    )
 
+    await dp.start_polling(
+        bot
+    )
 
-# =========================
+# =========================================================
 # WEB SERVER
-# =========================
+# =========================================================
 
 async def run_server():
 
@@ -369,19 +495,20 @@ async def run_server():
         log_level="info",
     )
 
-    server = uvicorn.Server(config)
+    server = uvicorn.Server(
+        config
+    )
 
     logger.info(
-        "🌐 WebApp server started on port %s",
+        "🌐 WEBAPP STARTED ON PORT %s",
         PORT,
     )
 
     await server.serve()
 
-
-# =========================
+# =========================================================
 # MAIN
-# =========================
+# =========================================================
 
 async def main():
 
@@ -390,7 +517,12 @@ async def main():
         run_server(),
     )
 
+# =========================================================
+# START
+# =========================================================
 
 if __name__ == "__main__":
 
-    asyncio.run(main())
+    asyncio.run(
+        main()
+        )
