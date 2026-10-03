@@ -7,7 +7,12 @@ import aiohttp
 import uvicorn
 
 from fastapi import FastAPI
-from database import init_db, create_or_update_user
+from database import (
+    init_db,
+    create_or_update_user,
+    get_user,
+    get_balance,
+)
 from fastapi.responses import FileResponse, JSONResponse
 
 from aiogram import Bot, Dispatcher, Router
