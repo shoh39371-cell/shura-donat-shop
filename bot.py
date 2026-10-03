@@ -1,6 +1,7 @@
 import os
 import asyncio
 import logging
+from pathlib import Path
 
 import aiohttp
 import uvicorn
@@ -17,30 +18,21 @@ from aiogram.types import (
     WebAppInfo,
 )
 
-
-# =========================
-# SETTINGS
-# =========================
-
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 PLAYPAY_API_KEY = os.getenv("PLAYPAY_API_KEY")
 WEBAPP_URL = os.getenv("WEBAPP_URL")
 
 PLAYPAY_API = "https://playpay.uz/api/v1"
-
 PORT = int(os.getenv("PORT", "10000"))
 
+BASE_DIR = Path(__file__).resolve().parent
+WEBAPP_FILE = BASE_DIR / "webapp" / "index.html"
 
 if not BOT_TOKEN:
     raise RuntimeError("BOT_TOKEN is missing")
 
 if not PLAYPAY_API_KEY:
     raise RuntimeError("PLAYPAY_API_KEY is missing")
-
-
-# =========================
-# LOGGING
-# =========================
 
 logging.basicConfig(
     level=logging.INFO,
@@ -49,21 +41,9 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-
-# =========================
-# BOT
-# =========================
-
 bot = Bot(token=BOT_TOKEN)
-
 dp = Dispatcher()
-
 router = Router()
-
-
-# =========================
-# FASTAPI
-# =========================
 
 app = FastAPI()
 
@@ -74,52 +54,37 @@ app = FastAPI()
 
 @app.get("/")
 async def home():
-
-    return FileResponse(
-        "webapp/index.html"
-    )
+    return FileResponse(WEBAPP_FILE)
 
 
 # =========================
-# PLAYPAY PACKAGES
+# PLAYPAY REQUEST
 # =========================
 
-async def get_mlbb_packages():
-
-    url = f"{PLAYPAY_API}/games/3/packages"
+async def playpay_get(path, params=None):
+    url = f"{PLAYPAY_API}{path}"
 
     headers = {
         "X-API-Key": PLAYPAY_API_KEY
     }
 
-    params = {
-        "currency": "UZS"
-    }
+    timeout = aiohttp.ClientTimeout(total=30)
 
-    timeout = aiohttp.ClientTimeout(
-        total=30
-    )
-
-    async with aiohttp.ClientSession(
-        timeout=timeout
-    ) as session:
-
+    async with aiohttp.ClientSession(timeout=timeout) as session:
         async with session.get(
             url,
             headers=headers,
-            params=params,
+            params=params or {},
         ) as response:
 
             data = await response.json()
 
             if response.status != 200:
-
                 raise RuntimeError(
-                    f"PlayPay HTTP {response.status}"
+                    f"PlayPay HTTP {response.status}: {data}"
                 )
 
             if not data.get("ok"):
-
                 raise RuntimeError(
                     data.get("error", "PlayPay error")
                 )
@@ -128,45 +93,125 @@ async def get_mlbb_packages():
 
 
 # =========================
-# API
+# GET ALL MLBB REGIONS
 # =========================
 
-@app.get("/api/packages")
-async def packages():
+async def get_mlbb_games():
+
+    data = await playpay_get("/games")
+
+    games = data.get("games", [])
+
+    mlbb_games = []
+
+    for game in games:
+
+        name = str(game.get("name", "")).lower()
+
+        if "mobile legends" in name:
+
+            mlbb_games.append({
+                "game_id": game.get("game_id"),
+                "name": game.get("name"),
+                "id_label": game.get("id_label"),
+                "requires_server": game.get("requires_server"),
+                "requires_charname": game.get("requires_charname"),
+                "packages_count": game.get("packages_count"),
+            })
+
+    return mlbb_games
+
+
+# =========================
+# REGIONS API
+# =========================
+
+@app.get("/api/regions")
+async def regions():
 
     try:
 
-        data = await get_mlbb_packages()
+        games = await get_mlbb_games()
 
         return {
             "ok": True,
-            "packages": data.get(
-                "packages",
-                []
-            )
+            "regions": games,
+        }
+
+    except Exception as e:
+
+        logger.error("Regions error: %s", e)
+
+        return {
+            "ok": False,
+            "error": str(e),
+        }
+
+
+# =========================
+# PACKAGES BY GAME ID
+# =========================
+
+@app.get("/api/packages/{game_id}")
+async def packages(game_id: int):
+
+    try:
+
+        # Security: only positive game IDs
+        if game_id <= 0:
+            return {
+                "ok": False,
+                "error": "Invalid game_id",
+            }
+
+        # Make sure this game is actually MLBB
+        games = await get_mlbb_games()
+
+        allowed_ids = {
+            int(game["game_id"])
+            for game in games
+            if game.get("game_id") is not None
+        }
+
+        if game_id not in allowed_ids:
+            return {
+                "ok": False,
+                "error": "This is not a Mobile Legends game ID",
+            }
+
+        data = await playpay_get(
+            f"/games/{game_id}/packages",
+            {
+                "currency": "UZS"
+            },
+        )
+
+        return {
+            "ok": True,
+            "game_id": game_id,
+            "packages": data.get("packages", []),
         }
 
     except Exception as e:
 
         logger.error(
-            "Packages error: %s",
-            e
+            "Packages error for game %s: %s",
+            game_id,
+            e,
         )
 
         return {
             "ok": False,
-            "error": str(e)
+            "error": str(e),
         }
 
 
 # =========================
-# TELEGRAM START
+# TELEGRAM /START
 # =========================
 
 @router.message(CommandStart())
-async def start_handler(
-    message: Message
-):
+async def start_handler(message: Message):
 
     if not WEBAPP_URL:
 
@@ -175,7 +220,6 @@ async def start_handler(
         )
 
         return
-
 
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -190,7 +234,6 @@ async def start_handler(
         ]
     )
 
-
     await message.answer(
         "🔥 PHOENIX DONAT SHOP\n\n"
         "Mobile Legends xizmatlari uchun "
@@ -201,7 +244,7 @@ async def start_handler(
 
 
 # =========================
-# BOT RUNNER
+# BOT
 # =========================
 
 async def run_bot():
@@ -216,7 +259,7 @@ async def run_bot():
 
 
 # =========================
-# SERVER RUNNER
+# WEB SERVER
 # =========================
 
 async def run_server():
@@ -232,7 +275,7 @@ async def run_server():
 
     logger.info(
         "🌐 WebApp server started on port %s",
-        PORT
+        PORT,
     )
 
     await server.serve()
