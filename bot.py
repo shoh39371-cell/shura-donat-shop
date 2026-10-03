@@ -76,7 +76,20 @@ app = FastAPI(
     title="PHOENIX DONAT SHOP",
     version="1.0.0",
 )
+@app.get("/style.css")
+async def style_css():
+    return FileResponse(
+        WEBAPP_DIR / "style.css",
+        media_type="text/css"
+    )
 
+
+@app.get("/app.js")
+async def app_js():
+    return FileResponse(
+        WEBAPP_DIR / "app.js",
+        media_type="application/javascript"
+)
 # =========================================================
 # WEBAPP HOME
 # =========================================================
