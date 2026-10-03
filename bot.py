@@ -73,7 +73,7 @@ WEB_APP_URL = (
 
 class HealthHandler(BaseHTTPRequestHandler):
 
-    def do_GET(self):
+        def do_GET(self):
 
         if self.path == "/" or self.path == "/index.html":
 
@@ -112,7 +112,8 @@ class HealthHandler(BaseHTTPRequestHandler):
 
         self.send_response(404)
         self.end_headers()
-            def do_POST(self):
+
+    def do_POST(self):
 
         if self.path != "/api/balance":
             self.send_response(404)
