@@ -1791,7 +1791,7 @@ async def error_handler(
 # =========================================================
 
 def main():
-
+    init_db()
     threading.Thread(
 
         target=start_web_server,
