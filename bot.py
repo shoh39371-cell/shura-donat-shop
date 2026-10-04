@@ -493,10 +493,11 @@ async def api_check_player(
             }
         if not telegram_id:
 
-    return {
-        "ok": False,
-        "error": "Telegram foydalanuvchisi topilmadi",
-    }
+            return {
+                "ok": False,
+                "error": "Telegram foydalanuvchisi topilmadi",
+            }
+
         regions = await get_mlbb_regions()
 
         allowed_ids = {
