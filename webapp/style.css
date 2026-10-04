@@ -1935,3 +1935,126 @@ button {
     box-shadow:
         0 0 20px rgba(120,70,255,.35);
                            }
+/* =========================================
+   ACCOUNT DETAIL
+========================================= */
+
+.account-detail {
+    padding: 5px 2px 25px;
+}
+
+.account-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.account-detail-image,
+.account-detail-no-image {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: 0 10px 35px rgba(0,0,0,.35);
+}
+
+.account-detail-no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 55px;
+    background: radial-gradient(
+        circle,
+        rgba(125,70,255,.22),
+        rgba(255,255,255,.03)
+    );
+}
+
+.account-detail-info {
+    margin-top: 15px;
+    padding: 17px;
+    border-radius: 20px;
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.08);
+}
+
+.account-detail-title {
+    font-size: 19px;
+    font-weight: 900;
+}
+
+.account-detail-price {
+    margin-top: 8px;
+    margin-bottom: 17px;
+    font-size: 20px;
+    font-weight: 900;
+    color: #a978ff;
+}
+
+.account-detail-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    font-size: 11px;
+}
+
+.account-detail-row span {
+    opacity: .55;
+}
+
+.account-detail-row b {
+    text-align: right;
+}
+
+.account-detail-description {
+    margin-top: 17px;
+}
+
+.account-detail-description > div,
+.account-detail-video-title {
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.account-detail-description p {
+    margin: 8px 0 0;
+    line-height: 1.6;
+    font-size: 11px;
+    opacity: .7;
+}
+
+.account-detail-video {
+    margin-top: 18px;
+}
+
+.account-detail-video video {
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 15px;
+    background: #000;
+}
+
+.account-buy-button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px;
+    border: 0;
+    border-radius: 16px;
+    color: white;
+    font-size: 12px;
+    font-weight: 900;
+    background: linear-gradient(
+        135deg,
+        #8b5cff,
+        #6335e8
+    );
+    box-shadow: 0 0 22px rgba(120,70,255,.30);
+}
+
+.account-buy-button:active {
+    transform: scale(.97);
+}
