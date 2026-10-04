@@ -238,17 +238,17 @@ async def create_account(
         exist_ok=True
     )
 
-    image_url = ""
+    image_urls = []
 
-    if images:
+if images:
 
-        first_image = images[0]
+    for index, image in enumerate(images):
 
         extension = os.path.splitext(
-            first_image.filename or ""
+            image.filename or ""
         )[1]
 
-        image_name = "image" + extension
+        image_name = f"image_{index}{extension}"
 
         image_path = os.path.join(
             account_folder,
@@ -257,17 +257,21 @@ async def create_account(
 
         with open(image_path, "wb") as f:
             f.write(
-                await first_image.read()
+                await image.read()
             )
 
-        image_url = (
+        image_urls.append(
             "/uploads/accounts/"
             + account_uid
             + "/"
             + image_name
         )
 
-    video_url = ""
+image_url = image_urls[0] if image_urls else ""
+
+video_url = ""
+
+        
 
     if video:
 
@@ -301,33 +305,35 @@ async def create_account(
     cursor.execute(
         """
         INSERT INTO accounts (
-            account_uid,
-            title,
-            account_id,
-            price,
-            category,
-            description,
-            seller_id,
-            seller_username,
-            account_type,
-            image_url,
-            video_url
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            account_uid,
-            title,
-            account_id,
-            price,
-            category,
-            description,
-            seller_id,
-            seller_username,
-            account_type,
-            image_url,
-            video_url
-        )
+    account_uid,
+    title,
+    account_id,
+    price,
+    category,
+    description,
+    seller_id,
+    seller_username,
+    account_type,
+    image_url,
+    images_json,
+    video_url
+)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+""",
+(
+    account_uid,
+    title,
+    account_id,
+    price,
+    category,
+    description,
+    seller_id,
+    seller_username,
+    account_type,
+    image_url,
+    json.dumps(image_urls),
+    video_url
+)
     )
 
     conn.commit()
