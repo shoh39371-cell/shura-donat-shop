@@ -209,19 +209,15 @@ async def get_accounts(
 
 @app.post("/api/accounts")
 async def create_account(
-
     title: str = Form(...),
     account_id: str = Form(...),
     price: int = Form(...),
     category: str = Form(...),
     description: str = Form(""),
-
     seller_id: str = Form(...),
     seller_username: str = Form(""),
-
     images: list[UploadFile] = File(default=[]),
     video: UploadFile | None = File(default=None)
-
 ):
 
     account_type = "mlbb"
@@ -240,38 +236,42 @@ async def create_account(
 
     image_urls = []
 
-if images:
+    if images:
 
-    for index, image in enumerate(images):
+        for index, image in enumerate(images):
 
-        extension = os.path.splitext(
-            image.filename or ""
-        )[1]
+            extension = os.path.splitext(
+                image.filename or ""
+            )[1]
 
-        image_name = f"image_{index}{extension}"
+            image_name = f"image_{index}{extension}"
 
-        image_path = os.path.join(
-            account_folder,
-            image_name
-        )
-
-        with open(image_path, "wb") as f:
-            f.write(
-                await image.read()
+            image_path = os.path.join(
+                account_folder,
+                image_name
             )
 
-        image_urls.append(
-            "/uploads/accounts/"
-            + account_uid
-            + "/"
-            + image_name
-        )
+            with open(image_path, "wb") as f:
+                f.write(
+                    await image.read()
+                )
 
-image_url = image_urls[0] if image_urls else ""
+            image_urls.append(
+                "/uploads/accounts/"
+                + account_uid
+                + "/"
+                + image_name
+            )
 
-video_url = ""
+    image_url = (
+        image_urls[0]
+        if image_urls
+        else ""
+    )
 
-if video:
+    video_url = ""
+
+    if video:
 
         extension = os.path.splitext(
             video.filename or ""
@@ -296,42 +296,44 @@ if video:
             + video_name
         )
 
-    conn = sqlite3.connect("accounts.db")
+    conn = sqlite3.connect(
+        "accounts.db"
+    )
 
     cursor = conn.cursor()
 
     cursor.execute(
         """
         INSERT INTO accounts (
-    account_uid,
-    title,
-    account_id,
-    price,
-    category,
-    description,
-    seller_id,
-    seller_username,
-    account_type,
-    image_url,
-    images_json,
-    video_url
-)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-""",
-(
-    account_uid,
-    title,
-    account_id,
-    price,
-    category,
-    description,
-    seller_id,
-    seller_username,
-    account_type,
-    image_url,
-    json.dumps(image_urls),
-    video_url
-)
+            account_uid,
+            title,
+            account_id,
+            price,
+            category,
+            description,
+            seller_id,
+            seller_username,
+            account_type,
+            image_url,
+            images_json,
+            video_url
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            account_uid,
+            title,
+            account_id,
+            price,
+            category,
+            description,
+            seller_id,
+            seller_username,
+            account_type,
+            image_url,
+            json.dumps(image_urls),
+            video_url
+        )
     )
 
     conn.commit()
@@ -342,6 +344,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         "message": "Account added",
         "account_uid": account_uid
     }
+    
 # =========================================================
 # WEBAPP HOME
 # =========================================================
