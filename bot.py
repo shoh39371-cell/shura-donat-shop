@@ -142,6 +142,7 @@ def init_accounts_db():
             seller_username TEXT,
             account_type TEXT NOT NULL DEFAULT 'mlbb',
             image_url TEXT,
+            images_json TEXT DEFAULT '[]',
             video_url TEXT
         )
     """)
