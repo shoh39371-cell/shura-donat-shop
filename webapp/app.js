@@ -2741,7 +2741,199 @@ function openTitlePayment(
 
         });
 }
+function showTitleReceiptForm(
+    region,
+    playerId,
+    zoneId,
+    titleType,
+    price
+) {
 
+    openModal(`
+
+        <div class="modal-title">
+            📸 To‘lov cheki
+        </div>
+
+        <div class="modal-subtitle">
+            ${escapeHtml(titleType)} titul
+        </div>
+
+        <div class="boost-total">
+
+            <div class="boost-total-label">
+                To‘lov summasi
+            </div>
+
+            <div class="boost-price">
+                💰 ${formatPrice(price)}
+            </div>
+
+        </div>
+
+        <div class="boost-card">
+
+            <div class="boost-section-title">
+                Chekni yuklang
+            </div>
+
+            <input
+                id="titleReceipt"
+                class="boost-input"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+            >
+
+        </div>
+
+        <button
+            class="boost-action boost-pay"
+            onclick="sendTitleOrder(
+                '${escapeAttribute(region)}',
+                '${escapeAttribute(playerId)}',
+                '${escapeAttribute(zoneId)}',
+                '${escapeAttribute(titleType)}',
+                ${price}
+            )"
+            style="margin-top:15px; width:100%;"
+        >
+
+            📤 Chekni yuborish
+
+        </button>
+
+    `);
+}
+async function sendTitleOrder(
+    region,
+    playerId,
+    zoneId,
+    titleType,
+    price
+) {
+
+    const receipt =
+        document.getElementById(
+            "titleReceipt"
+        )?.files?.[0];
+
+    if (!receipt) {
+
+        alertUser(
+            "Avval to‘lov chekini tanlang."
+        );
+
+        return;
+    }
+
+    const formData =
+        new FormData();
+
+    formData.append(
+        "service",
+        "title"
+    );
+
+    formData.append(
+        "amount",
+        price
+    );
+
+    formData.append(
+        "receipt",
+        receipt
+    );
+
+    formData.append(
+        "region",
+        region
+    );
+
+    formData.append(
+        "title_type",
+        titleType
+    );
+
+    formData.append(
+        "player_id",
+        playerId
+    );
+
+    formData.append(
+        "zone_id",
+        zoneId
+    );
+
+    const telegramId =
+        tg?.initDataUnsafe?.user?.id;
+
+    if (telegramId) {
+
+        formData.append(
+            "telegram_id",
+            telegramId
+        );
+
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/boost/order",
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!data.ok) {
+
+            alertUser(
+                data.error ||
+                "Zayavka yuborilmadi."
+            );
+
+            return;
+        }
+
+        openModal(`
+
+            <div class="modal-title">
+                ✅ Zayavka yuborildi
+            </div>
+
+            <div class="modal-subtitle">
+                Booster tez orada siz bilan bog‘lanadi.
+            </div>
+
+            <div class="boost-total">
+
+                <div class="boost-total-label">
+                    Zayavka ID
+                </div>
+
+                <div class="boost-total-stars">
+                    ${escapeHtml(data.order_id)}
+                </div>
+
+            </div>
+
+        `);
+
+    } catch (error) {
+
+        console.error(error);
+
+        alertUser(
+            "Server bilan aloqa qilishda xatolik."
+        );
+
+    }
+}
 function openAccounts() {
 
     openModal(`
