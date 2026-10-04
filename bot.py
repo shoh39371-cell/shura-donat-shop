@@ -191,7 +191,43 @@ async def playpay_request(
             )
 
         return data
+# =========================================================
+# API: PLAYPAY BALANCE
+# =========================================================
 
+@app.get("/api/playpay-balance")
+async def api_playpay_balance():
+
+    try:
+
+        data = await playpay_request(
+            "GET",
+            "/balance",
+        )
+
+        return {
+            "ok": True,
+            "balance": data.get("balance"),
+            "discount_pct": data.get(
+                "discount_pct",
+                0,
+            ),
+            "markup_pct": data.get(
+                "markup_pct",
+                0,
+            ),
+        }
+
+    except Exception as e:
+
+        logger.exception(
+            "PlayPay balance error"
+        )
+
+        return {
+            "ok": False,
+            "error": str(e),
+        }
 # =========================================================
 # GET ALL PLAYPAY GAMES
 # =========================================================
