@@ -1072,6 +1072,7 @@ async def api_check_player(
 # API: CREATE PLAYPAY ORDER
 # =========================================================
 
+                                
 @app.post("/api/create-order")
 async def api_create_order(data: dict):
 
@@ -1170,10 +1171,11 @@ async def api_create_order(data: dict):
         )
 
         # =====================================================
-        # PROMO CHEGIRMA
+        # PROMO
         # =====================================================
 
         discount_percent = 0
+        promo_id = None
 
         if promo_code:
 
@@ -1188,6 +1190,7 @@ async def api_create_order(data: dict):
                     SELECT *
                     FROM promo_codes
                     WHERE code = ?
+                    AND active = 1
                     LIMIT 1
                     """,
                     (promo_code,)
@@ -1198,23 +1201,18 @@ async def api_create_order(data: dict):
                 if not promo:
                     return {
                         "ok": False,
-                        "error": "Promo kod topilmadi.",
+                        "error": "Promo kod topilmadi yoki faol emas.",
                     }
 
-                if not promo["active"]:
-                    return {
-                        "ok": False,
-                        "error": "Promo kod faol emas.",
-                    }
-
+                # Amal qilish muddati
                 from datetime import datetime
 
                 now = datetime.now()
 
-                # Umumiy amal qilish muddati
                 if promo["valid_from"]:
 
                     try:
+
                         valid_from = datetime.fromisoformat(
                             str(promo["valid_from"])
                         )
@@ -1231,6 +1229,7 @@ async def api_create_order(data: dict):
                 if promo["valid_until"]:
 
                     try:
+
                         valid_until = datetime.fromisoformat(
                             str(promo["valid_until"])
                         )
@@ -1244,7 +1243,7 @@ async def api_create_order(data: dict):
                     except Exception:
                         pass
 
-                # Umumiy foydalanish limiti
+                # Umumiy limit
                 if (
                     promo["max_uses"] > 0
                     and promo["used_count"]
@@ -1255,7 +1254,7 @@ async def api_create_order(data: dict):
                         "error": "Promo kod ishlatish limitiga yetgan.",
                     }
 
-                # Shu user necha marta ishlatgan
+                # User limiti
                 cursor.execute(
                     """
                     SELECT COUNT(*) AS use_count
@@ -1289,122 +1288,73 @@ async def api_create_order(data: dict):
                         ),
                     }
 
-                # Promo uchun oldindan aniqlangan chegirma
-                cursor.execute(
-                    """
-                    SELECT discount_percent
-                    FROM promo_uses
-                    WHERE promo_id = ?
-                    AND telegram_id = ?
-                    ORDER BY id DESC
-                    LIMIT 1
-                    """,
-                    (
-                        promo["id"],
-                        telegram_id
-                    )
-                )
+                # =================================================
+                # Promo chegirmasini aniqlash
+                # =================================================
 
-                previous_use = cursor.fetchone()
+                import random
 
-                if previous_use:
-                    discount_percent = float(
-                        previous_use["discount_percent"]
+                if promo["promo_type"] == "special":
+
+                    discount_percent = random.randint(
+                        5,
+                        15
                     )
 
                 else:
 
-                    import random
+                    discount_percent = random.choice(
+                        [5, 6]
+                    )
 
-                    if promo["promo_type"] == "special":
+                    lucky_from = promo["lucky_from"]
+                    lucky_until = promo["lucky_until"]
 
-                        discount_percent = random.randint(
-                            5,
-                            15
+                    if lucky_from and lucky_until:
+
+                        current_time = now.strftime(
+                            "%H:%M"
                         )
 
-                    else:
+                        start_time = str(
+                            lucky_from
+                        )[-5:]
 
-                        discount_percent = random.choice(
-                            [5, 6]
-                        )
+                        end_time = str(
+                            lucky_until
+                        )[-5:]
 
-                        lucky_from = promo["lucky_from"]
-                        lucky_until = promo["lucky_until"]
+                        if (
+                            start_time
+                            <= current_time
+                            <= end_time
+                        ):
 
-                        if lucky_from and lucky_until:
-
-                            current_time = now.strftime(
-                                "%H:%M"
+                            discount_percent = random.randint(
+                                10,
+                                15
                             )
 
-                            start_time = str(
-                                lucky_from
-                            )[-5:]
-
-                            end_time = str(
-                                lucky_until
-                            )[-5:]
-
-                            if (
-                                start_time
-                                <= current_time
-                                <= end_time
-                            ):
-                                discount_percent = random.randint(
-                                    10,
-                                    15
-                                )
-
-                # Chegirmani hisoblash
-                discount_amount = round(
-                    customer_price
-                    * discount_percent
-                    / 100
-                )
-
-                final_price = round(
-                    customer_price
-                    - discount_amount
-                )
-
-                # Promo ishlatilganini yozamiz
-                cursor.execute(
-                    """
-                    INSERT INTO promo_uses (
-                        promo_id,
-                        telegram_id,
-                        discount_percent
-                    )
-                    VALUES (?, ?, ?)
-                    """,
-                    (
-                        promo["id"],
-                        telegram_id,
-                        discount_percent
-                    )
-                )
-
-                cursor.execute(
-                    """
-                    UPDATE promo_codes
-                    SET used_count = used_count + 1
-                    WHERE id = ?
-                    """,
-                    (
-                        promo["id"],
-                    )
-                )
-
-                conn.commit()
+                promo_id = promo["id"]
 
             finally:
 
                 conn.close()
 
-        else:
+        # =====================================================
+        # YAKUNIY NARX
+        # =====================================================
 
-            final_price = customer_price
+        discount_amount = round(
+            customer_price
+            * discount_percent
+            / 100
+        )
+
+        final_price = round(
+            customer_price
+            - discount_amount
+        )
 
         # =====================================================
         # BALANS
@@ -1436,6 +1386,10 @@ async def api_create_order(data: dict):
                 "error": "Balansdan pul yechilmadi",
             }
 
+        # =====================================================
+        # PLAYPAY BUYURTMA
+        # =====================================================
+
         try:
 
             result = await playpay_request(
@@ -1458,16 +1412,58 @@ async def api_create_order(data: dict):
 
             raise
 
+        # =====================================================
+        # FAQAT MUVAFFAQIYATLI BUYURTMA BO'LGANDAN KEYIN
+        # PROMO ISHLATILGAN DEB YOZAMIZ
+        # =====================================================
+
+        if promo_id:
+
+            conn = get_connection()
+
+            try:
+
+                cursor = conn.cursor()
+
+                cursor.execute(
+                    """
+                    INSERT INTO promo_uses (
+                        promo_id,
+                        telegram_id,
+                        discount_percent
+                    )
+                    VALUES (?, ?, ?)
+                    """,
+                    (
+                        promo_id,
+                        telegram_id,
+                        discount_percent
+                    )
+                )
+
+                cursor.execute(
+                    """
+                    UPDATE promo_codes
+                    SET used_count = used_count + 1
+                    WHERE id = ?
+                    """,
+                    (
+                        promo_id,
+                    )
+                )
+
+                conn.commit()
+
+            finally:
+
+                conn.close()
+
         return {
             "ok": True,
             "order": result,
             "original_price": customer_price,
             "discount_percent": discount_percent,
-            "discount_amount": round(
-                customer_price
-                * discount_percent
-                / 100
-            ),
+            "discount_amount": discount_amount,
             "charged": final_price,
             "promo_code": promo_code,
         }
@@ -1481,8 +1477,8 @@ async def api_create_order(data: dict):
         return {
             "ok": False,
             "error": str(e),
-                                }        
-
+        }
+                
 # =========================================================
 # API: BOOST ORDER
 # =========================================================
