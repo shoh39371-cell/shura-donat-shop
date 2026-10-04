@@ -3845,18 +3845,122 @@ function openPromo() {
 
             <input
                 class="form-input"
+                id="promoCodeInput"
                 placeholder="Promo kodni kiriting"
+                autocomplete="off"
             >
 
         </div>
 
         <button
             class="primary-button"
+            onclick="applyPromoCode()"
         >
             Qo‘llash
         </button>
 
+        <div
+            id="promoResult"
+            class="modal-subtitle"
+            style="margin-top:15px;"
+        ></div>
+
     `);
+
+}
+
+
+async function applyPromoCode() {
+
+    const input =
+        document.getElementById("promoCodeInput");
+
+    const code =
+        input?.value.trim().toUpperCase();
+
+    if (!code) {
+
+        alertUser(
+            "Promo kodni kiriting."
+        );
+
+        return;
+    }
+
+    const user =
+        tg?.initDataUnsafe?.user;
+
+    if (!user?.id) {
+
+        alertUser(
+            "Telegram foydalanuvchisi aniqlanmadi."
+        );
+
+        return;
+    }
+
+    const resultBox =
+        document.getElementById("promoResult");
+
+    if (resultBox) {
+        resultBox.textContent =
+            "⏳ Promo tekshirilmoqda...";
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/promo/apply",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        code: code,
+                        telegram_id: user.id
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok || !data.ok) {
+
+            throw new Error(
+                data.error ||
+                "Promo kod ishlamadi."
+            );
+        }
+
+        if (resultBox) {
+
+            resultBox.innerHTML = `
+                ✅ Promo qo‘llandi!<br><br>
+                🎁 Chegirma:
+                <b>${data.discount_percent}%</b>
+            `;
+
+        }
+
+    } catch (error) {
+
+        if (resultBox) {
+
+            resultBox.innerHTML = `
+                ❌ ${escapeHtml(
+                    error.message
+                )}
+            `;
+
+        }
+
+    }
 
 }
 
