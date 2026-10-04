@@ -964,19 +964,22 @@ async function createOrder(
                     },
 
                     body:
-                        JSON.stringify({
-                            game_id:
-                                pkg.game_id,
+    JSON.stringify({
+        game_id:
+            pkg.game_id,
 
-                            package_id:
-                                pkg.paket_id,
+        package_id:
+            pkg.paket_id,
 
-                            player_id:
-                                playerId,
+        player_id:
+            playerId,
 
-                            server_id:
-                                serverId
-                        })
+        server_id:
+            serverId,
+
+        telegram_id:
+            tg?.initDataUnsafe?.user?.id
+    })
                 }
             );
 
