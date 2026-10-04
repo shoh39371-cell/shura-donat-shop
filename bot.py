@@ -371,10 +371,14 @@ async def api_packages(
             "packages",
             [],
         )
+
         for package in packages:
-logger.info(
-    f"PACKAGE DATA: {package}"
-        )
+
+            logger.info(
+                f"PACKAGE DATA: {package}"
+            )
+
+            price = package.get("price", {})
             price = float(
                 package.get("price", 0)
             )
