@@ -1212,13 +1212,181 @@ function startTopUp() {
         </div>
     `);
 }
-
-// ======================================================
-// PHOENIX BOOST SERVICE
-// ======================================================
 function openMLBBBoost() {
     renderMLBBBoost();
 }
+function renderMLBBBoost() {
+
+    const totalStars = calculateBoostStars();
+    const totalPrice = calculateBoostPrice();
+
+    openModal(`
+
+        <div class="modal-title">
+            🚀 MLBB BOOST
+        </div>
+
+        <div class="modal-subtitle">
+            Rank va yulduzlarni tanlang
+        </div>
+
+        <div class="boost-card">
+
+            <div class="boost-section-title">
+                Hozirgi rank
+            </div>
+
+            <div class="boost-rank-box">
+
+                <button
+                    class="boost-counter"
+                    onclick="changeCurrentRank(-1)">
+                    −
+                </button>
+
+                <div class="boost-rank-name">
+                    ${BOOST_RANKS[boostCurrentRank]}
+                </div>
+
+                <button
+                    class="boost-counter"
+                    onclick="changeCurrentRank(1)">
+                    +
+                </button>
+
+            </div>
+
+            <div class="boost-stars">
+
+                <button
+                    class="boost-star-btn"
+                    onclick="changeCurrentStars(-1)">
+                    −
+                </button>
+
+                <div class="boost-star-value">
+                    ⭐ ${boostCurrentStars}
+                </div>
+
+                <button
+                    class="boost-star-btn"
+                    onclick="changeCurrentStars(1)">
+                    +
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="boost-card">
+
+            <div class="boost-section-title">
+                Maqsad rank
+            </div>
+
+            <div class="boost-rank-box">
+
+                <button
+                    class="boost-counter"
+                    onclick="changeTargetRank(-1)">
+                    −
+                </button>
+
+                <div class="boost-rank-name">
+                    ${BOOST_RANKS[boostTargetRank]}
+                </div>
+
+                <button
+                    class="boost-counter"
+                    onclick="changeTargetRank(1)">
+                    +
+                </button>
+
+            </div>
+
+            <div class="boost-stars">
+
+                <button
+                    class="boost-star-btn"
+                    onclick="changeTargetStars(-1)">
+                    −
+                </button>
+
+                <div class="boost-star-value">
+                    ⭐ ${boostTargetStars}
+                </div>
+
+                <button
+                    class="boost-star-btn"
+                    onclick="changeTargetStars(1)">
+                    +
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="boost-card">
+
+            <div class="boost-section-title">
+                🎮 Akkaunt
+            </div>
+
+            <input
+                id="boostPlayerId"
+                class="boost-input"
+                type="text"
+                inputmode="numeric"
+                placeholder="🎮 O‘yin ID">
+
+            <input
+                id="boostZoneId"
+                class="boost-input"
+                type="text"
+                inputmode="numeric"
+                placeholder="🌐 Zone ID">
+
+        </div>
+
+
+        <div class="boost-card">
+
+            <div class="boost-section-title">
+                💰 Hisob
+            </div>
+
+            <div>
+                ⭐ ${totalStars} yulduz
+            </div>
+
+            <div class="balance-value">
+                ${totalPrice.toLocaleString("uz-UZ")} UZS
+            </div>
+
+        </div>
+
+
+        <button
+            class="boost-action boost-check"
+            onclick="checkBoostAccount()">
+            🔍 Akkauntni tekshirish
+        </button>
+
+
+        <button
+            class="boost-action boost-pay"
+            onclick="openBoostPayment()">
+            💳 To‘lovga o‘tish · ${totalPrice.toLocaleString("uz-UZ")} UZS
+        </button>
+
+    `);
+}
+// ======================================================
+// PHOENIX BOOST SERVICE
+// ======================================================
+
 const BOOST_RANKS = [
     "Epic 5",
     "Epic 4",
