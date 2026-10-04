@@ -2294,7 +2294,72 @@ function openMMRService() {
 
     `);
 }
+function openTitleService() {
 
+    openModal(`
+
+        <div class="modal-title">
+            🏆 Titul olish
+        </div>
+
+        <div class="modal-subtitle">
+            Kerakli ma'lumotlarni kiriting
+        </div>
+
+        <input
+            id="titleRegion"
+            class="modal-input"
+            type="text"
+            placeholder="Region / Viloyat / Shahar"
+        >
+
+        <input
+            id="titlePlayerId"
+            class="modal-input"
+            type="text"
+            placeholder="Game ID"
+        >
+
+        <input
+            id="titleZoneId"
+            class="modal-input"
+            type="text"
+            placeholder="Zone ID"
+        >
+
+        <select
+            id="titleType"
+            class="modal-input"
+        >
+
+            <option value="">
+                🏆 Titulni tanlang
+            </option>
+
+            <option value="Silver">
+                🥈 Silver — 30,000 UZS
+            </option>
+
+            <option value="Gold">
+                🥇 Gold — 70,000 UZS
+            </option>
+
+            <option value="State/Country">
+                🌍 State/Country — 200,000 UZS
+            </option>
+
+        </select>
+
+        <button
+            class="boost-action boost-pay"
+            onclick="createTitleOrder()"
+            style="margin-top:15px; width:100%;"
+        >
+            💳 Davom etish
+        </button>
+
+    `);
+              }
 function calculateMMR() {
 
     const current =
