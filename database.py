@@ -135,7 +135,7 @@ def init_db():
                 ADD COLUMN {column} {definition}
                 """
             )
-    conn.commit()
+
     conn.commit()
     conn.close()
 
