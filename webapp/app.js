@@ -95,6 +95,52 @@ async function loadBalance() {
 
     }
 }
+async function loadPlayPayBalance() {
+
+    try {
+
+        const response = await fetch(
+            `/api/playpay-balance?v=${Date.now()}`
+        );
+
+        const data = await response.json();
+
+        if (!data.ok) {
+            console.error(
+                "PlayPay balance error:",
+                data.error
+            );
+            return;
+        }
+
+        const balance =
+            Number(data.balance?.amount || 0);
+
+        const element =
+            document.getElementById(
+                "playpayBalanceValue"
+            );
+
+        if (element) {
+
+            element.textContent =
+                `$${balance.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })}`;
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "PlayPay balance loading error:",
+            error
+        );
+
+    }
+
+}
 function loadTelegramUser() {
 
     const user = tg?.initDataUnsafe?.user;
