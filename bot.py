@@ -491,7 +491,12 @@ async def api_check_player(
                 "ok": False,
                 "error": "Server ID kiritilmagan",
             }
+        if not telegram_id:
 
+    return {
+        "ok": False,
+        "error": "Telegram foydalanuvchisi topilmadi",
+    }
         regions = await get_mlbb_regions()
 
         allowed_ids = {
@@ -602,32 +607,102 @@ async def api_create_order(data: dict):
                 "error": "Noto'g'ri Mobile Legends region",
             }
 
-        result = await playpay_request(
-            "POST",
-            "/order",
-            payload={
-                "game_id": game_id,
-                "paket_id": package_id,
-                "player_id": player_id,
-                "server_id": server_id,
+                package_data = await playpay_request(
+            "GET",
+            f"/games/{game_id}/packages",
+            params={
+                "currency": "UZS",
             },
         )
+
+        packages = package_data.get(
+            "packages",
+            []
+        )
+
+        selected_package = next(
+            (
+                package
+                for package in packages
+                if int(package.get("paket_id", 0))
+                == package_id
+            ),
+            None,
+        )
+
+        if not selected_package:
+
+            return {
+                "ok": False,
+                "error": "Paket topilmadi",
+            }
+
+        cost_price = float(
+            selected_package["price"]["amount"]
+        )
+
+        if cost_price < 60000:
+            markup = 0.05
+        else:
+            markup = 0.10
+
+        customer_price = round(
+            cost_price * (1 + markup)
+        )
+
+        balance = get_balance(
+            telegram_id
+        )
+
+        if balance < customer_price:
+
+            return {
+                "ok": False,
+                "error": (
+                    f"Balans yetarli emas. "
+                    f"Kerak: {customer_price:,.0f} UZS"
+                ),
+            }
+
+        deducted = subtract_balance(
+            telegram_id,
+            customer_price
+        )
+
+        if not deducted:
+
+            return {
+                "ok": False,
+                "error": "Balansdan pul yechilmadi",
+            }
+
+        try:
+
+            result = await playpay_request(
+                "POST",
+                "/order",
+                payload={
+                    "game_id": game_id,
+                    "paket_id": package_id,
+                    "player_id": player_id,
+                    "server_id": server_id,
+                },
+            )
+
+        except Exception:
+
+            add_balance(
+                telegram_id,
+                customer_price
+            )
+
+            raise
 
         return {
             "ok": True,
             "order": result,
-        }
-
-    except Exception as e:
-
-        logger.exception(
-            "Create order error"
-        )
-
-        return {
-            "ok": False,
-            "error": str(e),
-        }
+            "charged": customer_price,
+}
 # =========================================================
 # TELEGRAM /START
 # =========================================================
