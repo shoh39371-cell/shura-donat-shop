@@ -400,10 +400,17 @@ async function loadPackages(
                     "Donat paketi";
 
                 const price =
-                    pkg.price ??
-                    pkg.amount ??
-                    pkg.price_uzs ??
-                    0;
+    typeof pkg.price === "object"
+        ? (
+            pkg.price.amount ??
+            0
+        )
+        : (
+            pkg.price ??
+            pkg.amount ??
+            pkg.price_uzs ??
+            0
+        );
 
                 const image =
                     pkg.image ??
