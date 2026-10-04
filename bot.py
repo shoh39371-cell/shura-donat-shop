@@ -472,12 +472,7 @@ async def api_check_player(
                 "",
             )
         ).strip()
-        telegram_id = int(
-    data.get(
-        "telegram_id",
-        0,
-    )
-)
+
         if not player_id:
 
             return {
@@ -490,12 +485,6 @@ async def api_check_player(
             return {
                 "ok": False,
                 "error": "Server ID kiritilmagan",
-            }
-        if not telegram_id:
-
-            return {
-                "ok": False,
-                "error": "Telegram foydalanuvchisi topilmadi",
             }
 
         regions = await get_mlbb_regions()
