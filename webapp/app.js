@@ -948,24 +948,93 @@ async function createOrder(
    OTHER SECTIONS
 ===================================================== */
 
-function openBalance() {
+async function openBalance() {
+
+    const user = tg?.initDataUnsafe?.user;
+
+    if (!user?.id) {
+
+        openModal(`
+            <div class="modal-title">
+                💳 Balans
+            </div>
+
+            <div class="empty">
+                Telegram foydalanuvchisi aniqlanmadi.
+            </div>
+        `);
+
+        return;
+    }
 
     openModal(`
-
         <div class="modal-title">
             💳 Balans
         </div>
 
         <div class="modal-subtitle">
-            Hisobingizni to‘ldiring
+            Balansingiz
         </div>
 
-        <div class="empty">
-            To‘lov tizimi keyingi bosqichda ulanadi.
+        <div class="balance-value">
+            Yuklanmoqda...
         </div>
-
     `);
 
+    try {
+
+        const response = await fetch(
+            `/api/balance?telegram_id=${encodeURIComponent(user.id)}&v=${Date.now()}`
+        );
+
+        const data = await response.json();
+
+        if (!data.ok) {
+            throw new Error(
+                data.error || "Balansni olishda xatolik"
+            );
+        }
+
+        const balance = Number(data.balance || 0);
+
+        const balanceText =
+            `${balance.toLocaleString("uz-UZ")} UZS`;
+
+        openModal(`
+            <div class="modal-title">
+                💳 Balans
+            </div>
+
+            <div class="modal-subtitle">
+                Joriy balansingiz
+            </div>
+
+            <div class="balance-value">
+                ${escapeHtml(balanceText)}
+            </div>
+
+            <button
+                class="hero-button"
+                onclick="closeModal()"
+            >
+                + Balansni to‘ldirish
+            </button>
+        `);
+
+    } catch (error) {
+
+        console.error("Balance error:", error);
+
+        openModal(`
+            <div class="modal-title">
+                💳 Balans
+            </div>
+
+            <div class="empty">
+                Balansni yuklashda xatolik yuz berdi.
+            </div>
+        `);
+    }
 }
 
 
