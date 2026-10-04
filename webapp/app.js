@@ -978,7 +978,13 @@ async function createOrder(
             serverId,
 
         telegram_id:
-            tg?.initDataUnsafe?.user?.id
+            
+    tg?.initDataUnsafe?.user?.id,
+
+        promo_code:
+            
+    localStorage.getItem("promo_code") 
+    || ""
     })
                 }
             );
