@@ -1216,7 +1216,9 @@ function startTopUp() {
 // ======================================================
 // PHOENIX BOOST SERVICE
 // ======================================================
-
+function openMLBBBoost() {
+    renderMLBBBoost();
+}
 const BOOST_RANKS = [
     "Epic 5",
     "Epic 4",
