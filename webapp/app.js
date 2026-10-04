@@ -1218,25 +1218,46 @@ function startTopUp() {
 // ======================================================
 
 const BOOST_RANKS = [
-    "Epic",
-    "Legend",
+    "Epic 5",
+    "Epic 4",
+    "Epic 3",
+    "Epic 2",
+    "Epic 1",
+
+    "Legend 5",
+    "Legend 4",
+    "Legend 3",
+    "Legend 2",
+    "Legend 1",
+
     "Mythic",
     "Mythical Honor",
     "Mythical Glory"
 ];
 
-// 1 STAR NARXLARI
 const BOOST_PRICES = {
-    "Epic": 4000,
-    "Legend": 5000,
+    "Epic 5": 4000,
+    "Epic 4": 4000,
+    "Epic 3": 4000,
+    "Epic 2": 4000,
+    "Epic 1": 4000,
+
+    "Legend 5": 5000,
+    "Legend 4": 5000,
+    "Legend 3": 5000,
+    "Legend 2": 5000,
+    "Legend 1": 5000,
+
     "Mythic": 6000,
     "Mythical Honor": 7000,
     "Mythical Glory": 9000
 };
 
+
 // MMR
 const MMR_STEP = 500;
 const MMR_PRICE = 30000;
+
 
 // TITUL
 const TITLE_PRICES = {
@@ -1245,250 +1266,12 @@ const TITLE_PRICES = {
     "Davlat": 200000
 };
 
+
 let boostCurrentRank = 0;
-let boostCurrentStars = 0;
+let boostCurrentStars = 1;
 
 let boostTargetRank = 1;
 let boostTargetStars = 1;
-
-
-// ======================================================
-// BOOST MENU
-// ======================================================
-
-function openBoost() {
-
-    openModal(`
-        <div class="modal-title">
-            🚀 Boost xizmati
-        </div>
-
-        <div class="modal-subtitle">
-            MLBB uchun professional xizmatlar
-        </div>
-
-        <button
-            class="boost-menu-btn boost-menu-mlbb"
-            onclick="openMLBBBoost()">
-
-            🚀 &nbsp;
-            <b>MLBB Boost</b>
-
-        </button>
-
-        <button
-            class="boost-menu-btn boost-menu-title"
-            onclick="openTitleServices()">
-
-            🏆 &nbsp;
-            <b>Titul olib berish</b>
-
-        </button>
-    `);
-}
-
-
-// ======================================================
-// MLBB BOOST
-// ======================================================
-
-function openMLBBBoost() {
-
-    renderMLBBBoost();
-
-}
-
-
-function renderMLBBBoost() {
-
-    const totalStars =
-        calculateBoostStars();
-
-    const totalPrice =
-        calculateBoostPrice();
-
-
-    openModal(`
-
-        <div class="modal-title">
-            🚀 MLBB Boost
-        </div>
-
-        <div class="modal-subtitle">
-            Rankingizni professional boosterlar ko‘taradi
-        </div>
-
-
-        <!-- CURRENT -->
-
-        <div class="boost-card">
-
-            <div class="boost-section-title">
-                Hozirgi rank
-            </div>
-
-            <div class="boost-rank-box">
-
-                <button
-                    class="boost-counter"
-                    onclick="changeCurrentRank(-1)">
-                    −
-                </button>
-
-                <div class="boost-rank-name">
-                    ${BOOST_RANKS[boostCurrentRank]}
-                </div>
-
-                <button
-                    class="boost-counter"
-                    onclick="changeCurrentRank(1)">
-                    +
-                </button>
-
-            </div>
-
-
-            <div class="boost-stars">
-
-                <button
-                    class="boost-star-btn"
-                    onclick="changeCurrentStars(-1)">
-                    −
-                </button>
-
-                <div class="boost-star-value">
-                    ⭐ ${boostCurrentStars}
-                </div>
-
-                <button
-                    class="boost-star-btn"
-                    onclick="changeCurrentStars(1)">
-                    +
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- TARGET -->
-
-        <div class="boost-card">
-
-            <div class="boost-section-title">
-                Maqsad rank
-            </div>
-
-            <div class="boost-rank-box">
-
-                <button
-                    class="boost-counter"
-                    onclick="changeTargetRank(-1)">
-                    −
-                </button>
-
-                <div class="boost-rank-name">
-                    ${BOOST_RANKS[boostTargetRank]}
-                </div>
-
-                <button
-                    class="boost-counter"
-                    onclick="changeTargetRank(1)">
-                    +
-                </button>
-
-            </div>
-
-
-            <div class="boost-stars">
-
-                <button
-                    class="boost-star-btn"
-                    onclick="changeTargetStars(-1)">
-                    −
-                </button>
-
-                <div class="boost-star-value">
-                    ⭐ ${boostTargetStars}
-                </div>
-
-                <button
-                    class="boost-star-btn"
-                    onclick="changeTargetStars(1)">
-                    +
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- PRICE -->
-
-        <div class="boost-total">
-
-            <div class="boost-total-label">
-                Jami
-            </div>
-
-            <div class="boost-total-stars">
-                ⭐ ${totalStars} yulduz
-            </div>
-
-            <div class="boost-price">
-                💰 ${formatPrice(totalPrice)}
-            </div>
-
-        </div>
-
-
-        <!-- ACCOUNT -->
-
-        <div class="boost-card">
-
-            <div class="boost-section-title">
-                Akkaunt ma’lumotlari
-            </div>
-
-            <input
-                id="boostPlayerId"
-                class="boost-input"
-                type="text"
-                inputmode="numeric"
-                placeholder="🎮 O‘yin ID"
-            >
-
-            <input
-                id="boostZoneId"
-                class="boost-input"
-                type="text"
-                inputmode="numeric"
-                placeholder="🌐 Zone ID"
-            >
-
-        </div>
-
-
-        <button
-            class="boost-action boost-check"
-            onclick="checkBoostAccount()">
-
-            🔍 Akkauntni tekshirish
-
-        </button>
-
-
-        <button
-            class="boost-action boost-pay"
-            onclick="openBoostPayment()">
-
-            💳 To‘lovga o‘tish ·
-            ${formatPrice(totalPrice)}
-
-        </button>
-
-    `);
-}
 
 
 // ======================================================
@@ -1502,10 +1285,11 @@ function changeCurrentRank(value) {
     if (boostCurrentRank < 0)
         boostCurrentRank = 0;
 
-    if (boostCurrentRank >= BOOST_RANKS.length)
-        boostCurrentRank = BOOST_RANKS.length - 1;
+    // Hozirgi rankda Glory bo'lmaydi
+    if (boostCurrentRank > 11)
+        boostCurrentRank = 11;
 
-    boostCurrentStars = 0;
+    setDefaultStarsForCurrentRank();
 
     renderMLBBBoost();
 }
@@ -1521,39 +1305,167 @@ function changeTargetRank(value) {
     if (boostTargetRank >= BOOST_RANKS.length)
         boostTargetRank = BOOST_RANKS.length - 1;
 
-    boostTargetStars = 0;
+    setDefaultStarsForTargetRank();
 
     renderMLBBBoost();
 }
 
 
 // ======================================================
-// STARS
+// STAR LIMITS
+// ======================================================
+
+function getCurrentStarMin() {
+
+    if (boostCurrentRank <= 9)
+        return 1;
+
+    if (boostCurrentRank === 10)
+        return 1;
+
+    if (boostCurrentRank === 11)
+        return 25;
+
+    return 1;
+}
+
+
+function getCurrentStarMax() {
+
+    if (boostCurrentRank <= 9)
+        return 5;
+
+    if (boostCurrentRank === 10)
+        return 24;
+
+    if (boostCurrentRank === 11)
+        return 49;
+
+    return 49;
+}
+
+
+function getTargetStarMin() {
+
+    if (boostTargetRank <= 9)
+        return 1;
+
+    if (boostTargetRank === 10)
+        return 1;
+
+    if (boostTargetRank === 11)
+        return 25;
+
+    if (boostTargetRank === 12)
+        return 50;
+
+    return 1;
+}
+
+
+function getTargetStarMax() {
+
+    if (boostTargetRank <= 9)
+        return 5;
+
+    if (boostTargetRank === 10)
+        return 24;
+
+    if (boostTargetRank === 11)
+        return 49;
+
+    if (boostTargetRank === 12)
+        return 100;
+
+    return 100;
+}
+
+
+// ======================================================
+// DEFAULT STARS
+// ======================================================
+
+function setDefaultStarsForCurrentRank() {
+
+    const min =
+        getCurrentStarMin();
+
+    const max =
+        getCurrentStarMax();
+
+    if (
+        boostCurrentStars < min ||
+        boostCurrentStars > max
+    ) {
+
+        boostCurrentStars = min;
+
+    }
+}
+
+
+function setDefaultStarsForTargetRank() {
+
+    const min =
+        getTargetStarMin();
+
+    const max =
+        getTargetStarMax();
+
+    if (
+        boostTargetStars < min ||
+        boostTargetStars > max
+    ) {
+
+        boostTargetStars = min;
+
+    }
+}
+
+
+// ======================================================
+// CURRENT STARS
 // ======================================================
 
 function changeCurrentStars(value) {
 
+    const min =
+        getCurrentStarMin();
+
+    const max =
+        getCurrentStarMax();
+
     boostCurrentStars += value;
 
-    if (boostCurrentStars < 0)
-        boostCurrentStars = 0;
+    if (boostCurrentStars < min)
+        boostCurrentStars = min;
 
-    if (boostCurrentStars > 99)
-        boostCurrentStars = 99;
+    if (boostCurrentStars > max)
+        boostCurrentStars = max;
 
     renderMLBBBoost();
 }
 
 
+// ======================================================
+// TARGET STARS
+// ======================================================
+
 function changeTargetStars(value) {
+
+    const min =
+        getTargetStarMin();
+
+    const max =
+        getTargetStarMax();
 
     boostTargetStars += value;
 
-    if (boostTargetStars < 0)
-        boostTargetStars = 0;
+    if (boostTargetStars < min)
+        boostTargetStars = min;
 
-    if (boostTargetStars > 99)
-        boostTargetStars = 99;
+    if (boostTargetStars > max)
+        boostTargetStars = max;
 
     renderMLBBBoost();
 }
@@ -1565,44 +1477,74 @@ function changeTargetStars(value) {
 
 function calculateBoostStars() {
 
-    if (boostTargetRank < boostCurrentRank)
-        return 0;
-
-
-    if (boostTargetRank === boostCurrentRank) {
-
-        return Math.max(
-            0,
-            boostTargetStars - boostCurrentStars
+    const current =
+        getGlobalStarValue(
+            boostCurrentRank,
+            boostCurrentStars
         );
 
-    }
+    const target =
+        getGlobalStarValue(
+            boostTargetRank,
+            boostTargetStars
+        );
 
-
-    let stars = 0;
-
-
-    // Current rankdan chiqish
-    stars += Math.max(
+    return Math.max(
         0,
-        5 - boostCurrentStars
+        target - current
     );
+}
 
 
-    // Oradagi ranklar
-    for (
-        let i = boostCurrentRank + 1;
-        i < boostTargetRank;
-        i++
-    ) {
+// ======================================================
+// GLOBAL STAR VALUE
+// ======================================================
 
-        stars += 5;
+function getGlobalStarValue(
+    rankIndex,
+    stars
+) {
+
+    // Epic 5 → Epic 1
+    if (rankIndex <= 4) {
+
+        return rankIndex * 5 + stars;
 
     }
 
 
-    // Target rank
-    stars += boostTargetStars;
+    // Legend 5 → Legend 1
+    if (rankIndex <= 9) {
+
+        return 25 +
+            (rankIndex - 5) * 5 +
+            stars;
+
+    }
+
+
+    // Mythic 1–24
+    if (rankIndex === 10) {
+
+        return 50 + stars;
+
+    }
+
+
+    // Mythical Honor 25–49
+    if (rankIndex === 11) {
+
+        return 50 + stars;
+
+    }
+
+
+    // Mythical Glory 50+
+    if (rankIndex === 12) {
+
+        return 50 + stars;
+
+    }
 
 
     return stars;
@@ -1615,64 +1557,107 @@ function calculateBoostStars() {
 
 function calculateBoostPrice() {
 
-    if (boostTargetRank < boostCurrentRank)
+    if (
+        boostTargetRank < boostCurrentRank
+    ) {
+
         return 0;
 
+    }
 
-    // Bir xil rank
-    if (boostTargetRank === boostCurrentRank) {
 
-        const stars = Math.max(
-            0,
-            boostTargetStars - boostCurrentStars
-        );
+    if (
+        boostTargetRank === boostCurrentRank
+    ) {
+
+        const stars =
+            Math.max(
+                0,
+                boostTargetStars -
+                boostCurrentStars
+            );
 
         return stars *
             BOOST_PRICES[
-                BOOST_RANKS[boostCurrentRank]
+                BOOST_RANKS[
+                    boostCurrentRank
+                ]
             ];
+
     }
 
 
     let price = 0;
 
 
-    // Current rankdagi qolgan yulduzlar
-    const currentStars =
+    // Current rankdan chiqish
+    const currentMax =
+        getCurrentStarMax();
+
+    const remaining =
         Math.max(
             0,
-            5 - boostCurrentStars
+            currentMax -
+            boostCurrentStars
         );
 
-
     price +=
-        currentStars *
+        remaining *
         BOOST_PRICES[
-            BOOST_RANKS[boostCurrentRank]
+            BOOST_RANKS[
+                boostCurrentRank
+            ]
         ];
 
 
-    // Oraliq ranklar
+    // Oradagi ranklar
     for (
-        let i = boostCurrentRank + 1;
-        i < boostTargetRank;
+        let i =
+            boostCurrentRank + 1;
+
+        i <
+            boostTargetRank;
+
         i++
     ) {
 
+        const rank =
+            BOOST_RANKS[i];
+
+        const maxStars =
+            i <= 9
+                ? 5
+                : i === 10
+                    ? 24
+                    : i === 11
+                        ? 49
+                        : 100;
+
         price +=
-            5 *
-            BOOST_PRICES[
-                BOOST_RANKS[i]
-            ];
+            maxStars *
+            BOOST_PRICES[rank];
 
     }
 
 
-    // Target rankdagi yulduzlar
+    // Target rank
+    const targetMin =
+        getTargetStarMin();
+
+    let targetStars =
+        boostTargetStars -
+        targetMin +
+        1;
+
+    if (targetStars < 0)
+        targetStars = 0;
+
     price +=
-        boostTargetStars *
+        targetStars *
         BOOST_PRICES[
-            BOOST_RANKS[boostTargetRank]
+            BOOST_RANKS[
+                boostTargetRank
+            ]
         ];
 
 
