@@ -3875,7 +3875,6 @@ function openPromo() {
 
 }
 
-
 async function applyPromoCode() {
 
     const input =
@@ -3944,6 +3943,17 @@ async function applyPromoCode() {
             );
         }
 
+        // Promo kodni saqlash
+        localStorage.setItem(
+            "promo_code",
+            code
+        );
+
+        localStorage.setItem(
+            "promo_discount",
+            data.discount_percent
+        );
+
         if (resultBox) {
 
             resultBox.innerHTML = `
@@ -3968,7 +3978,8 @@ async function applyPromoCode() {
 
     }
 
-}
+                        }
+
 
 
 function openSupport() {
