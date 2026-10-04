@@ -152,14 +152,29 @@ def init_accounts_db():
 
 init_accounts_db()
 @app.get("/api/accounts")
-async def get_accounts(category: str = "all"):
+async def get_accounts(
+    type: str = "all",
+    category: str = "all"
+):
 
     conn = sqlite3.connect("accounts.db")
     conn.row_factory = sqlite3.Row
 
     cursor = conn.cursor()
 
-    if category in ["middle", "high", "world"]:
+    if type in ["phoenix", "mlbb"]:
+
+        cursor.execute(
+            """
+            SELECT *
+            FROM accounts
+            WHERE account_type = ?
+            ORDER BY id DESC
+            """,
+            (type,)
+        )
+
+    elif category in ["middle", "mega", "world"]:
 
         cursor.execute(
             """
@@ -169,28 +184,6 @@ async def get_accounts(category: str = "all"):
             ORDER BY id DESC
             """,
             (category,)
-        )
-
-    elif category == "phoenix":
-
-        cursor.execute(
-            """
-            SELECT *
-            FROM accounts
-            WHERE account_type = 'phoenix'
-            ORDER BY id DESC
-            """
-        )
-
-    elif category == "mlbb":
-
-        cursor.execute(
-            """
-            SELECT *
-            FROM accounts
-            WHERE account_type = 'mlbb'
-            ORDER BY id DESC
-            """
         )
 
     else:
