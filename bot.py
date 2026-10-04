@@ -2,11 +2,11 @@ import os
 import asyncio
 import logging
 from pathlib import Path
-
+import uuid
 import aiohttp
 import uvicorn
 
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File, Form
 from database import (
     init_db,
     create_or_update_user,
@@ -24,6 +24,7 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton,
     WebAppInfo,
+    BufferedInputFile,
 )
 
 # =========================================================
@@ -37,7 +38,19 @@ WEBAPP_URL = os.getenv("WEBAPP_URL")
 PLAYPAY_API = "https://playpay.uz/api/v1"
 
 PORT = int(os.getenv("PORT", "10000"))
+CARD_NUMBER = os.getenv("CARD_NUMBER")
+ADMIN_TELEGRAM_ID = os.getenv("ADMIN_TELEGRAM_ID")
 
+RECEIPTS_DIR = Path(__file__).resolve().parent / "boost_receipts"
+RECEIPTS_DIR.mkdir(parents=True, exist_ok=True)
+
+if not CARD_NUMBER:
+    raise RuntimeError("CARD_NUMBER is missing")
+
+if not ADMIN_TELEGRAM_ID:
+    raise RuntimeError("ADMIN_TELEGRAM_ID is missing")
+
+ADMIN_TELEGRAM_ID = int(ADMIN_TELEGRAM_ID)
 BASE_DIR = Path(__file__).resolve().parent
 WEBAPP_DIR = BASE_DIR / "webapp"
 WEBAPP_FILE = WEBAPP_DIR / "index.html"
@@ -720,7 +733,202 @@ async def api_create_order(data: dict):
             "error": str(e),
         }
 
+# =========================================================
+# API: BOOST ORDER
+# =========================================================
 
+@app.post("/api/boost/order")
+async def api_boost_order(
+    service: str = Form(...),
+    amount: int = Form(...),
+    receipt: UploadFile = File(...),
+    telegram_id: int = Form(0),
+    current_rank: str = Form(""),
+    current_stars: int = Form(0),
+    target_rank: str = Form(""),
+    target_stars: int = Form(0),
+    current_mmr: int = Form(0),
+    target_mmr: int = Form(0),
+    region: str = Form(""),
+    title_type: str = Form(""),
+    player_id: str = Form(""),
+    zone_id: str = Form(""),
+):
+
+    try:
+
+        if service not in {
+            "mlbb_boost",
+            "mmr",
+            "title",
+        }:
+            return {
+                "ok": False,
+                "error": "Noto'g'ri xizmat turi",
+            }
+
+        if amount <= 0:
+            return {
+                "ok": False,
+                "error": "Noto'g'ri summa",
+            }
+
+        if not player_id:
+            return {
+                "ok": False,
+                "error": "O'yin ID kiritilmagan",
+            }
+
+        if not zone_id:
+            return {
+                "ok": False,
+                "error": "Zone ID kiritilmagan",
+            }
+
+        if not receipt.filename:
+            return {
+                "ok": False,
+                "error": "Chek tanlanmagan",
+            }
+
+        extension = Path(
+            receipt.filename
+        ).suffix.lower()
+
+        if extension not in {
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".webp",
+        }:
+            return {
+                "ok": False,
+                "error": "Faqat JPG, PNG yoki WEBP chek qabul qilinadi",
+            }
+
+        receipt_data = await receipt.read()
+
+        if not receipt_data:
+            return {
+                "ok": False,
+                "error": "Chek fayli bo'sh",
+            }
+
+        if len(receipt_data) > 10 * 1024 * 1024:
+            return {
+                "ok": False,
+                "error": "Chek 10 MB dan kichik bo'lishi kerak",
+            }
+
+        order_id = (
+            "BOOST-"
+            + uuid.uuid4().hex[:8].upper()
+        )
+
+        receipt_filename = (
+            f"{order_id}{extension}"
+        )
+
+        receipt_path = (
+            RECEIPTS_DIR
+            / receipt_filename
+        )
+
+        with open(
+            receipt_path,
+            "wb"
+        ) as file:
+            file.write(receipt_data)
+
+        if service == "mlbb_boost":
+
+            service_name = "🚀 MLBB BOOST"
+
+            description = (
+                f"Hozirgi: {current_rank} "
+                f"{current_stars}⭐\n"
+                f"Maqsad: {target_rank} "
+                f"{target_stars}⭐"
+            )
+
+        elif service == "mmr":
+
+            service_name = "📈 MMR"
+
+            description = (
+                f"Hozirgi MMR: {current_mmr}\n"
+                f"Maqsad MMR: {target_mmr}"
+            )
+
+        else:
+
+            service_name = "🏆 TITUL"
+
+            description = (
+                f"Region: {region}\n"
+                f"Titul: {title_type}"
+            )
+
+        admin_text = (
+            "🔥 <b>YANGI ZAYAVKA</b>\n\n"
+            f"🆔 <b>ID:</b> {order_id}\n"
+            f"🛠 <b>Xizmat:</b> {service_name}\n\n"
+            f"{description}\n\n"
+            f"🎮 <b>Game ID:</b> {player_id}\n"
+            f"🌐 <b>Zone ID:</b> {zone_id}\n"
+            f"💰 <b>Summa:</b> {amount:,} UZS\n"
+            f"⏳ <b>Holat:</b> Kutilmoqda\n"
+        )
+
+        if telegram_id:
+            admin_text += (
+                f"\n👤 <b>Telegram ID:</b> "
+                f"{telegram_id}"
+            )
+
+        await bot.send_message(
+            ADMIN_TELEGRAM_ID,
+            admin_text,
+            parse_mode="HTML",
+        )
+
+        await bot.send_document(
+            ADMIN_TELEGRAM_ID,
+            BufferedInputFile(
+                receipt_data,
+                filename=receipt_filename,
+            ),
+            caption=(
+                f"📸 <b>To'lov cheki</b>\n"
+                f"🆔 {order_id}\n"
+                f"💰 {amount:,} UZS"
+            ),
+            parse_mode="HTML",
+        )
+
+        logger.info(
+            "BOOST ORDER CREATED: %s",
+            order_id,
+        )
+
+        return {
+            "ok": True,
+            "order_id": order_id,
+            "status": "pending",
+            "amount": amount,
+            "card_number": CARD_NUMBER,
+        }
+
+    except Exception as e:
+
+        logger.exception(
+            "Boost order error"
+        )
+
+        return {
+            "ok": False,
+            "error": str(e),
+        }
 
 # =========================================================
 # TELEGRAM /START
