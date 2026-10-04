@@ -1049,7 +1049,7 @@ async def api_apply_promo(data: dict):
             "code": code
         }
 
-    except Exception as e:
+        except Exception as e:
 
         logger.exception(
             "Promo apply error"
@@ -1058,7 +1058,7 @@ async def api_apply_promo(data: dict):
         return {
             "ok": False,
             "error": str(e)
-    }
+        }
 # =========================================================
 # API: CHECK PLAYER ID
 # =========================================================
