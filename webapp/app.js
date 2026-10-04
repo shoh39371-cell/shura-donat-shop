@@ -3092,53 +3092,50 @@ async function sendTitleOrder(
 
     }
 }
+
 function openAccounts() {
 
     openModal(`
 
-        <div class="accounts-menu">
+        <div class="accounts-main-menu">
 
-            <div class="modal-title">
+            <div class="accounts-menu-title">
                 🎮 AKKAUNTLAR
             </div>
 
-            <div class="accounts-menu-subtitle">
-                Kerakli bo‘limni tanlang
-            </div>
-
-            <div class="accounts-menu-grid">
+            <div class="accounts-main-grid">
 
                 <button
-                    class="accounts-menu-card phoenix-card"
+                    class="accounts-main-card phoenix-card"
                     onclick="openPhoenixAccounts()"
                 >
-                    <div class="accounts-menu-icon">
-                        🔥
+                    <div
+                        class="accounts-main-image phoenix-image"
+                    ></div>
+
+                    <div class="accounts-main-card-title">
+                        🔥 PHOENIX AKKLAR
                     </div>
 
-                    <div class="accounts-menu-name">
-                        PHOENIX AKKLAR
-                    </div>
-
-                    <div class="accounts-menu-desc">
+                    <div class="accounts-main-card-text">
                         Maxsus akkauntlar
                     </div>
                 </button>
 
 
                 <button
-                    class="accounts-menu-card mlbb-card"
+                    class="accounts-main-card mlbb-card"
                     onclick="openMLBBAccounts()"
                 >
-                    <div class="accounts-menu-icon">
-                        🎮
+                    <div
+                        class="accounts-main-image mlbb-image"
+                    ></div>
+
+                    <div class="accounts-main-card-title">
+                        🎮 MLBB AKKLAR
                     </div>
 
-                    <div class="accounts-menu-name">
-                        MLBB AKKLAR
-                    </div>
-
-                    <div class="accounts-menu-desc">
+                    <div class="accounts-main-card-text">
                         Foydalanuvchilar akkauntlari
                     </div>
                 </button>
@@ -3151,75 +3148,273 @@ function openAccounts() {
 }
 
 
+/* ================================
+   PHOENIX AKKLAR
+================================ */
+
 function openPhoenixAccounts() {
 
     openModal(`
 
-        <div class="account-market-page">
+        <div class="marketplace">
 
-            <div class="modal-title">
-                🔥 PHOENIX AKKLAR
+            <div class="market-header">
+
+                <button
+                    class="market-back"
+                    onclick="openAccounts()"
+                >
+                    ‹
+                </button>
+
+                <div>
+                    <div class="market-title">
+                        🔥 PHOENIX AKKLAR
+                    </div>
+
+                    <div class="market-subtitle">
+                        Phoenix akkauntlari
+                    </div>
+                </div>
+
             </div>
 
-            <div class="account-market-subtitle">
-                Phoenix tomonidan joylangan akkauntlar
+
+            <div class="market-search">
+
+                <span>🔎</span>
+
+                <input
+                    id="phoenixSearch"
+                    type="text"
+                    placeholder="Akkaunt izlash..."
+                    oninput="filterMarketAccounts('phoenix')"
+                >
+
             </div>
 
-            <div id="phoenixAccountsList">
+
+            <div class="market-filters">
+
+                <button onclick="setMarketFilter('phoenix','all',this)">
+                    Barchasi
+                </button>
+
+                <button onclick="setMarketFilter('phoenix','world',this)">
+                    Mirovoy
+                </button>
+
+                <button onclick="setMarketFilter('phoenix','mega',this)">
+                    Mega
+                </button>
+
+                <button onclick="setMarketFilter('phoenix','middle',this)">
+                    O‘rta
+                </button>
+
+                <button onclick="setMarketFilter('phoenix','cheap',this)">
+                    Arzon
+                </button>
+
+                <button onclick="setMarketFilter('phoenix','expensive',this)">
+                    Qimmat
+                </button>
+
+            </div>
+
+
+            <div
+                id="phoenixMarketList"
+                class="market-grid"
+            >
+
                 <div class="empty">
                     Akkauntlar yuklanmoqda...
                 </div>
+
+            </div>
+
+
+            <div class="market-bottom-nav">
+
+                <button onclick="openPhoenixAccounts()">
+                    🏠
+                    <span>Bosh</span>
+                </button>
+
+                <button onclick="openOrders()">
+                    📦
+                    <span>Buyurtma</span>
+                </button>
+
+                <button onclick="openNotifications()">
+                    💬
+                    <span>Xabar</span>
+                </button>
+
+                <button onclick="openAddAccount()">
+                    ＋
+                    <span>Qo‘shish</span>
+                </button>
+
+                <button onclick="openProfile()">
+                    👤
+                    <span>Profil</span>
+                </button>
+
             </div>
 
         </div>
 
     `);
 
-    loadAccountList("phoenix");
+    window.marketType = "phoenix";
+    window.marketFilter = "all";
+
+    loadMarketplaceAccounts("phoenix");
 }
 
+
+/* ================================
+   MLBB AKKLAR
+================================ */
 
 function openMLBBAccounts() {
 
     openModal(`
 
-        <div class="account-market-page">
+        <div class="marketplace">
 
-            <div class="modal-title">
-                🎮 MLBB AKKLAR
+            <div class="market-header">
+
+                <button
+                    class="market-back"
+                    onclick="openAccounts()"
+                >
+                    ‹
+                </button>
+
+                <div>
+                    <div class="market-title">
+                        🎮 MLBB AKKLAR
+                    </div>
+
+                    <div class="market-subtitle">
+                        Foydalanuvchilar akkauntlari
+                    </div>
+                </div>
+
             </div>
 
-            <div class="account-market-subtitle">
-                Foydalanuvchilar joylagan akkauntlar
+
+            <div class="market-search">
+
+                <span>🔎</span>
+
+                <input
+                    id="mlbbSearch"
+                    type="text"
+                    placeholder="Akkaunt izlash..."
+                    oninput="filterMarketAccounts('mlbb')"
+                >
+
             </div>
 
-            <div id="mlbbAccountsList">
+
+            <div class="market-filters">
+
+                <button
+                    class="active"
+                    onclick="setMarketFilter('mlbb','all',this)"
+                >
+                    Barchasi
+                </button>
+
+                <button onclick="setMarketFilter('mlbb','world',this)">
+                    Mirovoy
+                </button>
+
+                <button onclick="setMarketFilter('mlbb','mega',this)">
+                    Mega
+                </button>
+
+                <button onclick="setMarketFilter('mlbb','middle',this)">
+                    O‘rta
+                </button>
+
+                <button onclick="setMarketFilter('mlbb','cheap',this)">
+                    Arzon
+                </button>
+
+                <button onclick="setMarketFilter('mlbb','expensive',this)">
+                    Qimmat
+                </button>
+
+            </div>
+
+
+            <div
+                id="mlbbMarketList"
+                class="market-grid"
+            >
+
                 <div class="empty">
                     Akkauntlar yuklanmoqda...
                 </div>
+
             </div>
 
-            <button
-                class="account-add-button"
-                onclick="openAddAccount()"
-            >
-                +
-            </button>
+
+            <div class="market-bottom-nav">
+
+                <button onclick="openMLBBAccounts()">
+                    🏠
+                    <span>Bosh</span>
+                </button>
+
+                <button onclick="openOrders()">
+                    📦
+                    <span>Buyurtma</span>
+                </button>
+
+                <button onclick="openNotifications()">
+                    💬
+                    <span>Xabar</span>
+                </button>
+
+                <button onclick="openAddAccount()">
+                    ＋
+                    <span>Qo‘shish</span>
+                </button>
+
+                <button onclick="openProfile()">
+                    👤
+                    <span>Profil</span>
+                </button>
+
+            </div>
 
         </div>
 
     `);
 
-    loadAccountList("mlbb");
+    window.marketType = "mlbb";
+    window.marketFilter = "all";
+
+    loadMarketplaceAccounts("mlbb");
 }
 
 
-async function loadAccountList(type) {
+/* ================================
+   AKKAUNTLARNI YUKLASH
+================================ */
+
+async function loadMarketplaceAccounts(type) {
 
     const box = document.getElementById(
         type === "phoenix"
-            ? "phoenixAccountsList"
-            : "mlbbAccountsList"
+            ? "phoenixMarketList"
+            : "mlbbMarketList"
     );
 
     if (!box) return;
@@ -3236,52 +3431,12 @@ async function loadAccountList(type) {
 
         const accounts = await response.json();
 
-        if (!accounts || accounts.length === 0) {
+        window.marketAccounts = accounts || [];
 
-            box.innerHTML = `
-                <div class="empty">
-                    Hozircha akkauntlar yo‘q.
-                </div>
-            `;
-
-            return;
-        }
-
-        box.innerHTML = accounts.map(account => {
-
-            const image = account.image_url || "";
-
-            return `
-
-                <div
-                    class="account-market-card"
-                    onclick="openAccountDetails('${escapeAttribute(account.account_uid)}')"
-                >
-
-                    ${
-                        image
-                        ? `
-                            <img
-                                src="${escapeAttribute(image)}"
-                                class="account-market-image"
-                            >
-                        `
-                        : `
-                            <div class="account-market-image-empty">
-                                🎮
-                            </div>
-                        `
-                    }
-
-                    <div class="account-market-price">
-                        ${formatPrice(account.price)}
-                    </div>
-
-                </div>
-
-            `;
-
-        }).join("");
+        renderMarketplaceAccounts(
+            type,
+            window.marketAccounts
+        );
 
     } catch (error) {
 
@@ -3293,7 +3448,174 @@ async function loadAccountList(type) {
             </div>
         `;
     }
-}                          
+}
+
+
+/* ================================
+   CARDLAR
+================================ */
+
+function renderMarketplaceAccounts(type, accounts) {
+
+    const box = document.getElementById(
+        type === "phoenix"
+            ? "phoenixMarketList"
+            : "mlbbMarketList"
+    );
+
+    if (!box) return;
+
+    if (!accounts || accounts.length === 0) {
+
+        box.innerHTML = `
+            <div class="market-empty">
+                <div>🎮</div>
+                <b>Hozircha akkauntlar yo‘q</b>
+                <span>Bu yerga akkauntlar joylanadi.</span>
+            </div>
+        `;
+
+        return;
+    }
+
+    box.innerHTML = accounts.map(account => {
+
+        const image = account.image_url || "";
+
+        return `
+
+            <div
+                class="market-account"
+                onclick="openAccountDetails('${escapeAttribute(
+                    account.account_uid || ""
+                )}')"
+            >
+
+                ${
+                    image
+                    ? `
+                        <img
+                            src="${escapeAttribute(image)}"
+                            class="market-account-image"
+                        >
+                    `
+                    : `
+                        <div class="market-account-no-image">
+                            🎮
+                        </div>
+                    `
+                }
+
+                <div class="market-account-price">
+                    ${formatPrice(account.price)}
+                </div>
+
+            </div>
+
+        `;
+
+    }).join("");
+}
+
+
+/* ================================
+   SEARCH
+================================ */
+
+function filterMarketAccounts(type) {
+
+    const input = document.getElementById(
+        type === "phoenix"
+            ? "phoenixSearch"
+            : "mlbbSearch"
+    );
+
+    if (!input) return;
+
+    const search = input.value
+        .toLowerCase()
+        .trim();
+
+    const accounts = window.marketAccounts || [];
+
+    const filtered = accounts.filter(account => {
+
+        return (
+            String(account.title || "")
+                .toLowerCase()
+                .includes(search)
+            ||
+            String(account.account_id || "")
+                .toLowerCase()
+                .includes(search)
+        );
+
+    });
+
+    renderMarketplaceAccounts(type, filtered);
+}
+
+
+/* ================================
+   FILTER
+================================ */
+
+function setMarketFilter(type, filter, button) {
+
+    window.marketFilter = filter;
+
+    document
+        .querySelectorAll(".market-filters button")
+        .forEach(item => {
+            item.classList.remove("active");
+        });
+
+    button.classList.add("active");
+
+    let accounts = window.marketAccounts || [];
+
+    if (filter === "middle") {
+
+        accounts = accounts.filter(
+            account => account.category === "middle"
+        );
+
+    }
+
+    if (filter === "world") {
+
+        accounts = accounts.filter(
+            account => account.category === "world"
+        );
+
+    }
+
+    if (filter === "mega") {
+
+        accounts = accounts.filter(
+            account => account.category === "mega"
+        );
+
+    }
+
+    if (filter === "cheap") {
+
+        accounts = [...accounts].sort(
+            (a, b) => Number(a.price) - Number(b.price)
+        );
+
+    }
+
+    if (filter === "expensive") {
+
+        accounts = [...accounts].sort(
+            (a, b) => Number(b.price) - Number(a.price)
+        );
+
+    }
+
+    renderMarketplaceAccounts(type, accounts);
+        }    
 
 
 function contactSeller(username) {
