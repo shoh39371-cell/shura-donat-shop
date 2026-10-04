@@ -18,6 +18,7 @@ from database import (
     get_balance,
     subtract_balance,
     add_balance,
+    get_connection,
 )
 from fastapi.responses import FileResponse, JSONResponse
 
