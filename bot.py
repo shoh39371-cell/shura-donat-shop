@@ -929,7 +929,17 @@ async def api_boost_order(
             "ok": False,
             "error": str(e),
         }
+# =========================================================
+# API: BOOST PAYMENT INFO
+# =========================================================
 
+@app.get("/api/boost/payment-info")
+async def api_boost_payment_info():
+
+    return {
+        "ok": True,
+        "card_number": CARD_NUMBER,
+    }
 # =========================================================
 # TELEGRAM /START
 # =========================================================
