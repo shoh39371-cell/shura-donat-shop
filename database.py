@@ -86,7 +86,33 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    # Promo codes migration
+    promo_columns = {
+        "promo_type": "TEXT DEFAULT 'normal'",
+        "valid_from": "TIMESTAMP",
+        "valid_until": "TIMESTAMP",
+        "lucky_from": "TIMESTAMP",
+        "lucky_until": "TIMESTAMP",
+        "price": "REAL DEFAULT 0",
+        "uses_per_user": "INTEGER DEFAULT 1",
+    }
 
+    existing_columns = {
+        row[1]
+        for row in conn.execute(
+            "PRAGMA table_info(promo_codes)"
+        ).fetchall()
+    }
+
+    for column, definition in promo_columns.items():
+
+        if column not in existing_columns:
+
+            conn.execute(
+                f"ALTER TABLE promo_codes ADD COLUMN {column} {definition}"
+            )
+
+    conn.commit()
     conn.commit()
     conn.close()
 
