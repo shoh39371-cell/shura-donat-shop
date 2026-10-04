@@ -2295,11 +2295,82 @@ function openMMRService() {
     `);
 }
 
-
 function calculateMMR() {
 
-    
-    
+    const current =
+        Number(
+            document
+                .getElementById("mmrCurrent")
+                ?.value || 0
+        );
+
+    const target =
+        Number(
+            document
+                .getElementById("mmrTarget")
+                ?.value || 0
+        );
+
+    if (!current || !target) {
+        alertUser(
+            "Hozirgi va kerakli MMRni kiriting."
+        );
+        return;
+    }
+
+    if (target <= current) {
+        alertUser(
+            "Kerakli MMR hozirgi MMRdan katta bo‘lishi kerak."
+        );
+        return;
+    }
+
+    const difference =
+        target - current;
+
+    const steps =
+        Math.ceil(
+            difference / MMR_STEP
+        );
+
+    const price =
+        steps * MMR_PRICE;
+
+    const result =
+        document.getElementById(
+            "mmrResult"
+        );
+
+    if (result) {
+
+        result.innerHTML = `
+
+            <div class="boost-total-label">
+                Jami
+            </div>
+
+            <div class="boost-total-stars">
+                📈 +${difference} MMR
+            </div>
+
+            <div class="boost-price">
+                💰 ${formatPrice(price)}
+            </div>
+
+            <button
+                class="boost-action boost-pay"
+                onclick="openMMRPayment()"
+                style="margin-top:15px; width:100%;"
+            >
+                💳 To‘lovga o‘tish
+            </button>
+
+        `;
+
+    }
+
+}
+   
 function createTitleOrder() {
 
     alertUser(
