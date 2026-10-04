@@ -1033,3 +1033,197 @@ button {
     }
 
 }
+/* =========================
+   PHOENIX BOOST UI
+   ========================= */
+
+.boost-card {
+    background: linear-gradient(145deg, #17172a, #0e0e19);
+    border: 1px solid rgba(139, 92, 246, 0.35);
+    border-radius: 18px;
+    padding: 16px;
+    margin-top: 14px;
+    box-shadow: 0 8px 25px rgba(0,0,0,.25);
+}
+
+.boost-section-title {
+    font-size: 13px;
+    color: #a9a9bd;
+    margin-bottom: 9px;
+}
+
+.boost-rank-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.boost-rank-name {
+    flex: 1;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.boost-counter {
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6d28d9, #9333ea);
+    color: white;
+    font-size: 25px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.boost-counter:active {
+    transform: scale(.94);
+}
+
+.boost-stars {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 9px;
+    margin-top: 10px;
+}
+
+.boost-star-btn {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255,255,255,.08);
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.boost-star-value {
+    min-width: 45px;
+    text-align: center;
+    font-weight: 800;
+}
+
+.boost-total {
+    margin-top: 16px;
+    padding: 18px;
+    border-radius: 18px;
+    text-align: center;
+    background: linear-gradient(
+        135deg,
+        rgba(124,58,237,.22),
+        rgba(59,130,246,.12)
+    );
+    border: 1px solid rgba(139,92,246,.3);
+}
+
+.boost-total-label {
+    color: #aaaabd;
+    font-size: 13px;
+}
+
+.boost-total-stars {
+    font-size: 28px;
+    font-weight: 900;
+    margin-top: 4px;
+}
+
+.boost-price {
+    margin-top: 7px;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.boost-action {
+    width: 100%;
+    min-height: 48px;
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.boost-check {
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
+}
+
+.boost-pay {
+    background: linear-gradient(135deg, #7c3aed, #c026d3);
+}
+
+.boost-title-card {
+    background: linear-gradient(145deg, #19172b, #10101c);
+    border: 1px solid rgba(245,158,11,.3);
+    border-radius: 18px;
+    padding: 17px;
+    margin-top: 14px;
+}
+
+.boost-title-icon {
+    font-size: 32px;
+    text-align: center;
+    margin-bottom: 7px;
+}
+
+.boost-title-heading {
+    text-align: center;
+    font-size: 19px;
+    font-weight: 900;
+}
+
+.boost-title-sub {
+    text-align: center;
+    color: #aaaabd;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.boost-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 12px;
+    padding: 13px;
+    color: white;
+    outline: none;
+    margin-top: 10px;
+}
+
+.boost-input:focus {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 2px rgba(139,92,246,.15);
+}
+
+.boost-menu-btn {
+    width: 100%;
+    min-height: 58px;
+    border: none;
+    border-radius: 16px;
+    color: white;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 12px;
+    text-align: left;
+    padding: 0 18px;
+}
+
+.boost-menu-btn:active,
+.boost-action:active {
+    transform: scale(.98);
+}
+
+.boost-menu-mlbb {
+    background: linear-gradient(135deg, #6d28d9, #2563eb);
+}
+
+.boost-menu-title {
+    background: linear-gradient(135deg, #b45309, #ea580c);
+}
