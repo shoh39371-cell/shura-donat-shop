@@ -4043,3 +4043,162 @@ function escapeAttribute(
 
 loadTelegramUser();
 loadPlayPayBalance();
+/* ================================
+   AKKAUNT DETAIL
+================================ */
+
+function openAccountDetails(accountUid) {
+
+    const account = (window.marketAccounts || []).find(
+        item => String(item.account_uid) === String(accountUid)
+    );
+
+    if (!account) {
+        alertUser("Akkaunt topilmadi");
+        return;
+    }
+
+    const image = account.image_url || "";
+
+    openModal(`
+
+        <div class="account-detail">
+
+            <div class="account-detail-header">
+
+                <button
+                    class="market-back"
+                    onclick="${
+                        account.account_type === "phoenix"
+                            ? "openPhoenixAccounts()"
+                            : "openMLBBAccounts()"
+                    }"
+                >
+                    ‹
+                </button>
+
+                <div class="market-title">
+                    🎮 AKKAUNT
+                </div>
+
+            </div>
+
+
+            ${
+                image
+                ? `
+                    <img
+                        src="${escapeAttribute(image)}"
+                        class="account-detail-image"
+                    >
+                `
+                : `
+                    <div class="account-detail-no-image">
+                        🎮
+                    </div>
+                `
+            }
+
+
+            <div class="account-detail-info">
+
+                <div class="account-detail-title">
+                    ${escapeHtml(account.title || "Akkaunt")}
+                </div>
+
+                <div class="account-detail-price">
+                    ${formatPrice(account.price)}
+                </div>
+
+                <div class="account-detail-row">
+                    <span>🆔 ID</span>
+                    <b>${escapeHtml(account.account_id || "-")}</b>
+                </div>
+
+                <div class="account-detail-row">
+                    <span>📂 Kategoriya</span>
+                    <b>${escapeHtml(account.category || "-")}</b>
+                </div>
+
+                <div class="account-detail-row">
+                    <span>👤 Sotuvchi</span>
+                    <b>
+                        ${
+                            account.seller_username
+                                ? "@" + escapeHtml(account.seller_username)
+                                : "Telegram foydalanuvchi"
+                        }
+                    </b>
+                </div>
+
+                ${
+                    account.description
+                    ? `
+                        <div class="account-detail-description">
+                            <div>📝 Tavsif</div>
+                            <p>
+                                ${escapeHtml(account.description)}
+                            </p>
+                        </div>
+                    `
+                    : ""
+                }
+
+                ${
+                    account.video_url
+                    ? `
+                        <div class="account-detail-video">
+
+                            <div class="account-detail-video-title">
+                                🎬 Video
+                            </div>
+
+                            <video
+                                controls
+                                playsinline
+                                src="${escapeAttribute(account.video_url)}"
+                            ></video>
+
+                        </div>
+                    `
+                    : ""
+                }
+
+                <button
+                    class="account-buy-button"
+                    onclick="buyAccount('${escapeAttribute(
+                        account.account_uid || ""
+                    )}')"
+                >
+                    💳 AKKAUNTNI SOTIB OLISH
+                </button>
+
+            </div>
+
+        </div>
+
+    `);
+}
+
+
+/* ================================
+   SOTIB OLISH
+================================ */
+
+function buyAccount(accountUid) {
+
+    const account = (window.marketAccounts || []).find(
+        item => String(item.account_uid) === String(accountUid)
+    );
+
+    if (!account) {
+        alertUser("Akkaunt topilmadi");
+        return;
+    }
+
+    alertUser(
+        "Buyurtma qabul qilindi.\n\n" +
+        "Akkaunt: " + (account.title || "Akkaunt") + "\n" +
+        "Narx: " + formatPrice(account.price)
+    );
+}
