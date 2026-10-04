@@ -699,6 +699,9 @@ async def api_balance(telegram_id: int):
 # =========================================================
 # API: APPLY PROMO CODE
 # =========================================================
+# =========================================================
+# API: APPLY PROMO CODE
+# =========================================================
 
 @app.post("/api/promo/apply")
 async def api_apply_promo(data: dict):
@@ -727,15 +730,10 @@ async def api_apply_promo(data: dict):
                 "error": "Telegram foydalanuvchisi topilmadi."
             }
 
-        # database.py dagi connectiondan foydalanamiz
         conn = get_connection()
-
         cursor = conn.cursor()
 
-        # =================================================
-        # PROMO TOPISH
-        # =================================================
-
+        # Promo kodni topish
         cursor.execute(
             """
             SELECT *
@@ -749,18 +747,13 @@ async def api_apply_promo(data: dict):
         promo = cursor.fetchone()
 
         if not promo:
-
             return {
                 "ok": False,
                 "error": "Promo kod topilmadi."
             }
 
-        # =================================================
-        # ACTIVE
-        # =================================================
-
+        # Promo aktivligini tekshirish
         if not promo["active"]:
-
             return {
                 "ok": False,
                 "error": "Bu promo kod faol emas."
@@ -771,6 +764,7 @@ async def api_apply_promo(data: dict):
         # =================================================
 
         from datetime import datetime
+        import random
 
         now = datetime.now()
 
@@ -783,7 +777,6 @@ async def api_apply_promo(data: dict):
                 )
 
                 if now < valid_from:
-
                     return {
                         "ok": False,
                         "error": "Bu promo hali amal qilishni boshlamagan."
@@ -801,7 +794,6 @@ async def api_apply_promo(data: dict):
                 )
 
                 if now > valid_until:
-
                     return {
                         "ok": False,
                         "error": "Bu promo kodning amal qilish muddati tugagan."
@@ -858,26 +850,22 @@ async def api_apply_promo(data: dict):
         if user_use_count >= uses_per_user:
 
             if promo["promo_type"] == "special":
-
-                return {
-                    "ok": False,
-                    "error": "Special promo 3 marta ishlatildi."
-                }
+                error_message = "Special promo 3 marta ishlatildi."
+            else:
+                error_message = "Bu promo kodni allaqachon ishlatgansiz."
 
             return {
                 "ok": False,
-                "error": "Bu promo kodni allaqachon ishlatgansiz."
+                "error": error_message
             }
 
         # =================================================
-        # RANDOM DISCOUNT
+        # DISCOUNT
         # =================================================
-
-        import random
 
         if promo["promo_type"] == "special":
 
-            # Special promo uchun hozircha 5-15%
+            # Special promo
             discount_percent = random.randint(
                 5,
                 15
@@ -915,7 +903,7 @@ async def api_apply_promo(data: dict):
                     )
 
         # =================================================
-        # SAVE USE
+        # SAVE PROMO USE
         # =================================================
 
         cursor.execute(
@@ -980,85 +968,8 @@ async def api_apply_promo(data: dict):
     finally:
 
         if conn:
-            conn.close()
-        # -------------------------------------------------
-        # RANDOM DISCOUNT
-        # -------------------------------------------------
+            conn.close()            
 
-        import random
-        from datetime import datetime
-
-        now = datetime.now()
-
-        # Oddiy holatda 5 yoki 6%
-        discount_percent = random.choice([
-            5,
-            6
-        ])
-
-        # Agar promo jadvalida lucky vaqtlar mavjud bo'lsa
-        try:
-
-            lucky_start = promo["lucky_start"]
-            lucky_end = promo["lucky_end"]
-
-            if lucky_start and lucky_end:
-
-                current_time = now.strftime("%H:%M")
-
-                if (
-                    lucky_start
-                    <= current_time
-                    <= lucky_end
-                ):
-
-                    discount_percent = random.randint(
-                        10,
-                        15
-                    )
-
-        except Exception:
-            pass
-
-        # -------------------------------------------------
-        # PROMO ISHLATILDI DEB SAQLASH
-        # -------------------------------------------------
-
-        cursor.execute(
-            """
-            INSERT INTO promo_uses (
-                promo_code,
-                telegram_id,
-                discount_percent
-            )
-            VALUES (?, ?, ?)
-            """,
-            (
-                code,
-                telegram_id,
-                discount_percent
-            )
-        )
-
-        conn.commit()
-        conn.close()
-
-        return {
-            "ok": True,
-            "discount_percent": discount_percent,
-            "code": code
-        }
-
-        except Exception as e:
-
-        logger.exception(
-            "Promo apply error"
-        )
-
-        return {
-            "ok": False,
-            "error": str(e)
-        }
 # =========================================================
 # API: CHECK PLAYER ID
 # =========================================================
