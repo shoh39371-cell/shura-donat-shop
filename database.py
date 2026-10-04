@@ -112,6 +112,7 @@ def init_db():
             conn.execute(
                 f"ALTER TABLE promo_codes ADD COLUMN {column} {definition}"
             )
+    
     # Promo uses migration
 
     promo_use_columns = {
@@ -135,49 +136,52 @@ def init_db():
                 ADD COLUMN {column} {definition}
                 """
             )
-# =========================================================
-# DEFAULT PROMO CODES
-# =========================================================
 
-promo_codes = [
-    ("PHEONIXTOP", "normal"),
-    ("6767", "normal"),
-    ("SHURA1", "normal"),
 
-    ("PHEONIX_ML", "special"),
-    ("PREMIUM15", "special"),
-    ("SHURABEST", "special"),
-    ("MUKHA1", "special"),
-]
+    # =========================================================
+    # DEFAULT PROMO CODES
+    # =========================================================
 
-for code, promo_type in promo_codes:
+    promo_codes = [
+        ("PHEONIXTOP", "normal"),
+        ("6767", "normal"),
+        ("SHURA1", "normal"),
 
-    conn.execute(
-        """
-        INSERT OR IGNORE INTO promo_codes (
-            code,
-            discount_percent,
-            active,
-            max_uses,
-            used_count,
-            promo_type,
-            uses_per_user
+        ("PHEONIX_ML", "special"),
+        ("PREMIUM15", "special"),
+        ("SHURABEST", "special"),
+        ("MUKHA1", "special"),
+    ]
+
+    for code, promo_type in promo_codes:
+
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO promo_codes (
+                code,
+                discount_percent,
+                active,
+                max_uses,
+                used_count,
+                promo_type,
+                uses_per_user
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                code,
+                0,
+                1,
+                0,
+                0,
+                promo_type,
+                3 if promo_type == "special" else 1
+            )
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            code,
-            0,
-            1,
-            0,
-            0,
-            promo_type,
-            3 if promo_type == "special" else 1
-        )
-    )
+
+
     conn.commit()
     conn.close()
-
 
 def create_or_update_user(
     telegram_id: int,
