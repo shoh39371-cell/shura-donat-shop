@@ -55,7 +55,46 @@ function alertUser(message) {
 /* =====================================================
    TELEGRAM USER
 ===================================================== */
+async function loadBalance() {
 
+    const user = tg?.initDataUnsafe?.user;
+
+    if (!user?.id) {
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `/api/balance?telegram_id=${encodeURIComponent(user.id)}&v=${Date.now()}`
+        );
+
+        const data = await response.json();
+
+        if (!data.ok) {
+            console.error("Balance error:", data.error);
+            return;
+        }
+
+        const balance = Number(data.balance || 0);
+
+        const balanceValue =
+            document.getElementById("balanceValue");
+
+        if (balanceValue) {
+            balanceValue.textContent =
+                `${balance.toLocaleString("uz-UZ")} UZS`;
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Balance loading error:",
+            error
+        );
+
+    }
+}
 function loadTelegramUser() {
 
     const user = tg?.initDataUnsafe?.user;
