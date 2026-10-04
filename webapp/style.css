@@ -1227,3 +1227,181 @@ button {
 .boost-menu-title {
     background: linear-gradient(135deg, #b45309, #ea580c);
 }
+/* ================================
+   ACCOUNT MENU
+================================ */
+
+.accounts-menu {
+    padding: 5px 2px 15px;
+}
+
+.accounts-menu-subtitle {
+    text-align: center;
+    font-size: 11px;
+    opacity: .55;
+    margin-top: -8px;
+    margin-bottom: 20px;
+}
+
+.accounts-menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.accounts-menu-card {
+    min-height: 155px;
+    padding: 18px 10px;
+
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,.08);
+
+    color: inherit;
+    cursor: pointer;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    transition: .2s;
+}
+
+.accounts-menu-card:active {
+    transform: scale(.96);
+}
+
+.phoenix-card {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(145,65,255,.25),
+            rgba(255,70,120,.08)
+        );
+
+    box-shadow:
+        0 10px 30px rgba(130,60,255,.16);
+}
+
+.mlbb-card {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(40,130,255,.20),
+            rgba(40,220,255,.06)
+        );
+
+    box-shadow:
+        0 10px 30px rgba(40,130,255,.14);
+}
+
+.accounts-menu-icon {
+    font-size: 42px;
+    margin-bottom: 12px;
+}
+
+.accounts-menu-name {
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .5px;
+}
+
+.accounts-menu-desc {
+    margin-top: 6px;
+    font-size: 9px;
+    opacity: .55;
+}
+
+
+/* ACCOUNT LIST */
+
+.account-market-page {
+    padding-bottom: 75px;
+}
+
+.account-market-subtitle {
+    text-align: center;
+    font-size: 10px;
+    opacity: .5;
+    margin-top: -7px;
+    margin-bottom: 16px;
+}
+
+.account-market-card {
+    overflow: hidden;
+    margin-bottom: 12px;
+
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,.08);
+
+    background: rgba(255,255,255,.045);
+
+    cursor: pointer;
+}
+
+.account-market-image {
+    display: block;
+
+    width: 100%;
+    height: 210px;
+
+    object-fit: cover;
+}
+
+.account-market-image-empty {
+    height: 210px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 48px;
+
+    background: rgba(255,255,255,.04);
+}
+
+.account-market-price {
+    padding: 12px 14px;
+
+    font-size: 16px;
+    font-weight: 900;
+
+    text-align: center;
+
+    background: rgba(125,75,255,.12);
+}
+
+
+/* PLUS BUTTON */
+
+.account-add-button {
+    position: fixed;
+
+    left: 50%;
+    bottom: 82px;
+
+    transform: translateX(-50%);
+
+    width: 58px;
+    height: 58px;
+
+    border: 0;
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #8b5cff,
+            #6335e8
+        );
+
+    color: white;
+
+    font-size: 32px;
+    font-weight: 300;
+
+    box-shadow:
+        0 8px 30px rgba(100,60,255,.45);
+
+    z-index: 100;
+    }
