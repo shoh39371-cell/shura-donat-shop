@@ -1405,3 +1405,533 @@ button {
 
     z-index: 100;
     }
+/* =========================================
+   PREMIUM AKKAUNT MARKET
+========================================= */
+
+.accounts-main-menu {
+    position: relative;
+    min-height: 430px;
+    padding: 10px 4px 25px;
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 15% 10%,
+            rgba(145, 65, 255, .20),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 90% 25%,
+            rgba(0, 180, 255, .15),
+            transparent 35%
+        );
+}
+
+.accounts-menu-title {
+    text-align: center;
+    font-size: 21px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin-bottom: 22px;
+}
+
+.accounts-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 13px;
+}
+
+.accounts-main-card {
+    position: relative;
+    overflow: hidden;
+
+    min-height: 245px;
+    padding: 0;
+
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,.12);
+
+    color: white;
+    cursor: pointer;
+
+    backdrop-filter: blur(14px);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.accounts-main-card:active {
+    transform: scale(.95);
+}
+
+
+/* PHOENIX */
+
+.phoenix-card {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(125, 55, 255, .40),
+            rgba(255, 45, 105, .12)
+        );
+
+    box-shadow:
+        0 0 25px rgba(125, 55, 255, .20);
+}
+
+
+/* MLBB */
+
+.mlbb-card {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(0, 145, 255, .35),
+            rgba(0, 220, 255, .10)
+        );
+
+    box-shadow:
+        0 0 25px rgba(0, 160, 255, .18);
+}
+
+
+/* CARD RASMLARI */
+
+.accounts-main-image {
+    width: 100%;
+    height: 155px;
+
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    border-bottom:
+        1px solid rgba(255,255,255,.10);
+}
+
+
+/* Phoenix rasmi */
+
+.phoenix-image {
+    background-image:
+        linear-gradient(
+            to bottom,
+            transparent 55%,
+            rgba(30,10,50,.85)
+        ),
+        url("https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80");
+}
+
+
+/* MLBB rasmi */
+
+.mlbb-image {
+    background-image:
+        linear-gradient(
+            to bottom,
+            transparent 55%,
+            rgba(5,20,45,.85)
+        ),
+        url("https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80");
+}
+
+
+.accounts-main-card-title {
+    padding: 12px 7px 0;
+
+    font-size: 12px;
+    font-weight: 900;
+
+    text-align: center;
+    letter-spacing: .5px;
+}
+
+.accounts-main-card-text {
+    padding-top: 5px;
+
+    font-size: 9px;
+    opacity: .55;
+
+    text-align: center;
+}
+
+
+/* =========================================
+   MARKETPLACE
+========================================= */
+
+.marketplace {
+    position: relative;
+
+    min-height: 600px;
+
+    padding: 4px 3px 82px;
+
+    background:
+        radial-gradient(
+            circle at 10% 0%,
+            rgba(125, 65, 255, .14),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 90% 20%,
+            rgba(0, 170, 255, .12),
+            transparent 35%
+        );
+}
+
+
+/* HEADER */
+
+.market-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin-bottom: 15px;
+}
+
+.market-back {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 13px;
+    border: 1px solid rgba(255,255,255,.10);
+
+    background: rgba(255,255,255,.06);
+
+    color: white;
+    font-size: 25px;
+}
+
+.market-title {
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.market-subtitle {
+    margin-top: 3px;
+
+    font-size: 9px;
+    opacity: .5;
+}
+
+
+/* SEARCH */
+
+.market-search {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    height: 46px;
+
+    padding: 0 13px;
+
+    border-radius: 15px;
+
+    background: rgba(255,255,255,.055);
+
+    border:
+        1px solid rgba(255,255,255,.09);
+
+    box-shadow:
+        inset 0 0 20px rgba(255,255,255,.015);
+}
+
+.market-search span {
+    font-size: 17px;
+}
+
+.market-search input {
+    width: 100%;
+
+    border: 0;
+    outline: none;
+
+    background: transparent;
+
+    color: white;
+
+    font-size: 12px;
+}
+
+.market-search input::placeholder {
+    color: rgba(255,255,255,.40);
+}
+
+
+/* FILTER */
+
+.market-filters {
+    display: flex;
+
+    gap: 7px;
+
+    overflow-x: auto;
+
+    padding: 12px 1px;
+
+    scrollbar-width: none;
+}
+
+.market-filters::-webkit-scrollbar {
+    display: none;
+}
+
+.market-filters button {
+    flex-shrink: 0;
+
+    padding: 8px 13px;
+
+    border-radius: 20px;
+
+    border:
+        1px solid rgba(255,255,255,.08);
+
+    background:
+        rgba(255,255,255,.045);
+
+    color: rgba(255,255,255,.72);
+
+    font-size: 10px;
+
+    white-space: nowrap;
+}
+
+.market-filters button.active {
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(130,70,255,.55),
+            rgba(70,130,255,.25)
+        );
+
+    border-color:
+        rgba(150,100,255,.65);
+
+    box-shadow:
+        0 0 15px rgba(125,70,255,.20);
+}
+
+
+/* =========================================
+   ACCOUNT GRID
+========================================= */
+
+.market-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 11px;
+
+    margin-top: 4px;
+}
+
+.market-account {
+    overflow: hidden;
+
+    border-radius: 17px;
+
+    border:
+        1px solid rgba(255,255,255,.09);
+
+    background:
+        rgba(255,255,255,.045);
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,.18);
+
+    cursor: pointer;
+
+    transition:
+        transform .2s ease;
+}
+
+.market-account:active {
+    transform: scale(.95);
+}
+
+
+/* 1:1 RASM */
+
+.market-account-image {
+    display: block;
+
+    width: 100%;
+
+    aspect-ratio: 1 / 1;
+
+    object-fit: cover;
+}
+
+.market-account-no-image {
+    width: 100%;
+
+    aspect-ratio: 1 / 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 38px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(125,70,255,.18),
+            rgba(255,255,255,.025)
+        );
+}
+
+
+/* NARX */
+
+.market-account-price {
+    padding: 10px 5px;
+
+    text-align: center;
+
+    font-size: 12px;
+    font-weight: 900;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(125,70,255,.18),
+            rgba(0,150,255,.10)
+        );
+}
+
+
+/* EMPTY */
+
+.market-empty {
+    grid-column: 1 / -1;
+
+    padding: 55px 15px;
+
+    text-align: center;
+
+    border-radius: 20px;
+
+    background:
+        rgba(255,255,255,.035);
+}
+
+.market-empty div {
+    font-size: 40px;
+
+    margin-bottom: 10px;
+}
+
+.market-empty b {
+    display: block;
+
+    font-size: 13px;
+}
+
+.market-empty span {
+    display: block;
+
+    margin-top: 6px;
+
+    font-size: 10px;
+
+    opacity: .5;
+}
+
+
+/* =========================================
+   BOTTOM NAV
+========================================= */
+
+.market-bottom-nav {
+    position: fixed;
+
+    left: 50%;
+
+    bottom: 10px;
+
+    transform: translateX(-50%);
+
+    width: calc(100% - 28px);
+
+    max-width: 430px;
+
+    height: 64px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
+    align-items: center;
+
+    padding: 5px;
+
+    border-radius: 20px;
+
+    background:
+        rgba(18,18,28,.94);
+
+    border:
+        1px solid rgba(255,255,255,.10);
+
+    box-shadow:
+        0 10px 35px rgba(0,0,0,.35);
+
+    backdrop-filter: blur(18px);
+
+    z-index: 500;
+}
+
+.market-bottom-nav button {
+    height: 54px;
+
+    border: 0;
+
+    background: transparent;
+
+    color: rgba(255,255,255,.55);
+
+    font-size: 18px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 2px;
+}
+
+.market-bottom-nav button span {
+    font-size: 8px;
+}
+
+.market-bottom-nav button:nth-child(4) {
+    color: white;
+
+    font-size: 25px;
+
+    border-radius: 15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #8b5cff,
+            #6335e8
+        );
+
+    box-shadow:
+        0 0 20px rgba(120,70,255,.35);
+                           }
