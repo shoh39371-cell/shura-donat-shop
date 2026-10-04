@@ -1077,51 +1077,38 @@ async def api_create_order(data: dict):
 
     try:
 
-        game_id = int(
-            data.get("game_id")
-        )
-
-        package_id = int(
-            data.get("package_id")
-        )
+        game_id = int(data.get("game_id"))
+        package_id = int(data.get("package_id"))
 
         player_id = str(
-            data.get(
-                "player_id",
-                "",
-            )
+            data.get("player_id", "")
         ).strip()
 
         server_id = str(
-            data.get(
-                "server_id",
-                "",
-            )
+            data.get("server_id", "")
         ).strip()
 
         telegram_id = int(
-            data.get(
-                "telegram_id",
-                0,
-            )
+            data.get("telegram_id", 0)
         )
 
-        if not player_id:
+        promo_code = str(
+            data.get("promo_code", "")
+        ).strip().upper()
 
+        if not player_id:
             return {
                 "ok": False,
                 "error": "User ID kiritilmagan",
             }
 
         if not server_id:
-
             return {
                 "ok": False,
                 "error": "Server ID kiritilmagan",
             }
 
         if not telegram_id:
-
             return {
                 "ok": False,
                 "error": "Telegram foydalanuvchisi topilmadi",
@@ -1135,7 +1122,6 @@ async def api_create_order(data: dict):
         }
 
         if game_id not in allowed_ids:
-
             return {
                 "ok": False,
                 "error": "Noto'g'ri Mobile Legends region",
@@ -1165,7 +1151,6 @@ async def api_create_order(data: dict):
         )
 
         if not selected_package:
-
             return {
                 "ok": False,
                 "error": "Paket topilmadi",
@@ -1184,23 +1169,264 @@ async def api_create_order(data: dict):
             cost_price * (1 + markup)
         )
 
+        # =====================================================
+        # PROMO CHEGIRMA
+        # =====================================================
+
+        discount_percent = 0
+
+        if promo_code:
+
+            conn = get_connection()
+
+            try:
+
+                cursor = conn.cursor()
+
+                cursor.execute(
+                    """
+                    SELECT *
+                    FROM promo_codes
+                    WHERE code = ?
+                    LIMIT 1
+                    """,
+                    (promo_code,)
+                )
+
+                promo = cursor.fetchone()
+
+                if not promo:
+                    return {
+                        "ok": False,
+                        "error": "Promo kod topilmadi.",
+                    }
+
+                if not promo["active"]:
+                    return {
+                        "ok": False,
+                        "error": "Promo kod faol emas.",
+                    }
+
+                from datetime import datetime
+
+                now = datetime.now()
+
+                # Umumiy amal qilish muddati
+                if promo["valid_from"]:
+
+                    try:
+                        valid_from = datetime.fromisoformat(
+                            str(promo["valid_from"])
+                        )
+
+                        if now < valid_from:
+                            return {
+                                "ok": False,
+                                "error": "Promo hali amal qilishni boshlamagan.",
+                            }
+
+                    except Exception:
+                        pass
+
+                if promo["valid_until"]:
+
+                    try:
+                        valid_until = datetime.fromisoformat(
+                            str(promo["valid_until"])
+                        )
+
+                        if now > valid_until:
+                            return {
+                                "ok": False,
+                                "error": "Promo kodning amal qilish muddati tugagan.",
+                            }
+
+                    except Exception:
+                        pass
+
+                # Umumiy foydalanish limiti
+                if (
+                    promo["max_uses"] > 0
+                    and promo["used_count"]
+                    >= promo["max_uses"]
+                ):
+                    return {
+                        "ok": False,
+                        "error": "Promo kod ishlatish limitiga yetgan.",
+                    }
+
+                # Shu user necha marta ishlatgan
+                cursor.execute(
+                    """
+                    SELECT COUNT(*) AS use_count
+                    FROM promo_uses
+                    WHERE promo_id = ?
+                    AND telegram_id = ?
+                    """,
+                    (
+                        promo["id"],
+                        telegram_id
+                    )
+                )
+
+                use_row = cursor.fetchone()
+
+                user_use_count = int(
+                    use_row["use_count"]
+                )
+
+                uses_per_user = int(
+                    promo["uses_per_user"] or 1
+                )
+
+                if user_use_count >= uses_per_user:
+
+                    return {
+                        "ok": False,
+                        "error": (
+                            "Bu promo koddan foydalanish "
+                            "limitingiz tugagan."
+                        ),
+                    }
+
+                # Promo uchun oldindan aniqlangan chegirma
+                cursor.execute(
+                    """
+                    SELECT discount_percent
+                    FROM promo_uses
+                    WHERE promo_id = ?
+                    AND telegram_id = ?
+                    ORDER BY id DESC
+                    LIMIT 1
+                    """,
+                    (
+                        promo["id"],
+                        telegram_id
+                    )
+                )
+
+                previous_use = cursor.fetchone()
+
+                if previous_use:
+                    discount_percent = float(
+                        previous_use["discount_percent"]
+                    )
+
+                else:
+
+                    import random
+
+                    if promo["promo_type"] == "special":
+
+                        discount_percent = random.randint(
+                            5,
+                            15
+                        )
+
+                    else:
+
+                        discount_percent = random.choice(
+                            [5, 6]
+                        )
+
+                        lucky_from = promo["lucky_from"]
+                        lucky_until = promo["lucky_until"]
+
+                        if lucky_from and lucky_until:
+
+                            current_time = now.strftime(
+                                "%H:%M"
+                            )
+
+                            start_time = str(
+                                lucky_from
+                            )[-5:]
+
+                            end_time = str(
+                                lucky_until
+                            )[-5:]
+
+                            if (
+                                start_time
+                                <= current_time
+                                <= end_time
+                            ):
+                                discount_percent = random.randint(
+                                    10,
+                                    15
+                                )
+
+                # Chegirmani hisoblash
+                discount_amount = round(
+                    customer_price
+                    * discount_percent
+                    / 100
+                )
+
+                final_price = round(
+                    customer_price
+                    - discount_amount
+                )
+
+                # Promo ishlatilganini yozamiz
+                cursor.execute(
+                    """
+                    INSERT INTO promo_uses (
+                        promo_id,
+                        telegram_id,
+                        discount_percent
+                    )
+                    VALUES (?, ?, ?)
+                    """,
+                    (
+                        promo["id"],
+                        telegram_id,
+                        discount_percent
+                    )
+                )
+
+                cursor.execute(
+                    """
+                    UPDATE promo_codes
+                    SET used_count = used_count + 1
+                    WHERE id = ?
+                    """,
+                    (
+                        promo["id"],
+                    )
+                )
+
+                conn.commit()
+
+            finally:
+
+                conn.close()
+
+        else:
+
+            final_price = customer_price
+
+        # =====================================================
+        # BALANS
+        # =====================================================
+
         balance = get_balance(
             telegram_id
         )
 
-        if balance < customer_price:
+        if balance < final_price:
 
             return {
                 "ok": False,
                 "error": (
                     f"Balans yetarli emas. "
-                    f"Kerak: {customer_price:,.0f} UZS"
+                    f"Kerak: {final_price:,.0f} UZS"
                 ),
             }
 
         deducted = subtract_balance(
             telegram_id,
-            customer_price
+            final_price
         )
 
         if not deducted:
@@ -1227,7 +1453,7 @@ async def api_create_order(data: dict):
 
             add_balance(
                 telegram_id,
-                customer_price
+                final_price
             )
 
             raise
@@ -1235,7 +1461,15 @@ async def api_create_order(data: dict):
         return {
             "ok": True,
             "order": result,
-            "charged": customer_price,
+            "original_price": customer_price,
+            "discount_percent": discount_percent,
+            "discount_amount": round(
+                customer_price
+                * discount_percent
+                / 100
+            ),
+            "charged": final_price,
+            "promo_code": promo_code,
         }
 
     except Exception as e:
@@ -1247,7 +1481,7 @@ async def api_create_order(data: dict):
         return {
             "ok": False,
             "error": str(e),
-        }
+                                }        
 
 # =========================================================
 # API: BOOST ORDER
