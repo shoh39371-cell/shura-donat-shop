@@ -271,9 +271,7 @@ image_url = image_urls[0] if image_urls else ""
 
 video_url = ""
 
-        
-
-    if video:
+if video:
 
         extension = os.path.splitext(
             video.filename or ""
