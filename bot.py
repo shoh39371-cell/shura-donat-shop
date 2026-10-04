@@ -695,6 +695,177 @@ async def api_balance(telegram_id: int):
             "ok": False,
             "error": str(e),
         }
+        # =========================================================
+# API: APPLY PROMO CODE
+# =========================================================
+
+@app.post("/api/promo/apply")
+async def api_apply_promo(data: dict):
+
+    try:
+
+        code = str(
+            data.get("code", "")
+        ).strip().upper()
+
+        telegram_id = int(
+            data.get("telegram_id", 0)
+        )
+
+        if not code:
+            return {
+                "ok": False,
+                "error": "Promo kod kiritilmagan"
+            }
+
+        if not telegram_id:
+            return {
+                "ok": False,
+                "error": "Telegram foydalanuvchisi topilmadi"
+            }
+
+        conn = sqlite3.connect("database.db")
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        # Promo kodni topish
+        cursor.execute(
+            """
+            SELECT *
+            FROM promo_codes
+            WHERE code = ?
+            LIMIT 1
+            """,
+            (code,)
+        )
+
+        promo = cursor.fetchone()
+
+        if not promo:
+
+            conn.close()
+
+            return {
+                "ok": False,
+                "error": "Promo kod topilmadi."
+            }
+
+        # Promo aktivligini tekshirish
+        if "active" in promo.keys():
+
+            if not promo["active"]:
+
+                conn.close()
+
+                return {
+                    "ok": False,
+                    "error": "Bu promo kod faol emas."
+                }
+
+        # User bu kodni oldin ishlatganmi?
+        cursor.execute(
+            """
+            SELECT id
+            FROM promo_uses
+            WHERE promo_code = ?
+            AND telegram_id = ?
+            LIMIT 1
+            """,
+            (
+                code,
+                telegram_id
+            )
+        )
+
+        already_used = cursor.fetchone()
+
+        if already_used:
+
+            conn.close()
+
+            return {
+                "ok": False,
+                "error": "Bu promo kodni allaqachon ishlatgansiz."
+            }
+
+        # -------------------------------------------------
+        # RANDOM DISCOUNT
+        # -------------------------------------------------
+
+        import random
+        from datetime import datetime
+
+        now = datetime.now()
+
+        # Oddiy holatda 5 yoki 6%
+        discount_percent = random.choice([
+            5,
+            6
+        ])
+
+        # Agar promo jadvalida lucky vaqtlar mavjud bo'lsa
+        try:
+
+            lucky_start = promo["lucky_start"]
+            lucky_end = promo["lucky_end"]
+
+            if lucky_start and lucky_end:
+
+                current_time = now.strftime("%H:%M")
+
+                if (
+                    lucky_start
+                    <= current_time
+                    <= lucky_end
+                ):
+
+                    discount_percent = random.randint(
+                        10,
+                        15
+                    )
+
+        except Exception:
+            pass
+
+        # -------------------------------------------------
+        # PROMO ISHLATILDI DEB SAQLASH
+        # -------------------------------------------------
+
+        cursor.execute(
+            """
+            INSERT INTO promo_uses (
+                promo_code,
+                telegram_id,
+                discount_percent
+            )
+            VALUES (?, ?, ?)
+            """,
+            (
+                code,
+                telegram_id,
+                discount_percent
+            )
+        )
+
+        conn.commit()
+        conn.close()
+
+        return {
+            "ok": True,
+            "discount_percent": discount_percent,
+            "code": code
+        }
+
+    except Exception as e:
+
+        logger.exception(
+            "Promo apply error"
+        )
+
+        return {
+            "ok": False,
+            "error": str(e)
+    }
 # =========================================================
 # API: CHECK PLAYER ID
 # =========================================================
