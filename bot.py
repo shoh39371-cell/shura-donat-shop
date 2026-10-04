@@ -695,12 +695,15 @@ async def api_balance(telegram_id: int):
             "ok": False,
             "error": str(e),
         }
-        # =========================================================
+
+# =========================================================
 # API: APPLY PROMO CODE
 # =========================================================
 
 @app.post("/api/promo/apply")
 async def api_apply_promo(data: dict):
+
+    conn = None
 
     try:
 
@@ -715,20 +718,24 @@ async def api_apply_promo(data: dict):
         if not code:
             return {
                 "ok": False,
-                "error": "Promo kod kiritilmagan"
+                "error": "Promo kod kiritilmagan."
             }
 
         if not telegram_id:
             return {
                 "ok": False,
-                "error": "Telegram foydalanuvchisi topilmadi"
+                "error": "Telegram foydalanuvchisi topilmadi."
             }
 
-        conn = sqlite3.connect("database.db")
-        conn.row_factory = sqlite3.Row
+        # database.py dagi connectiondan foydalanamiz
+        conn = get_connection()
+
         cursor = conn.cursor()
 
-        # Promo kodni topish
+        # =================================================
+        # PROMO TOPISH
+        # =================================================
+
         cursor.execute(
             """
             SELECT *
@@ -743,51 +750,237 @@ async def api_apply_promo(data: dict):
 
         if not promo:
 
-            conn.close()
-
             return {
                 "ok": False,
                 "error": "Promo kod topilmadi."
             }
 
-        # Promo aktivligini tekshirish
-        if "active" in promo.keys():
+        # =================================================
+        # ACTIVE
+        # =================================================
 
-            if not promo["active"]:
+        if not promo["active"]:
 
-                conn.close()
+            return {
+                "ok": False,
+                "error": "Bu promo kod faol emas."
+            }
 
-                return {
-                    "ok": False,
-                    "error": "Bu promo kod faol emas."
-                }
+        # =================================================
+        # VALID TIME
+        # =================================================
 
-        # User bu kodni oldin ishlatganmi?
+        from datetime import datetime
+
+        now = datetime.now()
+
+        if promo["valid_from"]:
+
+            try:
+
+                valid_from = datetime.fromisoformat(
+                    str(promo["valid_from"])
+                )
+
+                if now < valid_from:
+
+                    return {
+                        "ok": False,
+                        "error": "Bu promo hali amal qilishni boshlamagan."
+                    }
+
+            except Exception:
+                pass
+
+        if promo["valid_until"]:
+
+            try:
+
+                valid_until = datetime.fromisoformat(
+                    str(promo["valid_until"])
+                )
+
+                if now > valid_until:
+
+                    return {
+                        "ok": False,
+                        "error": "Bu promo kodning amal qilish muddati tugagan."
+                    }
+
+            except Exception:
+                pass
+
+        # =================================================
+        # MAX USES
+        # =================================================
+
+        if (
+            promo["max_uses"] > 0
+            and promo["used_count"] >= promo["max_uses"]
+        ):
+
+            return {
+                "ok": False,
+                "error": "Bu promo kod ishlatish limitiga yetgan."
+            }
+
+        # =================================================
+        # USER USE COUNT
+        # =================================================
+
         cursor.execute(
             """
-            SELECT id
+            SELECT COUNT(*) AS use_count
             FROM promo_uses
-            WHERE promo_code = ?
+            WHERE promo_id = ?
             AND telegram_id = ?
-            LIMIT 1
             """,
             (
-                code,
+                promo["id"],
                 telegram_id
             )
         )
 
-        already_used = cursor.fetchone()
+        use_row = cursor.fetchone()
 
-        if already_used:
+        user_use_count = int(
+            use_row["use_count"]
+        )
 
-            conn.close()
+        uses_per_user = int(
+            promo["uses_per_user"] or 1
+        )
+
+        # =================================================
+        # USER LIMIT
+        # =================================================
+
+        if user_use_count >= uses_per_user:
+
+            if promo["promo_type"] == "special":
+
+                return {
+                    "ok": False,
+                    "error": "Special promo 3 marta ishlatildi."
+                }
 
             return {
                 "ok": False,
                 "error": "Bu promo kodni allaqachon ishlatgansiz."
             }
 
+        # =================================================
+        # RANDOM DISCOUNT
+        # =================================================
+
+        import random
+
+        if promo["promo_type"] == "special":
+
+            # Special promo uchun hozircha 5-15%
+            discount_percent = random.randint(
+                5,
+                15
+            )
+
+        else:
+
+            # Oddiy promo
+            discount_percent = random.choice([
+                5,
+                6
+            ])
+
+            # Lucky vaqt
+            lucky_from = promo["lucky_from"]
+            lucky_until = promo["lucky_until"]
+
+            if lucky_from and lucky_until:
+
+                current_time = now.strftime("%H:%M")
+
+                start_time = str(
+                    lucky_from
+                )[-5:]
+
+                end_time = str(
+                    lucky_until
+                )[-5:]
+
+                if start_time <= current_time <= end_time:
+
+                    discount_percent = random.randint(
+                        10,
+                        15
+                    )
+
+        # =================================================
+        # SAVE USE
+        # =================================================
+
+        cursor.execute(
+            """
+            INSERT INTO promo_uses (
+                promo_id,
+                telegram_id,
+                discount_percent
+            )
+            VALUES (?, ?, ?)
+            """,
+            (
+                promo["id"],
+                telegram_id,
+                discount_percent
+            )
+        )
+
+        # =================================================
+        # UPDATE USED COUNT
+        # =================================================
+
+        cursor.execute(
+            """
+            UPDATE promo_codes
+            SET used_count = used_count + 1
+            WHERE id = ?
+            """,
+            (
+                promo["id"],
+            )
+        )
+
+        conn.commit()
+
+        return {
+            "ok": True,
+            "discount_percent": discount_percent,
+            "code": code,
+            "promo_type": promo["promo_type"],
+            "uses_left": (
+                uses_per_user
+                - user_use_count
+                - 1
+            )
+        }
+
+    except Exception as e:
+
+        if conn:
+            conn.rollback()
+
+        logger.exception(
+            "Promo apply error"
+        )
+
+        return {
+            "ok": False,
+            "error": "Promo ishlatishda xatolik yuz berdi."
+        }
+
+    finally:
+
+        if conn:
+            conn.close()
         # -------------------------------------------------
         # RANDOM DISCOUNT
         # -------------------------------------------------
