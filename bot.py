@@ -697,7 +697,7 @@ async def api_create_order(data: dict):
                 },
             )
 
-        except Exception:
+                except Exception:
 
             add_balance(
                 telegram_id,
@@ -710,6 +710,17 @@ async def api_create_order(data: dict):
             "ok": True,
             "order": result,
             "charged": customer_price,
+        }
+
+    except Exception as e:
+
+        logger.exception(
+            "Create order error"
+        )
+
+        return {
+            "ok": False,
+            "error": str(e),
 }
 # =========================================================
 # TELEGRAM /START
