@@ -4393,7 +4393,11 @@ async function submitAccount() {
 
         alertUser("✅ Akkaunt muvaffaqiyatli joylandi!");
 
-        openMLBBAccounts();
+        if (window.marketType === "phoenix") {
+    openPhoenixAccounts();
+} else {
+    openMLBBAccounts();
+}
 
     } catch (error) {
 
