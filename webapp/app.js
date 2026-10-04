@@ -3093,84 +3093,141 @@ async function sendTitleOrder(
     }
 }
 function openAccounts() {
-    renderAccounts("all");
-}
-
-function renderAccounts(category = "all") {
 
     openModal(`
-        <div class="modal-title">
-            🎮 AKKLAR
-        </div>
 
-        <div class="account-tabs">
+        <div class="accounts-menu">
 
-            <button onclick="renderAccounts('all')">
-                Barchasi
-            </button>
+            <div class="modal-title">
+                🎮 AKKAUNTLAR
+            </div>
 
-            <button onclick="renderAccounts('middle')">
-                O'rta budjet
-            </button>
+            <div class="accounts-menu-subtitle">
+                Kerakli bo‘limni tanlang
+            </div>
 
-            <button onclick="renderAccounts('high')">
-                Yuqori budjet
-            </button>
+            <div class="accounts-menu-grid">
 
-            <button onclick="renderAccounts('world')">
-                Mirovoy accountlar
-            </button>
+                <button
+                    class="accounts-menu-card phoenix-card"
+                    onclick="openPhoenixAccounts()"
+                >
+                    <div class="accounts-menu-icon">
+                        🔥
+                    </div>
 
-        </div>
+                    <div class="accounts-menu-name">
+                        PHOENIX AKKLAR
+                    </div>
 
-        <div class="account-type-tabs">
+                    <div class="accounts-menu-desc">
+                        Maxsus akkauntlar
+                    </div>
+                </button>
 
-            <button
-                class="account-type active"
-                onclick="showPhoenixAccounts()"
-            >
-                🔥 Phoenix akkauntlari
-            </button>
 
-            <button
-                class="account-type"
-                onclick="showMLBBAccounts()"
-            >
-                🎮 MLBB akkauntlar
-            </button>
+                <button
+                    class="accounts-menu-card mlbb-card"
+                    onclick="openMLBBAccounts()"
+                >
+                    <div class="accounts-menu-icon">
+                        🎮
+                    </div>
 
-        </div>
+                    <div class="accounts-menu-name">
+                        MLBB AKKLAR
+                    </div>
 
-        <div id="accountsList">
+                    <div class="accounts-menu-desc">
+                        Foydalanuvchilar akkauntlari
+                    </div>
+                </button>
 
-            <div class="empty">
-                Akkauntlar yuklanmoqda...
             </div>
 
         </div>
 
-        <button
-            class="account-add-button"
-            onclick="openAddAccount()"
-        >
-            +
-        </button>
     `);
-
-    loadAccounts(category);
 }
 
 
-async function loadAccounts(category = "all") {
+function openPhoenixAccounts() {
 
-    const box = document.getElementById("accountsList");
+    openModal(`
+
+        <div class="account-market-page">
+
+            <div class="modal-title">
+                🔥 PHOENIX AKKLAR
+            </div>
+
+            <div class="account-market-subtitle">
+                Phoenix tomonidan joylangan akkauntlar
+            </div>
+
+            <div id="phoenixAccountsList">
+                <div class="empty">
+                    Akkauntlar yuklanmoqda...
+                </div>
+            </div>
+
+        </div>
+
+    `);
+
+    loadAccountList("phoenix");
+}
+
+
+function openMLBBAccounts() {
+
+    openModal(`
+
+        <div class="account-market-page">
+
+            <div class="modal-title">
+                🎮 MLBB AKKLAR
+            </div>
+
+            <div class="account-market-subtitle">
+                Foydalanuvchilar joylagan akkauntlar
+            </div>
+
+            <div id="mlbbAccountsList">
+                <div class="empty">
+                    Akkauntlar yuklanmoqda...
+                </div>
+            </div>
+
+            <button
+                class="account-add-button"
+                onclick="openAddAccount()"
+            >
+                +
+            </button>
+
+        </div>
+
+    `);
+
+    loadAccountList("mlbb");
+}
+
+
+async function loadAccountList(type) {
+
+    const box = document.getElementById(
+        type === "phoenix"
+            ? "phoenixAccountsList"
+            : "mlbbAccountsList"
+    );
 
     if (!box) return;
 
     try {
 
         const response = await fetch(
-            `/api/accounts?category=${encodeURIComponent(category)}`
+            `/api/accounts?type=${encodeURIComponent(type)}`
         );
 
         if (!response.ok) {
@@ -3193,77 +3250,35 @@ async function loadAccounts(category = "all") {
         box.innerHTML = accounts.map(account => {
 
             const image = account.image_url || "";
-            const video = account.video_url || "";
 
             return `
-                <div class="account-card">
+
+                <div
+                    class="account-market-card"
+                    onclick="openAccountDetails('${escapeAttribute(account.account_uid)}')"
+                >
 
                     ${
                         image
                         ? `
-                        <img
-                            src="${escapeAttribute(image)}"
-                            class="account-image"
-                        >
+                            <img
+                                src="${escapeAttribute(image)}"
+                                class="account-market-image"
+                            >
                         `
                         : `
-                        <div class="account-image-empty">
-                            🎮
-                        </div>
+                            <div class="account-market-image-empty">
+                                🎮
+                            </div>
                         `
                     }
 
-                    <div class="account-info">
-
-                        <div class="account-title">
-                            ${escapeHtml(account.title || "MLBB Account")}
-                        </div>
-
-                        <div class="account-id">
-                            ID: ${escapeHtml(account.account_id || "-")}
-                        </div>
-
-                        <div class="account-description">
-                            ${escapeHtml(account.description || "Izoh yo‘q")}
-                        </div>
-
-                        <div class="account-price">
-                            ${formatPrice(account.price)}
-                        </div>
-
-                        <div class="account-seller">
-                            Sotuvchi:
-                            ${escapeHtml(account.seller_username || "Noma'lum")}
-                        </div>
-
-                        ${
-                            video
-                            ? `
-                            <video
-                                class="account-video"
-                                controls
-                                src="${escapeAttribute(video)}"
-                            ></video>
-                            `
-                            : ""
-                        }
-
-                        ${
-                            account.seller_username
-                            ? `
-                            <button
-                                class="account-contact"
-                                onclick="contactSeller('${escapeAttribute(account.seller_username)}')"
-                            >
-                                💬 Sotuvchiga yozish
-                            </button>
-                            `
-                            : ""
-                        }
-
+                    <div class="account-market-price">
+                        ${formatPrice(account.price)}
                     </div>
 
                 </div>
+
             `;
 
         }).join("");
@@ -3278,7 +3293,7 @@ async function loadAccounts(category = "all") {
             </div>
         `;
     }
-}
+}                          
 
 
 function contactSeller(username) {
