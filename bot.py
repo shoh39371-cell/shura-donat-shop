@@ -371,7 +371,24 @@ async def api_packages(
             "packages",
             [],
         )
+        for package in packages:
 
+            price = float(
+                package.get("price", 0)
+            )
+
+            if price < 60000:
+                markup = 0.05
+            else:
+                markup = 0.10
+
+            package["price"] = round(
+                price * (1 + markup)
+            )
+
+            package["markup_pct"] = int(
+                markup * 100
+            )
         return {
             "ok": True,
             "game_id": game_id,
