@@ -898,55 +898,131 @@ async function createOrder(
 
             <div class="spinner"></div>
 
-            Buyurtma tayyorlanmoqda...
+            Buyurtma yaratilmoqda...
 
         </div>
 
     `);
 
-    /*
-        Hozircha haqiqiy PlayPay order
-        yuborilmaydi.
+    try {
 
-        Keyingi bosqich:
-        Balance → to‘lov → order → PlayPay
-    */
+        const response =
+            await fetch(
+                "/api/create-order",
+                {
+                    method: "POST",
 
-    $("modalContent").innerHTML = `
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-        <div class="modal-title">
-            💎 ${escapeHtml(pkg.name)}
-        </div>
+                    body:
+                        JSON.stringify({
+                            game_id:
+                                pkg.game_id,
 
-        <div class="confirmation-card">
+                            package_id:
+                                pkg.paket_id,
 
-            👤 ${escapeHtml(playerId)}
+                            player_id:
+                                playerId,
 
-            <br>
+                            server_id:
+                                serverId
+                        })
+                }
+            );
 
-            🌐 ${escapeHtml(serverId)}
 
-            <br><br>
+        const data =
+            await response.json();
 
-            💰
-            <b>
-                ${formatPrice(pkg.price)}
-            </b>
 
-        </div>
+        if (!data.ok) {
 
-        <div class="modal-subtitle">
-            💳 To‘lov tizimi keyingi bosqichda ulanadi.
-        </div>
+            throw new Error(
+                data.error ||
+                "Buyurtma yaratishda xatolik"
+            );
 
-        <button
-            class="primary-button"
-            onclick="closeModal()"
-        >
-            Tushunarli
-        </button>
+        }
 
-    `;
+
+        $("modalContent").innerHTML = `
+
+            <div class="modal-title">
+                ✅ Buyurtma yaratildi
+            </div>
+
+            <div class="confirmation-card">
+
+                💎
+                ${escapeHtml(pkg.name)}
+
+                <br><br>
+
+                👤
+                ${escapeHtml(playerId)}
+
+                <br>
+
+                🌐
+                ${escapeHtml(serverId)}
+
+                <br><br>
+
+                💰
+                <b>
+                    ${formatPrice(pkg.price)}
+                </b>
+
+            </div>
+
+            <div class="modal-subtitle">
+                Buyurtma muvaffaqiyatli yaratildi.
+            </div>
+
+            <button
+                class="primary-button"
+                onclick="closeModal()"
+            >
+                Yopish
+            </button>
+
+        `;
+
+
+    } catch (error) {
+
+        $("modalContent").innerHTML = `
+
+            <div class="empty">
+
+                ❌
+                ${escapeHtml(
+                    error.message
+                )}
+
+                <br><br>
+
+                <button
+                    class="primary-button"
+                    onclick='showConfirmation(
+                        ${JSON.stringify(pkg)},
+                        "",
+                        "${escapeAttribute(playerId)}",
+                        "${escapeAttribute(serverId)}"
+                    )'
+                >
+                    Qayta urinish
+                </button>
+
+            </div>
+
+        `;
+
+    }
 
 }
 
