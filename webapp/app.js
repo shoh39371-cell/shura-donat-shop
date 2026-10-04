@@ -967,20 +967,6 @@ async function openBalance() {
         return;
     }
 
-    openModal(`
-        <div class="modal-title">
-            💳 Balans
-        </div>
-
-        <div class="modal-subtitle">
-            Balansingiz
-        </div>
-
-        <div class="balance-value">
-            Yuklanmoqda...
-        </div>
-    `);
-
     try {
 
         const response = await fetch(
@@ -1002,23 +988,44 @@ async function openBalance() {
 
         openModal(`
             <div class="modal-title">
-                💳 Balans
+                💳 Balansni to‘ldirish
             </div>
 
             <div class="modal-subtitle">
-                Joriy balansingiz
+                Joriy balans: ${escapeHtml(balanceText)}
             </div>
 
-            <div class="balance-value">
-                ${escapeHtml(balanceText)}
-            </div>
+            <div style="margin-top: 20px;">
 
-            <button
-                class="hero-button"
-                onclick="closeModal()"
-            >
-                + Balansni to‘ldirish
-            </button>
+                <input
+                    id="topupAmount"
+                    type="number"
+                    inputmode="numeric"
+                    min="1000"
+                    step="1000"
+                    placeholder="Summani kiriting"
+                    style="
+                        width: 100%;
+                        box-sizing: border-box;
+                        padding: 14px;
+                        border-radius: 12px;
+                        border: 1px solid rgba(255,255,255,0.15);
+                        background: rgba(255,255,255,0.06);
+                        color: white;
+                        font-size: 16px;
+                        outline: none;
+                    "
+                >
+
+                <button
+                    class="hero-button"
+                    onclick="startTopUp()"
+                    style="margin-top: 12px; width: 100%;"
+                >
+                    💳 Davom etish
+                </button>
+
+            </div>
         `);
 
     } catch (error) {
@@ -1036,7 +1043,43 @@ async function openBalance() {
         `);
     }
 }
+function startTopUp() {
 
+    const input = document.getElementById("topupAmount");
+
+    if (!input) {
+        return;
+    }
+
+    const amount = Number(input.value);
+
+    if (!amount || amount < 1000) {
+
+        alertUser(
+            "Kamida 1 000 UZS kiriting."
+        );
+
+        return;
+    }
+
+    openModal(`
+        <div class="modal-title">
+            💳 To‘lov
+        </div>
+
+        <div class="modal-subtitle">
+            To‘ldirish summasi
+        </div>
+
+        <div class="balance-value">
+            ${amount.toLocaleString("uz-UZ")} UZS
+        </div>
+
+        <div class="empty">
+            To‘lov tizimi keyingi bosqichda ulanadi.
+        </div>
+    `);
+}
 
 function openBoost() {
 
