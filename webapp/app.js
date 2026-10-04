@@ -1212,6 +1212,9 @@ function startTopUp() {
         </div>
     `);
 }
+function openBoost() {
+    openMLBBBoost();
+}
 function openMLBBBoost() {
     renderMLBBBoost();
 }
