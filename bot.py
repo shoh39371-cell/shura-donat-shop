@@ -220,6 +220,11 @@ async def create_account(
     video: UploadFile | None = File(default=None)
 ):
 
+    ADMIN_ID = os.getenv("PHOENIX_ADMIN_ID")
+
+if str(seller_id) == str(ADMIN_ID):
+    account_type = "phoenix"
+else:
     account_type = "mlbb"
 
     account_uid = str(uuid.uuid4())
