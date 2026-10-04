@@ -2438,11 +2438,191 @@ function calculateMMR() {
    
 function createTitleOrder() {
 
-    alertUser(
-        "Titul buyurtmasini qabul qilish tizimi keyingi bosqichda ulanadi."
-    );
-}
+    const region =
+        document.getElementById("titleRegion")?.value.trim();
 
+    const playerId =
+        document.getElementById("titlePlayerId")?.value.trim();
+
+    const zoneId =
+        document.getElementById("titleZoneId")?.value.trim();
+
+    const titleType =
+        document.getElementById("titleType")?.value;
+
+    if (!region) {
+        alertUser("Region / viloyat / shaharni kiriting.");
+        return;
+    }
+
+    if (!playerId) {
+        alertUser("Game IDni kiriting.");
+        return;
+    }
+
+    if (!zoneId) {
+        alertUser("Zone IDni kiriting.");
+        return;
+    }
+
+    if (!titleType) {
+        alertUser("Titulni tanlang.");
+        return;
+    }
+
+    let price = 0;
+
+    if (titleType === "Silver") {
+        price = 30000;
+    } else if (titleType === "Gold") {
+        price = 70000;
+    } else if (titleType === "State/Country") {
+        price = 200000;
+    }
+
+    openModal(`
+
+        <div class="modal-title">
+            💳 Titul uchun to‘lov
+        </div>
+
+        <div class="modal-subtitle">
+            🏆 ${escapeHtml(titleType)} titul
+        </div>
+
+        <div style="margin-top:15px;">
+            📍 Region: ${escapeHtml(region)}
+        </div>
+
+        <div style="margin-top:8px;">
+            🎮 Game ID: ${escapeHtml(playerId)}
+        </div>
+
+        <div style="margin-top:8px;">
+            🌐 Zone ID: ${escapeHtml(zoneId)}
+        </div>
+
+        <div class="boost-price" style="margin-top:15px;">
+            💰 ${formatPrice(price)} UZS
+        </div>
+
+        <button
+            class="boost-action boost-pay"
+            onclick="openTitlePayment(
+                '${escapeAttribute(region)}',
+                '${escapeAttribute(playerId)}',
+                '${escapeAttribute(zoneId)}',
+                '${escapeAttribute(titleType)}',
+                ${price}
+            )"
+            style="margin-top:15px; width:100%;"
+        >
+            💳 To‘lovga o‘tish
+        </button>
+
+    `);
+}
+function openTitlePayment(
+    region,
+    playerId,
+    zoneId,
+    titleType,
+    price
+) {
+
+    openModal(`
+
+        <div class="modal-title">
+            💳 To‘lov
+        </div>
+
+        <div class="modal-subtitle">
+            🏆 ${escapeHtml(titleType)} titul
+        </div>
+
+        <div class="boost-price" style="margin-top:15px;">
+            💰 ${formatPrice(price)} UZS
+        </div>
+
+        <div style="
+            margin-top:20px;
+            padding:15px;
+            border-radius:12px;
+            background:rgba(255,255,255,0.08);
+        ">
+
+            <div>
+                💳 Karta raqami
+            </div>
+
+            <div
+                id="titleCardNumber"
+                style="
+                    margin-top:8px;
+                    font-size:18px;
+                    font-weight:bold;
+            ">
+                Yuklanmoqda...
+            </div>
+
+        </div>
+
+        <div style="margin-top:15px;">
+            To‘lovni amalga oshirgach, chekni yuboring.
+        </div>
+
+        <button
+            class="boost-action boost-pay"
+            onclick="showTitleReceiptForm(
+                '${escapeAttribute(region)}',
+                '${escapeAttribute(playerId)}',
+                '${escapeAttribute(zoneId)}',
+                '${escapeAttribute(titleType)}',
+                ${price}
+            )"
+            style="margin-top:15px; width:100%;"
+        >
+            📸 Chek yuborish
+        </button>
+
+    `);
+
+    fetch("/api/boost/payment-info")
+        .then(response => response.json())
+        .then(data => {
+
+            const card =
+                document.getElementById(
+                    "titleCardNumber"
+                );
+
+            if (card) {
+
+                if (data.ok) {
+                    card.textContent =
+                        data.card_number;
+                } else {
+                    card.textContent =
+                        "Karta raqami topilmadi";
+                }
+
+            }
+
+        })
+        .catch(() => {
+
+            const card =
+                document.getElementById(
+                    "titleCardNumber"
+                );
+
+            if (card) {
+                card.textContent =
+                    "Karta ma'lumotini olishda xatolik";
+            }
+
+        });
+}
 
 function openAccounts() {
 
