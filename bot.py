@@ -594,6 +594,13 @@ async def api_create_order(data: dict):
                 "error": "Server ID kiritilmagan",
             }
 
+        if not telegram_id:
+
+            return {
+                "ok": False,
+                "error": "Telegram foydalanuvchisi topilmadi",
+            }
+
         regions = await get_mlbb_regions()
 
         allowed_ids = {
@@ -608,7 +615,7 @@ async def api_create_order(data: dict):
                 "error": "Noto'g'ri Mobile Legends region",
             }
 
-                package_data = await playpay_request(
+        package_data = await playpay_request(
             "GET",
             f"/games/{game_id}/packages",
             params={
