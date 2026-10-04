@@ -4204,10 +4204,7 @@ function buyAccount(accountUid) {
 }
 function openAddAccount() {
 
-    if (window.marketType === "phoenix") {
-        alertUser("Phoenix akkauntlarini faqat admin qo‘sha oladi.");
-        return;
-    }
+    
 
     openModal(`
 
