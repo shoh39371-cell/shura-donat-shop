@@ -65,13 +65,14 @@ def init_db():
 """)
 
     conn.execute("""
-        CREATE TABLE IF NOT EXISTS promo_uses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            promo_id INTEGER NOT NULL,
-            telegram_id INTEGER NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
+    CREATE TABLE IF NOT EXISTS promo_uses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        promo_id INTEGER NOT NULL,
+        telegram_id INTEGER NOT NULL,
+        discount_percent REAL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+""")
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS account_listings (
@@ -111,7 +112,29 @@ def init_db():
             conn.execute(
                 f"ALTER TABLE promo_codes ADD COLUMN {column} {definition}"
             )
+    # Promo uses migration
 
+    promo_use_columns = {
+        "discount_percent": "REAL DEFAULT 0",
+    }
+
+    existing_promo_use_columns = {
+        row[1]
+        for row in conn.execute(
+            "PRAGMA table_info(promo_uses)"
+        ).fetchall()
+    }
+
+    for column, definition in promo_use_columns.items():
+
+        if column not in existing_promo_use_columns:
+
+            conn.execute(
+                f"""
+                ALTER TABLE promo_uses
+                ADD COLUMN {column} {definition}
+                """
+            )
     conn.commit()
     conn.commit()
     conn.close()
