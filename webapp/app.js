@@ -2303,63 +2303,145 @@ function openTitleService() {
         </div>
 
         <div class="modal-subtitle">
-            Kerakli ma'lumotlarni kiriting
+            Kerakli titulni tanlang
+        </div>
+
+        <div class="boost-menu-btn boost-menu-title"
+             onclick="selectTitleType('Silver')">
+
+            🥈
+            <div>
+                <b>Silver Titul</b>
+                <small>30,000 UZS</small>
+            </div>
+
+        </div>
+
+        <div class="boost-menu-btn boost-menu-title"
+             onclick="selectTitleType('Gold')">
+
+            🥇
+            <div>
+                <b>Gold Titul</b>
+                <small>70,000 UZS</small>
+            </div>
+
+        </div>
+
+        <div class="boost-menu-btn boost-menu-title"
+             onclick="selectTitleType('State/Country')">
+
+            🌍
+            <div>
+                <b>State / Country Titul</b>
+                <small>200,000 UZS</small>
+            </div>
+
+        </div>
+
+    `);
+}
+function selectTitleType(titleType) {
+
+    const prices = {
+        "Silver": 30000,
+        "Gold": 70000,
+        "State/Country": 200000
+    };
+
+    const price = prices[titleType];
+
+    openModal(`
+
+        <div class="modal-title">
+            ${titleType === "Silver" ? "🥈" :
+              titleType === "Gold" ? "🥇" : "🌍"}
+            ${escapeHtml(titleType)} Titul
+        </div>
+
+        <div class="modal-subtitle">
+            Ma'lumotlarni kiriting
         </div>
 
         <input
             id="titleRegion"
             class="modal-input"
             type="text"
-            placeholder="Region / Viloyat / Shahar"
+            placeholder="📍 Region / Viloyat / Shahar"
         >
 
         <input
             id="titlePlayerId"
             class="modal-input"
             type="text"
-            placeholder="Game ID"
+            placeholder="🎮 Game ID"
         >
 
         <input
             id="titleZoneId"
             class="modal-input"
             type="text"
-            placeholder="Zone ID"
+            placeholder="🌐 Zone ID"
         >
 
-        <select
-            id="titleType"
-            class="modal-input"
-        >
-
-            <option value="">
-                🏆 Titulni tanlang
-            </option>
-
-            <option value="Silver">
-                🥈 Silver — 30,000 UZS
-            </option>
-
-            <option value="Gold">
-                🥇 Gold — 70,000 UZS
-            </option>
-
-            <option value="State/Country">
-                🌍 State/Country — 200,000 UZS
-            </option>
-
-        </select>
+        <div class="boost-price" style="margin-top:15px;">
+            💰 ${formatPrice(price)} UZS
+        </div>
 
         <button
             class="boost-action boost-pay"
-            onclick="createTitleOrder()"
+            onclick="createTitleOrderWithType(
+                '${escapeAttribute(titleType)}'
+            )"
             style="margin-top:15px; width:100%;"
         >
-            💳 Davom etish
+            ➡️ Davom etish
         </button>
 
     `);
-              }
+}
+function createTitleOrderWithType(titleType) {
+
+    const region =
+        document.getElementById("titleRegion")?.value.trim();
+
+    const playerId =
+        document.getElementById("titlePlayerId")?.value.trim();
+
+    const zoneId =
+        document.getElementById("titleZoneId")?.value.trim();
+
+    if (!region) {
+        alertUser("Region / viloyat / shaharni kiriting.");
+        return;
+    }
+
+    if (!playerId) {
+        alertUser("Game IDni kiriting.");
+        return;
+    }
+
+    if (!zoneId) {
+        alertUser("Zone IDni kiriting.");
+        return;
+    }
+
+    const prices = {
+        "Silver": 30000,
+        "Gold": 70000,
+        "State/Country": 200000
+    };
+
+    const price = prices[titleType];
+
+    openTitlePayment(
+        region,
+        playerId,
+        zoneId,
+        titleType,
+        price
+    );
+}
 function calculateMMR() {
 
     const current =
