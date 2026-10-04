@@ -356,101 +356,30 @@ async def api_packages(
 # API: BALANCE
 # =========================================================
 
-async function openBalance() {
+@app.get("/api/balance")
+async def api_balance(telegram_id: int):
 
-    const user = tg?.initDataUnsafe?.user;
+    try:
 
-    if (!user?.id) {
+        balance = get_balance(
+            telegram_id
+        )
 
-        openModal(`
-            <div class="modal-title">
-                💳 Balans
-            </div>
-
-            <div class="empty">
-                Telegram foydalanuvchisi aniqlanmadi.
-            </div>
-        `);
-
-        return;
-    }
-
-    openModal(`
-        <div class="modal-title">
-            💳 Balans
-        </div>
-
-        <div class="modal-subtitle">
-            Balansingiz
-        </div>
-
-        <div class="balance-value">
-            Yuklanmoqda...
-        </div>
-    `);
-
-    try {
-
-        const response = await fetch(
-            `/api/balance?telegram_id=${encodeURIComponent(user.id)}&v=${Date.now()}`
-        );
-
-        const data = await response.json();
-
-        if (!data.ok) {
-            throw new Error(data.error || "Balansni olishda xatolik");
+        return {
+            "ok": True,
+            "balance": balance,
         }
 
-        const balance = Number(data.balance || 0);
+    except Exception as e:
 
-        const balanceText =
-            `${balance.toLocaleString("uz-UZ")} UZS`;
+        logger.exception(
+            "Balance error"
+        )
 
-        const balanceValue =
-            document.getElementById("balanceValue");
-
-        if (balanceValue) {
-            balanceValue.textContent = balanceText;
+        return {
+            "ok": False,
+            "error": str(e),
         }
-
-        openModal(`
-            <div class="modal-title">
-                💳 Balans
-            </div>
-
-            <div class="modal-subtitle">
-                Joriy balansingiz
-            </div>
-
-            <div class="balance-value">
-                ${escapeHtml(balanceText)}
-            </div>
-
-            <button
-                class="hero-button"
-                onclick="closeModal()"
-            >
-                + Balansni to‘ldirish
-            </button>
-        `);
-
-    } catch (error) {
-
-        console.error("Balance error:", error);
-
-        openModal(`
-            <div class="modal-title">
-                💳 Balans
-            </div>
-
-            <div class="empty">
-                Balansni yuklashda xatolik yuz berdi.
-            </div>
-        `);
-
-    }
-
-}
 # =========================================================
 # API: CHECK PLAYER ID
 # =========================================================
