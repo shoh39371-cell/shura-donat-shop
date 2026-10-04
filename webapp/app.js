@@ -1471,3 +1471,4 @@ function escapeAttribute(
 ===================================================== */
 
 loadTelegramUser();
+loadPlayPayBalance();
