@@ -114,7 +114,8 @@ async def app_js():
         WEBAPP_DIR / "app.js",
         media_type="application/javascript"
 )
-    ACCOUNTS_DIR = "uploads/accounts"
+    
+ACCOUNTS_DIR = "uploads/accounts"
 
 os.makedirs(ACCOUNTS_DIR, exist_ok=True)
 
