@@ -2321,50 +2321,33 @@ function openMMRService() {
 
     `);
 }
-function openTitleService() {
+function openTitleServices() {
 
     openModal(`
 
         <div class="modal-title">
-            🏆 Titul olish
+            🏆 Titul olib berish
         </div>
 
         <div class="modal-subtitle">
-            Kerakli titulni tanlang
+            Xizmat turini tanlang
         </div>
 
-        <div class="boost-menu-btn boost-menu-title"
-             onclick="selectTitleType('Silver')">
+        <button
+            class="boost-action boost-check"
+            onclick="openMMRService()">
 
-            🥈
-            <div>
-                <b>Silver Titul</b>
-                <small>30,000 UZS</small>
-            </div>
+            📈 MMR oshirish
 
-        </div>
+        </button>
 
-        <div class="boost-menu-btn boost-menu-title"
-             onclick="selectTitleType('Gold')">
+        <button
+            class="boost-action boost-pay"
+            onclick="openTitleService()">
 
-            🥇
-            <div>
-                <b>Gold Titul</b>
-                <small>70,000 UZS</small>
-            </div>
+            🏆 Titul olish
 
-        </div>
-
-        <div class="boost-menu-btn boost-menu-title"
-             onclick="selectTitleType('State/Country')">
-
-            🌍
-            <div>
-                <b>State / Country Titul</b>
-                <small>200,000 UZS</small>
-            </div>
-
-        </div>
+        </button>
 
     `);
 }
