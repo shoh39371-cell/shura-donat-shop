@@ -42,15 +42,27 @@ def init_db():
     """)
 
     conn.execute("""
-        CREATE TABLE IF NOT EXISTS promo_codes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            code TEXT UNIQUE NOT NULL,
-            discount_percent REAL DEFAULT 0,
-            active INTEGER DEFAULT 1,
-            max_uses INTEGER DEFAULT 0,
-            used_count INTEGER DEFAULT 0
-        )
-    """)
+    CREATE TABLE IF NOT EXISTS promo_codes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        code TEXT UNIQUE NOT NULL,
+        discount_percent REAL DEFAULT 0,
+        active INTEGER DEFAULT 1,
+        max_uses INTEGER DEFAULT 0,
+        used_count INTEGER DEFAULT 0,
+
+        promo_type TEXT DEFAULT 'normal',
+
+        valid_from TIMESTAMP,
+        valid_until TIMESTAMP,
+
+        lucky_from TIMESTAMP,
+        lucky_until TIMESTAMP,
+
+        price REAL DEFAULT 0,
+
+        uses_per_user INTEGER DEFAULT 1
+    )
+""")
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS promo_uses (
