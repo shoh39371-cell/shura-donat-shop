@@ -4202,3 +4202,205 @@ function buyAccount(accountUid) {
         "Narx: " + formatPrice(account.price)
     );
 }
+function openAddAccount() {
+
+    if (window.marketType === "phoenix") {
+        alertUser("Phoenix akkauntlarini faqat admin qo‘sha oladi.");
+        return;
+    }
+
+    openModal(`
+
+        <div class="account-add">
+
+            <div class="market-header">
+
+                <button
+                    class="market-back"
+                    onclick="openMLBBAccounts()"
+                >
+                    ‹
+                </button>
+
+                <div>
+                    <div class="market-title">
+                        ➕ AKKAUNT QO‘SHISH
+                    </div>
+
+                    <div class="market-subtitle">
+                        MLBB akkauntingizni joylang
+                    </div>
+                </div>
+
+            </div>
+
+            <input
+                id="accountTitle"
+                class="account-input"
+                placeholder="Akkaunt nomi"
+            >
+
+            <input
+                id="accountId"
+                class="account-input"
+                placeholder="Akkaunt ID"
+            >
+
+            <input
+                id="accountPrice"
+                class="account-input"
+                type="number"
+                placeholder="Narxi (UZS)"
+            >
+
+            <select id="accountCategory" class="account-input">
+
+                <option value="cheap">
+                    Arzon
+                </option>
+
+                <option value="middle">
+                    O‘rta
+                </option>
+
+                <option value="mega">
+                    Mega
+                </option>
+
+                <option value="world">
+                    Mirovoy
+                </option>
+
+            </select>
+
+            <textarea
+                id="accountDescription"
+                class="account-textarea"
+                placeholder="Akkaunt haqida ma'lumot..."
+            ></textarea>
+
+            <label class="account-file">
+
+                📷 Rasmlar tanlash
+
+                <input
+                    id="accountImages"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                >
+
+            </label>
+
+            <label class="account-file">
+
+                🎬 Video tanlash
+
+                <input
+                    id="accountVideo"
+                    type="file"
+                    accept="video/*"
+                >
+
+            </label>
+
+            <button
+                class="account-submit"
+                onclick="submitAccount()"
+            >
+                🚀 AKKAUNTNI JOYLASH
+            </button>
+
+        </div>
+
+    `);
+}
+async function submitAccount() {
+
+    const title = document.getElementById("accountTitle")?.value.trim();
+    const accountId = document.getElementById("accountId")?.value.trim();
+    const price = document.getElementById("accountPrice")?.value;
+    const category = document.getElementById("accountCategory")?.value;
+    const description = document.getElementById("accountDescription")?.value.trim();
+
+    const imagesInput = document.getElementById("accountImages");
+    const videoInput = document.getElementById("accountVideo");
+
+    if (!title || !accountId || !price) {
+        alertUser("Iltimos, barcha asosiy ma'lumotlarni kiriting.");
+        return;
+    }
+
+    const user = tg?.initDataUnsafe?.user;
+
+    if (!user) {
+        alertUser("Telegram foydalanuvchisi aniqlanmadi.");
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("title", title);
+    formData.append("account_id", accountId);
+    formData.append("price", price);
+    formData.append("category", category);
+    formData.append("description", description);
+
+    formData.append(
+        "seller_id",
+        String(user.id)
+    );
+
+    formData.append(
+        "seller_username",
+        user.username || ""
+    );
+
+    if (imagesInput?.files) {
+
+        for (const image of imagesInput.files) {
+            formData.append("images", image);
+        }
+
+    }
+
+    if (videoInput?.files?.[0]) {
+
+        formData.append(
+            "video",
+            videoInput.files[0]
+        );
+
+    }
+
+    try {
+
+        const response = await fetch(
+            "/api/accounts",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.message || "Akkaunt qo‘shilmadi"
+            );
+        }
+
+        alertUser("✅ Akkaunt muvaffaqiyatli joylandi!");
+
+        openMLBBAccounts();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alertUser(
+            "❌ Akkauntni joylashda xatolik yuz berdi."
+        );
+    }
+}
