@@ -3,10 +3,13 @@ import asyncio
 import logging
 from pathlib import Path
 import uuid
+import sqlite3
+import os
 import aiohttp
 import uvicorn
 
 from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.staticfiles import StaticFiles
 from database import (
     init_db,
     create_or_update_user,
@@ -111,6 +114,235 @@ async def app_js():
         WEBAPP_DIR / "app.js",
         media_type="application/javascript"
 )
+    ACCOUNTS_DIR = "uploads/accounts"
+
+os.makedirs(ACCOUNTS_DIR, exist_ok=True)
+
+app.mount(
+    "/uploads",
+    StaticFiles(directory="uploads"),
+    name="uploads"
+)
+def init_accounts_db():
+
+    conn = sqlite3.connect("accounts.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS accounts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            account_uid TEXT UNIQUE,
+            title TEXT NOT NULL,
+            account_id TEXT NOT NULL,
+            price INTEGER NOT NULL,
+            category TEXT NOT NULL,
+            description TEXT,
+            seller_id TEXT NOT NULL,
+            seller_username TEXT,
+            account_type TEXT NOT NULL DEFAULT 'mlbb',
+            image_url TEXT,
+            video_url TEXT
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+init_accounts_db()
+@app.get("/api/accounts")
+async def get_accounts(category: str = "all"):
+
+    conn = sqlite3.connect("accounts.db")
+    conn.row_factory = sqlite3.Row
+
+    cursor = conn.cursor()
+
+    if category in ["middle", "high", "world"]:
+
+        cursor.execute(
+            """
+            SELECT *
+            FROM accounts
+            WHERE category = ?
+            ORDER BY id DESC
+            """,
+            (category,)
+        )
+
+    elif category == "phoenix":
+
+        cursor.execute(
+            """
+            SELECT *
+            FROM accounts
+            WHERE account_type = 'phoenix'
+            ORDER BY id DESC
+            """
+        )
+
+    elif category == "mlbb":
+
+        cursor.execute(
+            """
+            SELECT *
+            FROM accounts
+            WHERE account_type = 'mlbb'
+            ORDER BY id DESC
+            """
+        )
+
+    else:
+
+        cursor.execute(
+            """
+            SELECT *
+            FROM accounts
+            ORDER BY id DESC
+            """
+        )
+
+    accounts = [
+        dict(row)
+        for row in cursor.fetchall()
+    ]
+
+    conn.close()
+
+    return accounts
+
+
+@app.post("/api/accounts")
+async def create_account(
+
+    title: str = Form(...),
+    account_id: str = Form(...),
+    price: int = Form(...),
+    category: str = Form(...),
+    description: str = Form(""),
+
+    seller_id: str = Form(...),
+    seller_username: str = Form(""),
+
+    images: list[UploadFile] = File(default=[]),
+    video: UploadFile | None = File(default=None)
+
+):
+
+    account_type = "mlbb"
+
+    account_uid = str(uuid.uuid4())
+
+    account_folder = os.path.join(
+        ACCOUNTS_DIR,
+        account_uid
+    )
+
+    os.makedirs(
+        account_folder,
+        exist_ok=True
+    )
+
+    image_url = ""
+
+    if images:
+
+        first_image = images[0]
+
+        extension = os.path.splitext(
+            first_image.filename or ""
+        )[1]
+
+        image_name = "image" + extension
+
+        image_path = os.path.join(
+            account_folder,
+            image_name
+        )
+
+        with open(image_path, "wb") as f:
+            f.write(
+                await first_image.read()
+            )
+
+        image_url = (
+            "/uploads/accounts/"
+            + account_uid
+            + "/"
+            + image_name
+        )
+
+    video_url = ""
+
+    if video:
+
+        extension = os.path.splitext(
+            video.filename or ""
+        )[1]
+
+        video_name = "video" + extension
+
+        video_path = os.path.join(
+            account_folder,
+            video_name
+        )
+
+        with open(video_path, "wb") as f:
+            f.write(
+                await video.read()
+            )
+
+        video_url = (
+            "/uploads/accounts/"
+            + account_uid
+            + "/"
+            + video_name
+        )
+
+    conn = sqlite3.connect("accounts.db")
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        INSERT INTO accounts (
+            account_uid,
+            title,
+            account_id,
+            price,
+            category,
+            description,
+            seller_id,
+            seller_username,
+            account_type,
+            image_url,
+            video_url
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            account_uid,
+            title,
+            account_id,
+            price,
+            category,
+            description,
+            seller_id,
+            seller_username,
+            account_type,
+            image_url,
+            video_url
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    return {
+        "success": True,
+        "message": "Account added",
+        "account_uid": account_uid
+    }
 # =========================================================
 # WEBAPP HOME
 # =========================================================
