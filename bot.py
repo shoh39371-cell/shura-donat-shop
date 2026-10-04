@@ -549,6 +549,7 @@ async def api_check_player(
             "ok": False,
             "error": str(e),
         }
+
 # =========================================================
 # API: CREATE PLAYPAY ORDER
 # =========================================================
@@ -579,6 +580,13 @@ async def api_create_order(data: dict):
                 "",
             )
         ).strip()
+
+        telegram_id = int(
+            data.get(
+                "telegram_id",
+                0,
+            )
+        )
 
         if not player_id:
 
@@ -697,7 +705,7 @@ async def api_create_order(data: dict):
                 },
             )
 
-                except Exception:
+        except Exception:
 
             add_balance(
                 telegram_id,
@@ -721,7 +729,10 @@ async def api_create_order(data: dict):
         return {
             "ok": False,
             "error": str(e),
-}
+        }
+
+
+
 # =========================================================
 # TELEGRAM /START
 # =========================================================
