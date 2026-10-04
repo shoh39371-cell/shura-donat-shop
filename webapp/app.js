@@ -2183,41 +2183,68 @@ async function sendBoostOrder() {
 // TITUL MENU
 // ======================================================
 
-function openTitleServices() {
+function openTitleService() {
 
     openModal(`
 
         <div class="modal-title">
-            🏆 Titul olib berish
+            🏆 Titul olish
         </div>
 
         <div class="modal-subtitle">
-            MMR yoki titul xizmatini tanlang
+            Kerakli titulni tanlang
         </div>
 
 
-        <button
-            class="boost-menu-btn boost-menu-mlbb"
-            onclick="openMMRService()">
+        <div class="boost-card">
 
-            📈 &nbsp;
-            <b>MMR oshirish</b>
-
-        </button>
+            <div class="boost-section-title">
+                Titul turi
+            </div>
 
 
-        <button
-            class="boost-menu-btn boost-menu-title"
-            onclick="openTitleService()">
+            <button
+                class="boost-action boost-check"
+                onclick="selectTitleType('Silver')">
 
-            🏆 &nbsp;
-            <b>Titul olish</b>
+                🥈 Silver Titul
 
-        </button>
+                <span style="margin-left:auto;">
+                    30 000 UZS
+                </span>
+
+            </button>
+
+
+            <button
+                class="boost-action boost-check"
+                onclick="selectTitleType('Gold')">
+
+                🥇 Gold Titul
+
+                <span style="margin-left:auto;">
+                    70 000 UZS
+                </span>
+
+            </button>
+
+
+            <button
+                class="boost-action boost-check"
+                onclick="selectTitleType('State/Country')">
+
+                🌍 State / Country
+
+                <span style="margin-left:auto;">
+                    200 000 UZS
+                </span>
+
+            </button>
+
+        </div>
 
     `);
 }
-
 
 // ======================================================
 // MMR SERVICE
@@ -2356,46 +2383,72 @@ function selectTitleType(titleType) {
         <div class="modal-title">
             ${titleType === "Silver" ? "🥈" :
               titleType === "Gold" ? "🥇" : "🌍"}
-            ${escapeHtml(titleType)} Titul
+            ${escapeHtml(titleType)}
         </div>
 
         <div class="modal-subtitle">
-            Ma'lumotlarni kiriting
+            Akkaunt ma'lumotlari
         </div>
 
-        <input
-            id="titleRegion"
-            class="modal-input"
-            type="text"
-            placeholder="📍 Region / Viloyat / Shahar"
-        >
 
-        <input
-            id="titlePlayerId"
-            class="modal-input"
-            type="text"
-            placeholder="🎮 Game ID"
-        >
+        <div class="boost-card">
 
-        <input
-            id="titleZoneId"
-            class="modal-input"
-            type="text"
-            placeholder="🌐 Zone ID"
-        >
+            <div class="boost-section-title">
+                Titul ma'lumotlari
+            </div>
 
-        <div class="boost-price" style="margin-top:15px;">
-            💰 ${formatPrice(price)} UZS
+
+            <input
+                id="titleRegion"
+                class="boost-input"
+                type="text"
+                placeholder="📍 Region / Viloyat / Shahar"
+            >
+
+
+            <input
+                id="titlePlayerId"
+                class="boost-input"
+                type="text"
+                inputmode="numeric"
+                placeholder="🎮 O‘yin ID"
+            >
+
+
+            <input
+                id="titleZoneId"
+                class="boost-input"
+                type="text"
+                inputmode="numeric"
+                placeholder="🌐 Zone ID"
+            >
+
         </div>
+
+
+        <div class="boost-total">
+
+            <div class="boost-total-label">
+                Jami
+            </div>
+
+            <div class="boost-price">
+                💰 ${formatPrice(price)}
+            </div>
+
+        </div>
+
 
         <button
             class="boost-action boost-pay"
             onclick="createTitleOrderWithType(
                 '${escapeAttribute(titleType)}'
             )"
-            style="margin-top:15px; width:100%;"
-        >
-            ➡️ Davom etish
+            style="margin-top:15px; width:100%;">
+
+            💳 To‘lovga o‘tish ·
+            ${formatPrice(price)}
+
         </button>
 
     `);
