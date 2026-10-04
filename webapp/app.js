@@ -1213,20 +1213,686 @@ function startTopUp() {
     `);
 }
 
+// =========================
+// MLBB BOOST
+// =========================
+
+const MLBB_RANKS = [
+    "Warrior",
+    "Elite",
+    "Master",
+    "Grandmaster",
+    "Epic",
+    "Legend",
+    "Mythic",
+    "Mythical Honor",
+    "Mythical Glory"
+];
+
+let boostCurrentRank = 0;
+let boostCurrentStars = 0;
+let boostTargetRank = 0;
+let boostTargetStars = 0;
+
+const BOOST_PRICE_PER_STAR = 7500;
+
+
+// =========================
+// BOOST MAIN MENU
+// =========================
+
 function openBoost() {
+    openModal(`
+        <div class="modal-title">🚀 Boost xizmati</div>
+
+        <div class="modal-subtitle">
+            MLBB Boost va titul xizmatlari
+        </div>
+
+        <button class="hero-button"
+            onclick="openMLBBBoost()"
+            style="width:100%; margin-top:20px;">
+            🚀 MLBB Boost
+        </button>
+
+        <button class="hero-button"
+            onclick="openTitleBoost()"
+            style="width:100%; margin-top:12px;">
+            🏆 Titul olib berish
+        </button>
+    `);
+}
+
+
+// =========================
+// MLBB BOOST
+// =========================
+
+function openMLBBBoost() {
+    boostCurrentRank = 0;
+    boostCurrentStars = 0;
+    boostTargetRank = 0;
+    boostTargetStars = 0;
+
+    renderMLBBBoost();
+}
+
+
+function renderMLBBBoost() {
+
+    const totalStars = calculateBoostStars();
+    const totalPrice = totalStars * BOOST_PRICE_PER_STAR;
+
+    openModal(`
+        <div class="modal-title">🚀 MLBB Boost</div>
+
+        <div class="modal-subtitle">
+            Rankingizni professional boosterlar ko‘taradi
+        </div>
+
+        <div style="margin-top:20px;">
+            <b>Hozirgi rank</b>
+
+            <div style="
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                margin-top:10px;
+            ">
+
+                <button onclick="changeCurrentRank(-1)">−</button>
+
+                <div style="text-align:center;">
+                    <div class="balance-value">
+                        ${MLBB_RANKS[boostCurrentRank]}
+                    </div>
+
+                    <div>
+                        Yulduz:
+                        <button onclick="changeCurrentStars(-1)">−</button>
+                        <b>${boostCurrentStars}</b>
+                        <button onclick="changeCurrentStars(1)">+</button>
+                    </div>
+                </div>
+
+                <button onclick="changeCurrentRank(1)">+</button>
+            </div>
+        </div>
+
+
+        <div style="margin-top:25px;">
+            <b>Maqsad rank</b>
+
+            <div style="
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                margin-top:10px;
+            ">
+
+                <button onclick="changeTargetRank(-1)">−</button>
+
+                <div style="text-align:center;">
+                    <div class="balance-value">
+                        ${MLBB_RANKS[boostTargetRank]}
+                    </div>
+
+                    <div>
+                        Yulduz:
+                        <button onclick="changeTargetStars(-1)">−</button>
+                        <b>${boostTargetStars}</b>
+                        <button onclick="changeTargetStars(1)">+</button>
+                    </div>
+                </div>
+
+                <button onclick="changeTargetRank(1)">+</button>
+            </div>
+        </div>
+
+
+        <div style="
+            margin-top:25px;
+            padding:15px;
+            border-radius:12px;
+            background:rgba(255,255,255,.06);
+        ">
+            <div>⭐ Jami yulduz</div>
+
+            <div class="balance-value">
+                ${totalStars}
+            </div>
+
+            <div style="margin-top:8px;">
+                💰 ${formatPrice(totalPrice)}
+            </div>
+        </div>
+
+
+        <div style="margin-top:20px;">
+
+            <input
+                id="boostPlayerId"
+                type="text"
+                inputmode="numeric"
+                placeholder="O‘yin ID"
+                style="width:100%;"
+            >
+
+            <input
+                id="boostZoneId"
+                type="text"
+                inputmode="numeric"
+                placeholder="Zone ID"
+                style="width:100%; margin-top:10px;"
+            >
+
+        </div>
+
+
+        <button class="hero-button"
+            onclick="checkBoostAccount()"
+            style="width:100%; margin-top:15px;">
+            🔍 Akkauntni tekshirish
+        </button>
+
+        <button class="hero-button"
+            onclick="openBoostPayment()"
+            style="width:100%; margin-top:10px;">
+            💳 To‘lovga o‘tish · ${formatPrice(totalPrice)}
+        </button>
+
+    `);
+}
+
+
+// =========================
+// RANK
+// =========================
+
+function changeCurrentRank(value) {
+
+    boostCurrentRank += value;
+
+    if (boostCurrentRank < 0)
+        boostCurrentRank = 0;
+
+    if (boostCurrentRank >= MLBB_RANKS.length)
+        boostCurrentRank = MLBB_RANKS.length - 1;
+
+    boostCurrentStars = 0;
+
+    renderMLBBBoost();
+}
+
+
+function changeTargetRank(value) {
+
+    boostTargetRank += value;
+
+    if (boostTargetRank < 0)
+        boostTargetRank = 0;
+
+    if (boostTargetRank >= MLBB_RANKS.length)
+        boostTargetRank = MLBB_RANKS.length - 1;
+
+    boostTargetStars = 0;
+
+    renderMLBBBoost();
+}
+
+
+// =========================
+// STARS
+// =========================
+
+function changeCurrentStars(value) {
+
+    boostCurrentStars += value;
+
+    if (boostCurrentStars < 0)
+        boostCurrentStars = 0;
+
+    if (boostCurrentStars > 100)
+        boostCurrentStars = 100;
+
+    renderMLBBBoost();
+}
+
+
+function changeTargetStars(value) {
+
+    boostTargetStars += value;
+
+    if (boostTargetStars < 0)
+        boostTargetStars = 0;
+
+    if (boostTargetStars > 100)
+        boostTargetStars = 100;
+
+    renderMLBBBoost();
+}
+
+
+// =========================
+// TOTAL STARS
+// =========================
+
+function calculateBoostStars() {
+
+    const rankDifference =
+        boostTargetRank - boostCurrentRank;
+
+    if (rankDifference < 0)
+        return 0;
+
+    const starsBetweenRanks =
+        rankDifference * 5;
+
+    const finalStars =
+        starsBetweenRanks +
+        boostTargetStars -
+        boostCurrentStars;
+
+    return Math.max(0, finalStars);
+}
+
+
+// =========================
+// CHECK ACCOUNT
+// =========================
+
+async function checkBoostAccount() {
+
+    const playerId =
+        document.getElementById("boostPlayerId")?.value.trim();
+
+    const zoneId =
+        document.getElementById("boostZoneId")?.value.trim();
+
+    if (!playerId) {
+        alertUser("O‘yin ID kiriting.");
+        return;
+    }
+
+    if (!zoneId) {
+        alertUser("Zone ID kiriting.");
+        return;
+    }
+
+    alertUser("Akkaunt tekshirilmoqda...");
+
+    try {
+
+        const response = await fetch("/api/check-player", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+                game_id: 1,
+
+                player_id: playerId,
+
+                server_id: zoneId
+
+            })
+
+        });
+
+        const data = await response.json();
+
+        if (!data.ok) {
+
+            alertUser(
+                data.error ||
+                "Akkauntni tekshirib bo‘lmadi."
+            );
+
+            return;
+        }
+
+        openModal(`
+
+            <div class="modal-title">
+                ✅ Akkaunt tasdiqlandi
+            </div>
+
+            <div class="modal-subtitle">
+                Player: ${escapeHtml(
+                    data.player_name || "Noma’lum"
+                )}
+            </div>
+
+            <div style="margin-top:20px;">
+
+                <div>
+                    🎮 ID: ${escapeHtml(playerId)}
+                </div>
+
+                <div style="margin-top:8px;">
+                    🌐 Zone: ${escapeHtml(zoneId)}
+                </div>
+
+            </div>
+
+            <button
+                class="hero-button"
+                onclick="openMLBBBoost()"
+                style="width:100%; margin-top:20px;"
+            >
+                ← Orqaga
+            </button>
+
+        `);
+
+    } catch (error) {
+
+        console.error(error);
+
+        alertUser(
+            "Server bilan aloqa qilishda xatolik."
+        );
+    }
+}
+
+
+// =========================
+// BOOST PAYMENT
+// =========================
+
+function openBoostPayment() {
+
+    const playerId =
+        document.getElementById("boostPlayerId")?.value.trim();
+
+    const zoneId =
+        document.getElementById("boostZoneId")?.value.trim();
+
+    if (!playerId) {
+
+        alertUser("Avval O‘yin ID kiriting.");
+
+        return;
+    }
+
+    if (!zoneId) {
+
+        alertUser("Avval Zone ID kiriting.");
+
+        return;
+    }
+
+    const totalStars =
+        calculateBoostStars();
+
+    if (totalStars <= 0) {
+
+        alertUser(
+            "Maqsad rank hozirgi rankdan yuqori bo‘lishi kerak."
+        );
+
+        return;
+    }
+
+    const totalPrice =
+        totalStars * BOOST_PRICE_PER_STAR;
+
 
     openModal(`
 
         <div class="modal-title">
-            🚀 Boost
+            💳 Boost to‘lovi
         </div>
 
-        <div class="empty">
-            Boost xizmatlari tez orada qo‘shiladi.
+        <div class="modal-subtitle">
+            MLBB Boost
         </div>
+
+        <div style="margin-top:20px;">
+
+            <div>
+                Hozirgi:
+                <b>
+                    ${MLBB_RANKS[boostCurrentRank]}
+                    · ${boostCurrentStars} ⭐
+                </b>
+            </div>
+
+            <div style="margin-top:8px;">
+                Maqsad:
+                <b>
+                    ${MLBB_RANKS[boostTargetRank]}
+                    · ${boostTargetStars} ⭐
+                </b>
+            </div>
+
+            <div style="margin-top:8px;">
+                Jami:
+                <b>${totalStars} ⭐</b>
+            </div>
+
+        </div>
+
+
+        <div class="balance-value"
+            style="margin-top:20px;">
+            ${formatPrice(totalPrice)}
+        </div>
+
+
+        <button
+            class="hero-button"
+            onclick="createBoostOrder()"
+            style="width:100%; margin-top:20px;"
+        >
+            💳 To‘lovni tasdiqlash
+        </button>
 
     `);
+}
 
+
+function createBoostOrder() {
+
+    alertUser(
+        "Boost buyurtmasini qabul qilish tizimi keyingi bosqichda ulanadi."
+    );
+}
+
+
+// =========================
+// TITUL XIZMATI
+// =========================
+
+function openTitleBoost() {
+
+    openModal(`
+
+        <div class="modal-title">
+            🏆 Titul olib berish
+        </div>
+
+        <div class="modal-subtitle">
+            Kerakli titul ma’lumotlarini kiriting
+        </div>
+
+
+        <input
+            id="titleRegion"
+            type="text"
+            placeholder="Region / Davlat / Shahar"
+            style="width:100%; margin-top:20px;"
+        >
+
+
+        <input
+            id="titleType"
+            type="text"
+            placeholder="Qanday titul kerak?"
+            style="width:100%; margin-top:10px;"
+        >
+
+
+        <input
+            id="titleMMR"
+            type="number"
+            inputmode="numeric"
+            placeholder="Kerakli MMR"
+            style="width:100%; margin-top:10px;"
+        >
+
+
+        <input
+            id="titlePlayerId"
+            type="text"
+            inputmode="numeric"
+            placeholder="O‘yin ID"
+            style="width:100%; margin-top:10px;"
+        >
+
+
+        <input
+            id="titleZoneId"
+            type="text"
+            inputmode="numeric"
+            placeholder="Zone ID"
+            style="width:100%; margin-top:10px;"
+        >
+
+
+        <button
+            class="hero-button"
+            onclick="checkTitleOrder()"
+            style="width:100%; margin-top:18px;"
+        >
+            🔍 Akkauntni tekshirish
+        </button>
+
+    `);
+}
+
+
+// =========================
+// TITLE CHECK
+// =========================
+
+function checkTitleOrder() {
+
+    const region =
+        document.getElementById("titleRegion")?.value.trim();
+
+    const titleType =
+        document.getElementById("titleType")?.value.trim();
+
+    const mmr =
+        document.getElementById("titleMMR")?.value.trim();
+
+    const playerId =
+        document.getElementById("titlePlayerId")?.value.trim();
+
+    const zoneId =
+        document.getElementById("titleZoneId")?.value.trim();
+
+
+    if (!region) {
+
+        alertUser("Region / davlat / shaharni yozing.");
+
+        return;
+    }
+
+    if (!titleType) {
+
+        alertUser("Qanday titul kerakligini yozing.");
+
+        return;
+    }
+
+    if (!mmr || Number(mmr) <= 0) {
+
+        alertUser("Kerakli MMRni kiriting.");
+
+        return;
+    }
+
+    if (!playerId) {
+
+        alertUser("O‘yin ID kiriting.");
+
+        return;
+    }
+
+    if (!zoneId) {
+
+        alertUser("Zone ID kiriting.");
+
+        return;
+    }
+
+
+    openModal(`
+
+        <div class="modal-title">
+            🏆 Titul buyurtmasi
+        </div>
+
+        <div style="margin-top:20px;">
+
+            <div>
+                🌍 Region:
+                <b>${escapeHtml(region)}</b>
+            </div>
+
+            <div style="margin-top:8px;">
+                🏆 Titul:
+                <b>${escapeHtml(titleType)}</b>
+            </div>
+
+            <div style="margin-top:8px;">
+                📈 MMR:
+                <b>${escapeHtml(mmr)}</b>
+            </div>
+
+            <div style="margin-top:8px;">
+                🎮 ID:
+                <b>${escapeHtml(playerId)}</b>
+            </div>
+
+            <div style="margin-top:8px;">
+                🌐 Zone:
+                <b>${escapeHtml(zoneId)}</b>
+            </div>
+
+        </div>
+
+
+        <div class="empty"
+            style="margin-top:20px;">
+            Buyurtma ma’lumotlari tayyor.
+        </div>
+
+
+        <button
+            class="hero-button"
+            onclick="createTitleOrder()"
+            style="width:100%; margin-top:15px;"
+        >
+            💳 To‘lovga o‘tish
+        </button>
+
+    `);
+}
+
+
+function createTitleOrder() {
+
+    alertUser(
+        "Titul buyurtmasini qabul qilish tizimi keyingi bosqichda ulanadi."
+    );
 }
 
 
