@@ -3093,21 +3093,390 @@ async function sendTitleOrder(
     }
 }
 function openAccounts() {
+    renderAccounts("all");
+}
+
+function renderAccounts(category = "all") {
+
+    openModal(`
+        <div class="modal-title">
+            🎮 AKKLAR
+        </div>
+
+        <div class="account-tabs">
+
+            <button onclick="renderAccounts('all')">
+                Barchasi
+            </button>
+
+            <button onclick="renderAccounts('middle')">
+                O'rta budjet
+            </button>
+
+            <button onclick="renderAccounts('high')">
+                Yuqori budjet
+            </button>
+
+            <button onclick="renderAccounts('world')">
+                Mirovoy accountlar
+            </button>
+
+        </div>
+
+        <div class="account-type-tabs">
+
+            <button
+                class="account-type active"
+                onclick="showPhoenixAccounts()"
+            >
+                🔥 Phoenix akkauntlari
+            </button>
+
+            <button
+                class="account-type"
+                onclick="showMLBBAccounts()"
+            >
+                🎮 MLBB akkauntlar
+            </button>
+
+        </div>
+
+        <div id="accountsList">
+
+            <div class="empty">
+                Akkauntlar yuklanmoqda...
+            </div>
+
+        </div>
+
+        <button
+            class="account-add-button"
+            onclick="openAddAccount()"
+        >
+            +
+        </button>
+    `);
+
+    loadAccounts(category);
+}
+
+
+async function loadAccounts(category = "all") {
+
+    const box = document.getElementById("accountsList");
+
+    if (!box) return;
+
+    try {
+
+        const response = await fetch(
+            `/api/accounts?category=${encodeURIComponent(category)}`
+        );
+
+        if (!response.ok) {
+            throw new Error("Accounts API error");
+        }
+
+        const accounts = await response.json();
+
+        if (!accounts || accounts.length === 0) {
+
+            box.innerHTML = `
+                <div class="empty">
+                    Hozircha akkauntlar yo‘q.
+                </div>
+            `;
+
+            return;
+        }
+
+        box.innerHTML = accounts.map(account => {
+
+            const image = account.image_url || "";
+            const video = account.video_url || "";
+
+            return `
+                <div class="account-card">
+
+                    ${
+                        image
+                        ? `
+                        <img
+                            src="${escapeAttribute(image)}"
+                            class="account-image"
+                        >
+                        `
+                        : `
+                        <div class="account-image-empty">
+                            🎮
+                        </div>
+                        `
+                    }
+
+                    <div class="account-info">
+
+                        <div class="account-title">
+                            ${escapeHtml(account.title || "MLBB Account")}
+                        </div>
+
+                        <div class="account-id">
+                            ID: ${escapeHtml(account.account_id || "-")}
+                        </div>
+
+                        <div class="account-description">
+                            ${escapeHtml(account.description || "Izoh yo‘q")}
+                        </div>
+
+                        <div class="account-price">
+                            ${formatPrice(account.price)}
+                        </div>
+
+                        <div class="account-seller">
+                            Sotuvchi:
+                            ${escapeHtml(account.seller_username || "Noma'lum")}
+                        </div>
+
+                        ${
+                            video
+                            ? `
+                            <video
+                                class="account-video"
+                                controls
+                                src="${escapeAttribute(video)}"
+                            ></video>
+                            `
+                            : ""
+                        }
+
+                        ${
+                            account.seller_username
+                            ? `
+                            <button
+                                class="account-contact"
+                                onclick="contactSeller('${escapeAttribute(account.seller_username)}')"
+                            >
+                                💬 Sotuvchiga yozish
+                            </button>
+                            `
+                            : ""
+                        }
+
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+
+    } catch (error) {
+
+        console.error(error);
+
+        box.innerHTML = `
+            <div class="empty">
+                Akkauntlarni yuklab bo‘lmadi.
+            </div>
+        `;
+    }
+}
+
+
+function contactSeller(username) {
+
+    username = String(username || "")
+        .replace("@", "")
+        .trim();
+
+    if (!username) {
+        alertUser("Sotuvchining username'i mavjud emas.");
+        return;
+    }
+
+    window.open(
+        `https://t.me/${encodeURIComponent(username)}`,
+        "_blank"
+    );
+}
+
+
+function showPhoenixAccounts() {
+    loadAccounts("phoenix");
+}
+
+
+function showMLBBAccounts() {
+    loadAccounts("mlbb");
+}
+
+
+function openAddAccount() {
+
+    const user = tg?.initDataUnsafe?.user;
+
+    const username = user?.username
+        ? `@${user.username}`
+        : "";
 
     openModal(`
 
         <div class="modal-title">
-            🎮 Account Marketplace
+            ➕ AKKAUNT QO‘SHISH
         </div>
 
-        <div class="empty">
-            MLBB account marketplace
-            keyingi bosqichda qo‘shiladi.
+        <div class="account-form">
+
+            <input
+                id="accountTitle"
+                placeholder="Akkaunt nomi"
+            >
+
+            <input
+                id="accountId"
+                placeholder="Akkaunt ID"
+            >
+
+            <input
+                id="accountPrice"
+                type="number"
+                placeholder="Narxi (UZS)"
+            >
+
+            <select id="accountCategory">
+
+                <option value="middle">
+                    O'rta budjet
+                </option>
+
+                <option value="high">
+                    Yuqori budjet
+                </option>
+
+                <option value="world">
+                    Mirovoy accountlar
+                </option>
+
+            </select>
+
+            <textarea
+                id="accountDescription"
+                placeholder="Akkaunt haqida izoh"
+            ></textarea>
+
+            <input
+                id="accountImages"
+                type="file"
+                accept="image/*"
+                multiple
+            >
+
+            <input
+                id="accountVideo"
+                type="file"
+                accept="video/*"
+            >
+
+            <div class="account-seller-preview">
+                Sotuvchi:
+                ${escapeHtml(username || "Telegram username topilmadi")}
+            </div>
+
+            <button
+                class="account-submit"
+                onclick="submitAccount()"
+            >
+                🚀 Akkauntni joylash
+            </button>
+
         </div>
 
     `);
-
 }
+
+
+async function submitAccount() {
+
+    const title = document.getElementById("accountTitle")?.value.trim();
+    const accountId = document.getElementById("accountId")?.value.trim();
+    const price = document.getElementById("accountPrice")?.value;
+    const category = document.getElementById("accountCategory")?.value;
+    const description = document.getElementById("accountDescription")?.value.trim();
+
+    const images = document.getElementById("accountImages")?.files;
+    const video = document.getElementById("accountVideo")?.files?.[0];
+
+    const user = tg?.initDataUnsafe?.user;
+
+    if (!user) {
+        alertUser("Telegram foydalanuvchisi aniqlanmadi.");
+        return;
+    }
+
+    if (!title || !accountId || !price) {
+        alertUser("Akkaunt nomi, ID va narxni kiriting.");
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("title", title);
+    formData.append("account_id", accountId);
+    formData.append("price", price);
+    formData.append("category", category);
+    formData.append("description", description);
+
+    formData.append(
+        "seller_id",
+        user.id
+    );
+
+    formData.append(
+        "seller_username",
+        user.username || ""
+    );
+
+    if (images) {
+
+        for (const image of images) {
+            formData.append("images", image);
+        }
+
+    }
+
+    if (video) {
+        formData.append("video", video);
+    }
+
+    try {
+
+        const response = await fetch(
+            "/api/accounts",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                result.detail || "Akkaunt qo‘shilmadi"
+            );
+        }
+
+        alertUser("✅ Akkaunt muvaffaqiyatli joylandi!");
+
+        renderAccounts("all");
+
+    } catch (error) {
+
+        console.error(error);
+
+        alertUser(
+            error.message || "Xatolik yuz berdi."
+        );
+    }
+        }
 
 
 function openOrders() {
