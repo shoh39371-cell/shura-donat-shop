@@ -12,6 +12,8 @@ from database import (
     create_or_update_user,
     get_user,
     get_balance,
+    subtract_balance,
+    add_balance,
 )
 from fastapi.responses import FileResponse, JSONResponse
 
