@@ -5,6 +5,7 @@ from pathlib import Path
 import uuid
 import sqlite3
 import os
+import json
 import aiohttp
 import uvicorn
 
@@ -206,7 +207,6 @@ async def get_accounts(
 
     return accounts
 
-
 @app.post("/api/accounts")
 async def create_account(
     title: str = Form(...),
@@ -222,10 +222,10 @@ async def create_account(
 
     ADMIN_ID = os.getenv("PHOENIX_ADMIN_ID")
 
-if str(seller_id) == str(ADMIN_ID):
-    account_type = "phoenix"
-else:
-    account_type = "mlbb"
+    if str(seller_id) == str(ADMIN_ID):
+        account_type = "phoenix"
+    else:
+        account_type = "mlbb"
 
     account_uid = str(uuid.uuid4())
 
@@ -348,7 +348,8 @@ else:
         "success": True,
         "message": "Account added",
         "account_uid": account_uid
-    }
+}            
+
     
 # =========================================================
 # WEBAPP HOME
