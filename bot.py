@@ -472,7 +472,12 @@ async def api_check_player(
                 "",
             )
         ).strip()
-
+        telegram_id = int(
+    data.get(
+        "telegram_id",
+        0,
+    )
+)
         if not player_id:
 
             return {
