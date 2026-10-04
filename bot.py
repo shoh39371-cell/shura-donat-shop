@@ -337,7 +337,6 @@ async def api_regions():
 # =========================================================
 # API: PACKAGES
 # =========================================================
-
 @app.get("/api/packages/{game_id}")
 async def api_packages(
     game_id: int,
@@ -372,7 +371,7 @@ async def api_packages(
             [],
         )
 
-       for package in packages:
+        for package in packages:
 
             price = float(
                 package.get("price", {}).get(
@@ -412,6 +411,7 @@ async def api_packages(
             "ok": False,
             "error": str(e),
         }
+
 # =========================================================
 # API: BALANCE
 # =========================================================
