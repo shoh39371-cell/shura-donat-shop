@@ -1219,7 +1219,53 @@ function startTopUp() {
     `);
 }
 function openBoost() {
-    openMLBBBoost();
+
+    openModal(`
+
+        <div class="modal-title">
+            🚀 Boost
+        </div>
+
+        <div class="modal-subtitle">
+            Kerakli xizmatni tanlang
+        </div>
+
+        <button
+            class="boost-menu-btn boost-menu-mlbb"
+            onclick="openMLBBBoost()"
+        >
+            🚀
+            <div>
+                <b>Rank Boost</b>
+                <small>Rank va yulduzlarni oshirish</small>
+            </div>
+        </button>
+
+        <button
+            class="boost-menu-btn boost-menu-mlbb"
+            onclick="openMMRService()"
+        >
+            📈
+            <div>
+                <b>MMR oshirish</b>
+                <small>MMRni oshirib berish</small>
+            </div>
+        </button>
+
+        <button
+            class="boost-menu-btn boost-menu-title"
+            onclick="openTitleService()"
+        >
+            🏆
+            <div>
+                <b>Titul olish</b>
+                <small>Silver / Gold / State-Country</small>
+            </div>
+        </button>
+
+    `);
+
+}
 }
 function openMLBBBoost() {
     renderMLBBBoost();
