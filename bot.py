@@ -979,9 +979,7 @@ async def api_apply_promo(data: dict):
 async def api_check_player(
     data: dict,
 ):
-
     try:
-
         game_id = int(
             data.get(
                 "game_id"
@@ -1003,14 +1001,12 @@ async def api_check_player(
         ).strip()
 
         if not player_id:
-
             return {
                 "ok": False,
                 "error": "User ID kiritilmagan",
             }
 
-                if not server_id:
-
+        if not server_id:
             return {
                 "ok": False,
                 "error": "Server ID kiritilmagan",
@@ -1029,7 +1025,6 @@ async def api_check_player(
         }
 
         if game_id not in allowed_ids:
-
             return {
                 "ok": False,
                 "error": "Noto'g'ri Mobile Legends region",
@@ -1046,7 +1041,6 @@ async def api_check_player(
         )
 
         if not result.get("valid"):
-
             return {
                 "ok": False,
                 "error": "User ID yoki Server ID noto'g'ri",
@@ -1063,7 +1057,6 @@ async def api_check_player(
         }
 
     except Exception as e:
-
         logger.exception(
             "Player check error"
         )
