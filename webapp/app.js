@@ -1264,9 +1264,10 @@ function openBoost() {
         </button>
 
     `);
+}
 
-}
-}
+
+
 function openMLBBBoost() {
     renderMLBBBoost();
 }
