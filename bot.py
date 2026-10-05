@@ -157,8 +157,11 @@ init_accounts_db()
 @app.get("/api/accounts")
 async def get_accounts(
     type: str = "all",
-    category: str = "all"
+    category: str = "all",
+    telegram_id: int = 0
 ):
+
+    ADMIN_ID = os.getenv("PHOENIX_ADMIN_ID")
 
     conn = sqlite3.connect("accounts.db")
     conn.row_factory = sqlite3.Row
@@ -199,10 +202,18 @@ async def get_accounts(
             """
         )
 
-    accounts = [
-        dict(row)
-        for row in cursor.fetchall()
-    ]
+    accounts = []
+
+    for row in cursor.fetchall():
+
+        account = dict(row)
+
+        account["can_delete"] = (
+            str(telegram_id) == str(account["seller_id"])
+            or str(telegram_id) == str(ADMIN_ID)
+        )
+
+        accounts.append(account)
 
     conn.close()
 
