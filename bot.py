@@ -1009,7 +1009,7 @@ async def api_check_player(
                 "error": "User ID kiritilmagan",
             }
 
-        if not server_id:
+                if not server_id:
 
             return {
                 "ok": False,
@@ -1018,8 +1018,13 @@ async def api_check_player(
 
         regions = await get_mlbb_regions()
 
+        logger.info(
+            "MLBB REGIONS: %s",
+            regions
+        )
+
         allowed_ids = {
-            region["game_id"]
+            int(region["game_id"])
             for region in regions
         }
 
