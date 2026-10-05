@@ -351,7 +351,74 @@ async def create_account(
         "account_uid": account_uid
 }            
 
-    
+    @app.delete("/api/accounts/{account_uid}")
+async def delete_account(
+    account_uid: str,
+    telegram_id: int
+):
+    ADMIN_ID = os.getenv("PHOENIX_ADMIN_ID")
+
+    conn = sqlite3.connect("accounts.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT *
+        FROM accounts
+        WHERE account_uid = ?
+        """,
+        (account_uid,)
+    )
+
+    account = cursor.fetchone()
+
+    if not account:
+        conn.close()
+
+        return {
+            "success": False,
+            "message": "Akkaunt topilmadi"
+        }
+
+    seller_id = str(account["seller_id"])
+
+    # Faqat akkaunt egasi yoki admin o‘chira oladi
+    if (
+        str(telegram_id) != seller_id
+        and str(telegram_id) != str(ADMIN_ID)
+    ):
+        conn.close()
+
+        return {
+            "success": False,
+            "message": "Bu akkauntni o‘chirish huquqingiz yo‘q"
+        }
+
+    cursor.execute(
+        """
+        DELETE FROM accounts
+        WHERE account_uid = ?
+        """,
+        (account_uid,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    # Akkaunt rasmlari/video fayllarini ham o‘chirish
+    account_folder = os.path.join(
+        ACCOUNTS_DIR,
+        account_uid
+    )
+
+    if os.path.exists(account_folder):
+        shutil.rmtree(account_folder)
+
+    return {
+        "success": True,
+        "message": "Akkaunt o‘chirildi"
+}
 # =========================================================
 # WEBAPP HOME
 # =========================================================
