@@ -3467,8 +3467,11 @@ async function loadMarketplaceAccounts(type) {
 
     try {
 
+        const telegramId =
+            tg?.initDataUnsafe?.user?.id || 0;
+
         const response = await fetch(
-            `/api/accounts?type=${encodeURIComponent(type)}`
+            `/api/accounts?type=${encodeURIComponent(type)}&telegram_id=${encodeURIComponent(telegramId)}`
         );
 
         if (!response.ok) {
@@ -3524,31 +3527,11 @@ function renderMarketplaceAccounts(type, accounts) {
         return;
     }
 
-    const userId =
-        tg?.initDataUnsafe?.user?.id;
-
-    const adminId =
-        window.PHOENIX_ADMIN_ID;
-
     box.innerHTML = accounts.map(account => {
 
-        const image =
-            account.image_url || "";
-
-        const isOwner =
-            String(account.seller_id) ===
-            String(userId);
-
-        const isAdmin =
-            adminId &&
-            String(userId) ===
-            String(adminId);
-
-        const canDelete =
-            isOwner || isAdmin;
+        const image = account.image_url || "";
 
         return `
-
             <div class="market-account">
 
                 <div
@@ -3579,12 +3562,12 @@ function renderMarketplaceAccounts(type, accounts) {
                 </div>
 
                 ${
-                    canDelete
+                    account.can_delete
                     ? `
                         <button
                             class="account-delete-btn"
-                            onclick="event.stopPropagation(); deleteAccount('${escapeAttribute(
-                                account.account_uid || ""
+                            onclick="deleteAccount('${escapeAttribute(
+                                account.account_uid
                             )}')"
                         >
                             🗑 O‘chirish
@@ -3594,7 +3577,6 @@ function renderMarketplaceAccounts(type, accounts) {
                 }
 
             </div>
-
         `;
 
     }).join("");
@@ -3605,12 +3587,15 @@ async function deleteAccount(accountUid) {
         tg?.initDataUnsafe?.user?.id;
 
     if (!userId) {
-        alertUser("Telegram foydalanuvchisi aniqlanmadi.");
+        alertUser(
+            "Telegram foydalanuvchisi aniqlanmadi."
+        );
         return;
     }
 
-    const confirmed =
-        confirm("Bu akkauntni o‘chirmoqchimisiz?");
+    const confirmed = confirm(
+        "Bu akkauntni o‘chirmoqchimisiz?"
+    );
 
     if (!confirmed) return;
 
@@ -3627,20 +3612,24 @@ async function deleteAccount(accountUid) {
             await response.json();
 
         if (!response.ok || !result.success) {
+
             alertUser(
                 result.message ||
                 "Akkauntni o‘chirib bo‘lmadi."
             );
+
             return;
         }
 
-        alertUser("✅ Akkaunt o‘chirildi.");
+        alertUser(
+            "✅ Akkaunt o‘chirildi."
+        );
 
-        if (window.marketType === "phoenix") {
-            loadMarketplaceAccounts("phoenix");
-        } else {
-            loadMarketplaceAccounts("mlbb");
-        }
+        loadMarketplaceAccounts(
+            window.marketType === "phoenix"
+                ? "phoenix"
+                : "mlbb"
+        );
 
     } catch (error) {
 
@@ -3651,7 +3640,6 @@ async function deleteAccount(accountUid) {
         );
     }
 }
-
 /* ================================
    SEARCH
 ================================ */
