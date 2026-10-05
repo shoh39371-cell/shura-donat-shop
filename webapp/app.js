@@ -1499,7 +1499,8 @@ let boostCurrentStars = 1;
 let boostTargetRank = 1;
 let boostTargetStars = 1;
 
-
+let boostPlayerId = "";
+let boostZoneId = "";
 // ======================================================
 // RANK
 // ======================================================
@@ -1909,7 +1910,9 @@ async function checkBoostAccount() {
             ?.value
             .trim();
 
-
+    boostPlayerId = playerId;
+    boostZoneId = zoneId;
+   
     if (!playerId) {
 
         alertUser("🎮 O‘yin ID kiriting.");
@@ -2216,18 +2219,8 @@ async function sendBoostOrder() {
             ?.files?.[0];
 
 
-    const playerId =
-        document
-            .getElementById("boostPlayerId")
-            ?.value
-            .trim();
-
-
-    const zoneId =
-        document
-            .getElementById("boostZoneId")
-            ?.value
-            .trim();
+    const playerId = boostPlayerId;
+    const zoneId = boostZoneId;
 
 
     const price =
