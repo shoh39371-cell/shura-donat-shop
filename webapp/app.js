@@ -3524,37 +3524,74 @@ function renderMarketplaceAccounts(type, accounts) {
         return;
     }
 
+    const userId =
+        tg?.initDataUnsafe?.user?.id;
+
+    const adminId =
+        window.PHOENIX_ADMIN_ID;
+
     box.innerHTML = accounts.map(account => {
 
-        const image = account.image_url || "";
+        const image =
+            account.image_url || "";
+
+        const isOwner =
+            String(account.seller_id) ===
+            String(userId);
+
+        const isAdmin =
+            adminId &&
+            String(userId) ===
+            String(adminId);
+
+        const canDelete =
+            isOwner || isAdmin;
 
         return `
 
-            <div
-                class="market-account"
-                onclick="openAccountDetails('${escapeAttribute(
-                    account.account_uid || ""
-                )}')"
-            >
+            <div class="market-account">
+
+                <div
+                    onclick="openAccountDetails('${escapeAttribute(
+                        account.account_uid || ""
+                    )}')"
+                >
+
+                    ${
+                        image
+                        ? `
+                            <img
+                                src="${escapeAttribute(image)}"
+                                class="market-account-image"
+                            >
+                        `
+                        : `
+                            <div class="market-account-no-image">
+                                🎮
+                            </div>
+                        `
+                    }
+
+                    <div class="market-account-price">
+                        ${formatPrice(account.price)}
+                    </div>
+
+                </div>
 
                 ${
-                    image
+                    canDelete
                     ? `
-                        <img
-                            src="${escapeAttribute(image)}"
-                            class="market-account-image"
+                        <button
+                            class="account-delete-btn"
+                            onclick="event.stopPropagation(); deleteAccount('${escapeAttribute(
+                                account.account_uid || ""
+                            )}')"
                         >
+                            🗑 O‘chirish
+                        </button>
                     `
-                    : `
-                        <div class="market-account-no-image">
-                            🎮
-                        </div>
-                    `
+                    : ""
                 }
-
-                <div class="market-account-price">
-                    ${formatPrice(account.price)}
-                </div>
 
             </div>
 
@@ -3562,7 +3599,58 @@ function renderMarketplaceAccounts(type, accounts) {
 
     }).join("");
 }
+async function deleteAccount(accountUid) {
 
+    const userId =
+        tg?.initDataUnsafe?.user?.id;
+
+    if (!userId) {
+        alertUser("Telegram foydalanuvchisi aniqlanmadi.");
+        return;
+    }
+
+    const confirmed =
+        confirm("Bu akkauntni o‘chirmoqchimisiz?");
+
+    if (!confirmed) return;
+
+    try {
+
+        const response = await fetch(
+            `/api/accounts/${encodeURIComponent(accountUid)}?telegram_id=${encodeURIComponent(userId)}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+        const result =
+            await response.json();
+
+        if (!response.ok || !result.success) {
+            alertUser(
+                result.message ||
+                "Akkauntni o‘chirib bo‘lmadi."
+            );
+            return;
+        }
+
+        alertUser("✅ Akkaunt o‘chirildi.");
+
+        if (window.marketType === "phoenix") {
+            loadMarketplaceAccounts("phoenix");
+        } else {
+            loadMarketplaceAccounts("mlbb");
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        alertUser(
+            "❌ Akkauntni o‘chirishda xatolik."
+        );
+    }
+}
 
 /* ================================
    SEARCH
