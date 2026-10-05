@@ -353,7 +353,7 @@ async def create_account(
         )
     )
 
-        conn.commit()
+    conn.commit()
     conn.close()
 
     return {
