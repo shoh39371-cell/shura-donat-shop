@@ -1894,7 +1894,7 @@ async function checkBoostAccount() {
 
                     body: JSON.stringify({
 
-                        game_id: 1,
+                        game_id: 3,
 
                         player_id:
                             playerId,
