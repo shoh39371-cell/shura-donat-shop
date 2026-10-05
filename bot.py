@@ -45,7 +45,20 @@ PLAYPAY_API = "https://playpay.uz/api/v1"
 PORT = int(os.getenv("PORT", "10000"))
 CARD_NUMBER = os.getenv("CARD_NUMBER")
 ADMIN_TELEGRAM_ID = os.getenv("ADMIN_TELEGRAM_ID")
+CHECKOUT_API_KEY = os.getenv("CHECKOUT_API_KEY")
+CHECKOUT_WEBHOOK_URL = os.getenv(
+    "CHECKOUT_WEBHOOK_URL"
+)
 
+if not CHECKOUT_API_KEY:
+    raise RuntimeError(
+        "CHECKOUT_API_KEY is missing"
+    )
+
+if not CHECKOUT_WEBHOOK_URL:
+    raise RuntimeError(
+        "CHECKOUT_WEBHOOK_URL is missing"
+    )
 RECEIPTS_DIR = Path(__file__).resolve().parent / "boost_receipts"
 RECEIPTS_DIR.mkdir(parents=True, exist_ok=True)
 
