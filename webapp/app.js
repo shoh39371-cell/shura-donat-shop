@@ -1181,7 +1181,7 @@ async function openBalance() {
         `);
     }
 }
-function startTopUp() {
+async function startTopUp() {
 
     const input = document.getElementById("topupAmount");
 
@@ -1200,23 +1200,65 @@ function startTopUp() {
         return;
     }
 
-    openModal(`
-        <div class="modal-title">
-            💳 To‘lov
-        </div>
+    try {
 
-        <div class="modal-subtitle">
-            To‘ldirish summasi
-        </div>
+        const telegramId =
+            tg?.initDataUnsafe?.user?.id;
 
-        <div class="balance-value">
-            ${amount.toLocaleString("uz-UZ")} UZS
-        </div>
+        if (!telegramId) {
+            alertUser(
+                "Telegram foydalanuvchisi aniqlanmadi."
+            );
+            return;
+        }
 
-        <div class="empty">
-            To‘lov tizimi keyingi bosqichda ulanadi.
-        </div>
-    `);
+        const response = await fetch(
+            "/api/topup/create",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    telegram_id: telegramId,
+                    amount: amount
+                })
+            }
+        );
+
+        const data =
+            await response.json();
+
+        if (!response.ok || !data.ok) {
+
+            alertUser(
+                data.error ||
+                "To‘lov yaratilmadi."
+            );
+
+            return;
+        }
+
+        if (data.payment_url) {
+
+            window.location.href =
+                data.payment_url;
+
+            return;
+        }
+
+        alertUser(
+            "To‘lov havolasi olinmadi."
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        alertUser(
+            "Server bilan aloqa qilishda xatolik."
+        );
+    }
 }
 function openBoost() {
 
