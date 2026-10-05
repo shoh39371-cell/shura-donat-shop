@@ -51,10 +51,6 @@ CHECKOUT_WEBHOOK_URL = os.getenv(
 )
 
 
-if not CHECKOUT_WEBHOOK_URL:
-    raise RuntimeError(
-        "CHECKOUT_WEBHOOK_URL is missing"
-    )
 RECEIPTS_DIR = Path(__file__).resolve().parent / "boost_receipts"
 RECEIPTS_DIR.mkdir(parents=True, exist_ok=True)
 
