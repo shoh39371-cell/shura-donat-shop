@@ -4474,7 +4474,7 @@ function openAddAccount() {
     `);
 }
 async function submitAccount() {
-
+    
     const title = document.getElementById("accountTitle")?.value.trim();
     const accountId = document.getElementById("accountId")?.value.trim();
     const price = document.getElementById("accountPrice")?.value;
@@ -4566,3 +4566,4 @@ async function submitAccount() {
         );
     }
 }
+console.log("APP JS LOADED");
