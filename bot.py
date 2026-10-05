@@ -353,16 +353,17 @@ async def create_account(
         )
     )
 
-    conn.commit()
+        conn.commit()
     conn.close()
 
     return {
         "success": True,
         "message": "Account added",
         "account_uid": account_uid
-}            
+    }
 
-    @app.delete("/api/accounts/{account_uid}")
+
+@app.delete("/api/accounts/{account_uid}")
 async def delete_account(
     account_uid: str,
     telegram_id: int
