@@ -50,10 +50,6 @@ CHECKOUT_WEBHOOK_URL = os.getenv(
     "CHECKOUT_WEBHOOK_URL"
 )
 
-if not CHECKOUT_API_KEY:
-    raise RuntimeError(
-        "CHECKOUT_API_KEY is missing"
-    )
 
 if not CHECKOUT_WEBHOOK_URL:
     raise RuntimeError(
