@@ -44,7 +44,7 @@ PLAYPAY_API = "https://playpay.uz/api/v1"
 
 PORT = int(os.getenv("PORT", "10000"))
 CARD_NUMBER = os.getenv("CARD_NUMBER")
-ADMIN_TELEGRAM_ID = os.getenv("ADMIN_TELEGRAM_ID")
+ADMIN_TELEGRAM_IDS = os.getenv("ADMIN_TELEGRAM_IDS", "")
 CHECKOUT_API_KEY = os.getenv("CHECKOUT_API_KEY")
 CHECKOUT_WEBHOOK_URL = os.getenv(
     "CHECKOUT_WEBHOOK_URL"
@@ -65,10 +65,14 @@ RECEIPTS_DIR.mkdir(parents=True, exist_ok=True)
 if not CARD_NUMBER:
     raise RuntimeError("CARD_NUMBER is missing")
 
-if not ADMIN_TELEGRAM_ID:
-    raise RuntimeError("ADMIN_TELEGRAM_ID is missing")
+if not ADMIN_TELEGRAM_IDS:
+    raise RuntimeError("ADMIN_TELEGRAM_IDS is missing")
 
-ADMIN_TELEGRAM_ID = int(ADMIN_TELEGRAM_ID)
+ADMIN_TELEGRAM_IDS = {
+    int(admin_id.strip())
+    for admin_id in ADMIN_TELEGRAM_IDS.split(",")
+    if admin_id.strip()
+}
 BASE_DIR = Path(__file__).resolve().parent
 WEBAPP_DIR = BASE_DIR / "webapp"
 WEBAPP_FILE = WEBAPP_DIR / "index.html"
